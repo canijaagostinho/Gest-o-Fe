@@ -60,7 +60,7 @@ export default function SignupPage() {
         toast.success("Bem-vindo!", {
           description: "Sua instituição foi criada com sucesso.",
         });
-        router.push("/");
+        router.push("/dashboard");
         router.refresh();
       }
     } catch (error) {

@@ -73,7 +73,7 @@ export default function LoginPage() {
       toast.success("Sucesso!", {
         description: "Redirecionando para o painel...",
       });
-      router.push("/");
+      router.push("/dashboard");
       router.refresh();
     } catch (error) {
       toast.error("Erro inesperado", {
