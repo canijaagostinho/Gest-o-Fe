@@ -1,0 +1,387 @@
+﻿
+> microcred-saas@0.1.0 lint
+> eslint
+
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\scripts\check-db.ts
+  20:13  warning  'data' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\scripts\get-columns.ts
+  12:13  warning  'data' is assigned a value but never used   @typescript-eslint/no-unused-vars
+  12:19  warning  'error' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  19:19  warning  'cols' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\app\(dashboard)\audit-logs\page.tsx
+  66:118  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  67:124  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\app\(dashboard)\clients\[id]\page.tsx
+   4:10  warning  'useRouter' is defined but never used       @typescript-eslint/no-unused-vars
+   7:5   warning  'User' is defined but never used            @typescript-eslint/no-unused-vars
+   9:5   warning  'Banknote' is defined but never used        @typescript-eslint/no-unused-vars
+  11:5   warning  'History' is defined but never used         @typescript-eslint/no-unused-vars
+  12:5   warning  'MoreHorizontal' is defined but never used  @typescript-eslint/no-unused-vars
+  14:5   warning  'Mail' is defined but never used            @typescript-eslint/no-unused-vars
+  15:5   warning  'Phone' is defined but never used           @typescript-eslint/no-unused-vars
+  16:5   warning  'MapPin' is defined but never used          @typescript-eslint/no-unused-vars
+  17:5   warning  'Calendar' is defined but never used        @typescript-eslint/no-unused-vars
+  18:5   warning  'Briefcase' is defined but never used       @typescript-eslint/no-unused-vars
+  19:5   warning  'BadgeCheck' is defined but never used      @typescript-eslint/no-unused-vars
+  20:5   warning  'AlertTriangle' is defined but never used   @typescript-eslint/no-unused-vars
+  21:5   warning  'CheckCircle2' is defined but never used    @typescript-eslint/no-unused-vars
+  35:42  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  36:40  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  37:46  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\app\(dashboard)\clients\client-form.tsx
+  76:18  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\app\(dashboard)\clients\columns.tsx
+   4:26  warning  'User' is defined but never used  @typescript-eslint/no-unused-vars
+   4:39  warning  'Mail' is defined but never used  @typescript-eslint/no-unused-vars
+  98:18  warning  'row' is defined but never used   @typescript-eslint/no-unused-vars
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\app\(dashboard)\clients\new\page.tsx
+    8:50  warning  'CreditCard' is defined but never used    @typescript-eslint/no-unused-vars
+    8:62  warning  'Calendar' is defined but never used      @typescript-eslint/no-unused-vars
+    8:83  warning  'Heart' is defined but never used         @typescript-eslint/no-unused-vars
+  115:25  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\app\(dashboard)\clients\page.tsx
+  5:16  warning  'Users' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\app\(dashboard)\institutions\[id]\edit\page.tsx
+  4:10  warning  'notFound' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\app\(dashboard)\institutions\[id]\page.tsx
+  6:29  warning  'Trash2' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\app\(dashboard)\institutions\columns.tsx
+  64:28  error  React Hook "useRouter" is called in function "cell" that is neither a React function component nor a custom React Hook function. React component names must start with an uppercase letter. React Hook names must start with the word "use"  react-hooks/rules-of-hooks
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\app\(dashboard)\layout.tsx
+   5:10  warning  'motion' is defined but never used           @typescript-eslint/no-unused-vars
+   5:18  warning  'AnimatePresence' is defined but never used  @typescript-eslint/no-unused-vars
+  40:52  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\app\(dashboard)\loans\[id]\page.tsx
+    7:5   warning  'CreditCard' is defined but never used            @typescript-eslint/no-unused-vars
+    8:5   warning  'Calendar' is defined but never used              @typescript-eslint/no-unused-vars
+    9:5   warning  'Users' is defined but never used                 @typescript-eslint/no-unused-vars
+   13:5   warning  'CheckCircle2' is defined but never used          @typescript-eslint/no-unused-vars
+   14:5   warning  'Clock' is defined but never used                 @typescript-eslint/no-unused-vars
+   15:5   warning  'AlertTriangle' is defined but never used         @typescript-eslint/no-unused-vars
+   18:5   warning  'Trash2' is defined but never used                @typescript-eslint/no-unused-vars
+   24:52  warning  'CardDescription' is defined but never used       @typescript-eslint/no-unused-vars
+   27:10  warning  'Tabs' is defined but never used                  @typescript-eslint/no-unused-vars
+   27:16  warning  'TabsContent' is defined but never used           @typescript-eslint/no-unused-vars
+   27:29  warning  'TabsList' is defined but never used              @typescript-eslint/no-unused-vars
+   27:39  warning  'TabsTrigger' is defined but never used           @typescript-eslint/no-unused-vars
+   46:10  warning  'payInstallmentAction' is defined but never used  @typescript-eslint/no-unused-vars
+   50:38  error    Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
+   51:54  error    Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
+   52:42  error    Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
+   56:68  error    Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
+  121:50  error    Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\app\(dashboard)\loans\columns.tsx
+  5:26  warning  'CreditCard' is defined but never used  @typescript-eslint/no-unused-vars
+  5:38  warning  'Calendar' is defined but never used    @typescript-eslint/no-unused-vars
+  5:48  warning  'ArrowRight' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\app\(dashboard)\loans\loan-form.tsx
+  50:46  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  98:18  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\app\(dashboard)\loans\new\page.tsx
+    8:37   warning  'Save' is defined but never used           @typescript-eslint/no-unused-vars
+    8:43   warning  'CreditCard' is defined but never used     @typescript-eslint/no-unused-vars
+    8:67   warning  'Calendar' is defined but never used       @typescript-eslint/no-unused-vars
+    8:103  warning  'AlertTriangle' is defined but never used  @typescript-eslint/no-unused-vars
+   48:64   error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+   53:44   error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+   54:50   error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+   57:46   error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  160:22   error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  167:73   error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  190:25   error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  222:36   warning  'idx' is defined but never used            @typescript-eslint/no-unused-vars
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\app\(dashboard)\loans\page.tsx
+   7:28  warning  'CalendarIcon' is defined but never used  @typescript-eslint/no-unused-vars
+  25:10  warning  'cn' is defined but never used            @typescript-eslint/no-unused-vars
+  34:40  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\app\(dashboard)\page.tsx
+   19:5   warning  'Calendar' is defined but never used        @typescript-eslint/no-unused-vars
+   20:5   warning  'Bell' is defined but never used            @typescript-eslint/no-unused-vars
+   36:38  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   49:42  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  234:11  warning  'today' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\app\(dashboard)\payments\columns.tsx
+   4:26  warning  'Banknote' is defined but never used    @typescript-eslint/no-unused-vars
+   4:36  warning  'Calendar' is defined but never used    @typescript-eslint/no-unused-vars
+  14:26  warning  'formatDate' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\app\(dashboard)\payments\new\page.tsx
+  129:25  error  Parsing error: ';' expected
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\app\(dashboard)\payments\page.tsx
+   8:16  warning  'Banknote' is defined but never used          @typescript-eslint/no-unused-vars
+   8:38  warning  'CalendarIcon' is defined but never used      @typescript-eslint/no-unused-vars
+  19:5   warning  'endOfYear' is defined but never used         @typescript-eslint/no-unused-vars
+  22:10  warning  'cn' is defined but never used                @typescript-eslint/no-unused-vars
+  28:46  error    Unexpected any. Specify a different type      @typescript-eslint/no-explicit-any
+  29:12  warning  'loading' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\app\(dashboard)\payments\payment-form.tsx
+  47:46  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  82:34  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\app\(dashboard)\profile\page.tsx
+   6:34  warning  'AvatarImage' is defined but never used                                                                      @typescript-eslint/no-unused-vars
+   8:16  warning  'User' is defined but never used                                                                             @typescript-eslint/no-unused-vars
+  12:44  error    Unexpected any. Specify a different type                                                                     @typescript-eslint/no-explicit-any
+  30:8   warning  React Hook useEffect has a missing dependency: 'supabase'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\app\(dashboard)\reports\page.tsx
+    9:5   warning  'Printer' is defined but never used             @typescript-eslint/no-unused-vars
+   26:10  warning  'exportToPDF' is defined but never used         @typescript-eslint/no-unused-vars
+   41:60  error    Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+   54:47  error    Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+   90:28  error    Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  140:25  error    Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  150:11  warning  'container' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\app\(dashboard)\settings\page.tsx
+    7:106  warning  'Upload' is defined but never used           @typescript-eslint/no-unused-vars
+   19:5    warning  'FormDescription' is defined but never used  @typescript-eslint/no-unused-vars
+   22:10   warning  'Select' is defined but never used           @typescript-eslint/no-unused-vars
+   47:50   error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+   58:48   error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+   71:44   error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  129:25   error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  266:83   error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  269:108  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  279:83   error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  282:108  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  301:78   error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\app\(dashboard)\users\cell-action.tsx
+  19:12  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  24:12  warning  'loading' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  24:21  warning  'setLoading' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  27:11  warning  'onConfirm' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\app\(dashboard)\users\columns.tsx
+  22:76  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\app\(dashboard)\users\edit-user-sheet.tsx
+  12:5   warning  'SheetHeader' is defined but never used   @typescript-eslint/no-unused-vars
+  54:11  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  57:12  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\app\(dashboard)\users\new\page.tsx
+   20:32  warning  'Mail' is defined but never used          @typescript-eslint/no-unused-vars
+   20:38  warning  'Lock' is defined but never used          @typescript-eslint/no-unused-vars
+   20:50  warning  'Building' is defined but never used      @typescript-eslint/no-unused-vars
+   20:60  warning  'Users' is defined but never used         @typescript-eslint/no-unused-vars
+   42:54  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   43:40  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   75:20  warning  'checkLimits' is defined but never used   @typescript-eslint/no-unused-vars
+  131:25  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\app\(dashboard)\users\page.tsx
+   20:49  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   21:44  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   41:57  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   42:55  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   42:93  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  139:64  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\app\(dashboard)\users\user-client.tsx
+  9:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\app\actions\institution-actions.ts
+   29:14  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+   29:21  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   56:14  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+   56:21  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   78:14  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+   78:21  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  100:14  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+  100:21  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\app\actions\loan-actions.ts
+  10:87  warning  'paymentDate' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  39:51  error    Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
+  51:21  error    Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
+  60:45  warning  'loanId' is defined but never used                @typescript-eslint/no-unused-vars
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\app\actions\user-actions.ts
+    9:46  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   49:58  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  154:17  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  161:46  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  190:53  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  212:28  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  229:17  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\app\auth\login\page.tsx
+  60:18  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\app\auth\signup\page.tsx
+  11:10  warning  'Loader2' is defined but never used  @typescript-eslint/no-unused-vars
+  49:18  warning  'error' is defined but never used    @typescript-eslint/no-unused-vars
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\components\dashboard\gauge-chart.tsx
+   3:52  warning  'Tooltip' is defined but never used            @typescript-eslint/no-unused-vars
+  24:11  warning  'rotation' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\components\dashboard\global-dashboard.tsx
+   6:28  warning  'CreditCard' is defined but never used        @typescript-eslint/no-unused-vars
+   6:64  warning  'TrendingUp' is defined but never used        @typescript-eslint/no-unused-vars
+  17:35  error    Unexpected any. Specify a different type      @typescript-eslint/no-explicit-any
+  19:12  warning  'loading' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\components\dashboard\portfolio-classification.tsx
+  14:11  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\components\dashboard\revenue-trend-chart.tsx
+  51:40  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\components\dashboard\risk-chart.tsx
+  35:53  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\components\dashboard\risk-indicators.tsx
+  38:53  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\components\header.tsx
+  26:47  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\components\institutions\institution-form.tsx
+  5:13  warning  'z' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\components\loans\loan-export-actions.tsx
+    9:10  warning  'formatCurrency' is defined but never used       @typescript-eslint/no-unused-vars
+   63:43  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+   64:23  warning  'paidAmount' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   65:33  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+   66:49  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+   68:80  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  126:25  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\components\loans\loan-payment-modal.tsx
+  17:18  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  49:18  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\components\loans\loan-simulator.tsx
+    3:10  warning  'useMemo' is defined but never used       @typescript-eslint/no-unused-vars
+    5:32  warning  'AlertCircle' is defined but never used   @typescript-eslint/no-unused-vars
+    5:51  warning  'CheckCircle2' is defined but never used  @typescript-eslint/no-unused-vars
+   22:54  warning  'frequency' is defined but never used     @typescript-eslint/no-unused-vars
+  181:64  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\components\reports\delinquent-clients-report.tsx
+   4:10  warning  'motion' is defined but never used        @typescript-eslint/no-unused-vars
+   6:5   warning  'AlertCircle' is defined but never used   @typescript-eslint/no-unused-vars
+   9:5   warning  'Printer' is defined but never used       @typescript-eslint/no-unused-vars
+  39:43  warning  'dateRange' is defined but never used     @typescript-eslint/no-unused-vars
+  39:54  warning  'status' is defined but never used        @typescript-eslint/no-unused-vars
+  51:23  warning  'pdf' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\components\reports\financial-report.tsx
+    4:10  warning  'motion' is defined but never used        @typescript-eslint/no-unused-vars
+   35:35  warning  'dateRange' is defined but never used     @typescript-eslint/no-unused-vars
+   35:46  warning  'status' is defined but never used        @typescript-eslint/no-unused-vars
+  157:50  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\components\reports\global-reports.tsx
+   8:5   warning  'CreditCard' is defined but never used      @typescript-eslint/no-unused-vars
+  10:5   warning  'Users' is defined but never used           @typescript-eslint/no-unused-vars
+  13:5   warning  'AlertTriangle' is defined but never used   @typescript-eslint/no-unused-vars
+  26:29  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  33:27  warning  'error' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\components\reports\portfolio-evolution-report.tsx
+    5:5   warning  'LineChart' is defined but never used        @typescript-eslint/no-unused-vars
+   18:10  warning  'Download' is defined but never used         @typescript-eslint/no-unused-vars
+   18:30  warning  'Printer' is defined but never used          @typescript-eslint/no-unused-vars
+   34:44  warning  'dateRange' is defined but never used        @typescript-eslint/no-unused-vars
+   34:55  warning  'status' is defined but never used           @typescript-eslint/no-unused-vars
+   34:63  warning  'institutionData' is defined but never used  @typescript-eslint/no-unused-vars
+  116:50  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\components\reports\report-filters.tsx
+  4:10  warning  'CalendarIcon' is defined but never used  @typescript-eslint/no-unused-vars
+  5:18  warning  'subDays' is defined but never used       @typescript-eslint/no-unused-vars
+  9:10  warning  'cn' is defined but never used            @typescript-eslint/no-unused-vars
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\components\settings\institution-form.tsx
+   15:5   warning  'Check' is defined but never used                                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+   26:10  warning  'Tabs' is defined but never used                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+   26:16  warning  'TabsContent' is defined but never used                                                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
+   26:29  warning  'TabsList' is defined but never used                                                                                                                                                                                                                                                     @typescript-eslint/no-unused-vars
+   26:39  warning  'TabsTrigger' is defined but never used                                                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
+   36:69  warning  'CardFooter' is defined but never used                                                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+  154:48  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  170:49  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  228:25  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  269:25  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  322:33  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\components\sidebar.tsx
+   22:10  warning  'Card' is defined but never used                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+   23:10  warning  'Button' is defined but never used                                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+   28:5   warning  'DialogHeader' is defined but never used                                                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+   58:52  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  203:29  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\components\ui\calendar.tsx
+  63:33  warning  'props' is defined but never used         @typescript-eslint/no-unused-vars
+  64:34  warning  'props' is defined but never used         @typescript-eslint/no-unused-vars
+  65:18  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\components\ui\data-table.tsx
+  32:19  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\components\ui\data-table.tsx:32:19
+  30 |     data,
+  31 | }: DataTableProps<TData, TValue>) {
+> 32 |     const table = useReactTable({
+     |                   ^^^^^^^^^^^^^ TanStack Table's `useReactTable()` API returns functions that cannot be memoized safely
+  33 |         data,
+  34 |         columns,
+  35 |         getCoreRowModel: getCoreRowModel(),  react-hooks/incompatible-library
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\components\ui\select.tsx
+  7:18  error  An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\components\user-nav.tsx
+  53:8  warning  React Hook useEffect has a missing dependency: 'supabase'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\lib\export-utils.ts
+   8:30  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  18:11  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  50:11  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\services\pdf-service.ts
+   73:13  error    'startY' is never reassigned. Use 'const' instead  prefer-const
+   73:13  warning  'startY' is assigned a value but never used        @typescript-eslint/no-unused-vars
+  234:32  error    Unexpected any. Specify a different type           @typescript-eslint/no-explicit-any
+  438:48  error    Unexpected any. Specify a different type           @typescript-eslint/no-explicit-any
+  453:44  error    Unexpected any. Specify a different type           @typescript-eslint/no-explicit-any
+  454:77  error    Unexpected any. Specify a different type           @typescript-eslint/no-explicit-any
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\src\utils\supabase\middleware.ts
+  19:58  warning  'options' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\HEDWIG DA FATIMA\Desktop\gestao\MicrocreditoSaas\tailwind.config.js
+  60:15  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+Ô£û 244 problems (101 errors, 143 warnings)
+  1 error and 0 warnings potentially fixable with the `--fix` option.
+

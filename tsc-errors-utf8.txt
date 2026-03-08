@@ -1,0 +1,2 @@
+﻿src/app/actions/loan-actions.ts(290,33): error TS2339: Property 'image_url' does not exist on type 'Partial<LoanCollateral>'.
+src/app/actions/loan-actions.ts(384,29): error TS2353: Object literal may only specify known properties, and 'loanId' does not exist in type 'ActionResponse<{ loanId: string; }>'.

@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MicroCredit SaaS — Dashboard Redesign Wireframe</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Comic Sans MS', 'Segoe UI', sans-serif;
+      background: #f5f5f5;
+      color: #333;
+      padding: 20px;
+    }
+
+    .wireframe-title {
+      text-align: center;
+      padding: 20px;
+      margin-bottom: 30px;
+      border-bottom: 3px solid #999;
+    }
+    .wireframe-title h1 { font-size: 22px; color: #333; }
+    .wireframe-title p { font-size: 13px; color: #666; margin-top: 6px; }
+
+    .layout { display: flex; gap: 0; min-height: 100vh; }
+
+    /* Sidebar */
+    .sidebar {
+      width: 260px;
+      background: #fff;
+      border-right: 2px solid #ccc;
+      padding: 24px 16px;
+      flex-shrink: 0;
+    }
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 32px;
+      padding: 0 8px;
+    }
+    .sidebar-logo .logo-box {
+      width: 40px;
+      height: 40px;
+      background: #999;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: bold;
+      font-size: 18px;
+    }
+    .sidebar-logo .logo-text {
+      font-weight: bold;
+      font-size: 16px;
+    }
+    .sidebar-logo .logo-sub {
+      font-size: 9px;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      margin-bottom: 4px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: bold;
+      color: #999;
+      cursor: pointer;
+    }
+    .nav-item.active {
+      background: #eee;
+      color: #333;
+      border-left: 3px solid #666;
+    }
+    .nav-item .icon {
+      width: 20px;
+      height: 20px;
+      background: #ddd;
+      border-radius: 4px;
+    }
+    .nav-item.active .icon { background: #999; }
+
+    .support-card {
+      background: #333;
+      color: #fff;
+      padding: 16px;
+      border-radius: 16px;
+      margin-top: 40px;
+    }
+    .support-card .title { font-size: 12px; font-weight: bold; }
+    .support-card .sub { font-size: 9px; color: #aaa; margin-top: 4px; }
+
+    /* Main Content */
+    .main {
+      flex: 1;
+      padding: 0;
+      background: #f5f5f5;
+      max-width: 1100px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 32px;
+      background: #fff;
+      border-bottom: 2px solid #e0e0e0;
+    }
+    .search-box {
+      width: 360px;
+      height: 38px;
+      border: 2px solid #ccc;
+      border-radius: 20px;
+      padding: 0 16px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      color: #999;
+    }
+    .search-box::before { content: '🔍 '; }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .header-btn {
+      padding: 8px 16px;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: bold;
+      background: #fff;
+      cursor: pointer;
+    }
+    .header-btn.primary {
+      background: #666;
+      color: #fff;
+      border-color: #666;
+    }
+    .avatar {
+      width: 34px;
+      height: 34px;
+      background: #ddd;
+      border-radius: 50%;
+    }
+    .notif-icon {
+      width: 34px;
+      height: 34px;
+      background: #eee;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      position: relative;
+    }
+    .notif-dot {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 8px;
+      height: 8px;
+      background: #999;
+      border-radius: 50%;
+    }
+
+    /* Page Content */
+    .page-content { padding: 28px 32px; }
+
+    /* Reuse Badge */
+    .badge-reuse {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: #4CAF50;
+      color: white;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 9px;
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+      z-index: 10;
+      white-space: nowrap;
+    }
+    .badge-new {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: #FF9800;
+      color: white;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 9px;
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+      z-index: 10;
+      white-space: nowrap;
+    }
+
+    /* Welcome Section */
+    .welcome-section {
+      background: #666;
+      color: #fff;
+      border-radius: 16px;
+      padding: 28px 32px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+    }
+    .welcome-section h2 { font-size: 22px; margin-bottom: 6px; }
+    .welcome-section p { font-size: 12px; color: #ccc; max-width: 500px; }
+    .welcome-actions { display: flex; gap: 8px; margin-top: 14px; }
+    .welcome-btn {
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+    }
+    .welcome-btn.light { background: #fff; color: #333; }
+    .welcome-btn.outline { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.3); }
+    .welcome-stats {
+      display: flex;
+      gap: 24px;
+      border-left: 1px solid rgba(255,255,255,0.2);
+      padding-left: 24px;
+    }
+    .welcome-stat { text-align: right; }
+    .welcome-stat .label { font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: #ccc; }
+    .welcome-stat .value { font-size: 20px; font-weight: bold; margin-top: 2px; }
+
+    /* Alert Bar — REDESIGNED */
+    .alert-bar {
+      background: #fff;
+      border: 2px solid #e0e0e0;
+      border-radius: 14px;
+      padding: 16px 24px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      position: relative;
+    }
+    .alert-icon {
+      width: 44px;
+      height: 44px;
+      background: #eee;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .alert-content { flex: 1; }
+    .alert-content .title { font-size: 13px; font-weight: bold; }
+    .alert-content .desc { font-size: 11px; color: #999; margin-top: 2px; }
+    .alert-action {
+      padding: 8px 16px;
+      border: 2px solid #ccc;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: bold;
+      background: #fff;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .alert-dots {
+      display: flex;
+      gap: 4px;
+      position: absolute;
+      top: 8px;
+      right: 12px;
+    }
+    .alert-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #ddd;
+    }
+    .alert-dot.active { background: #666; width: 16px; border-radius: 3px; }
+    .alert-a11y {
+      font-size: 9px;
+      color: #4CAF50;
+      font-family: Arial, sans-serif;
+      position: absolute;
+      bottom: 4px;
+      right: 12px;
+    }
+
+    /* KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .kpi-card {
+      background: #fff;
+      border: 2px solid #e0e0e0;
+      border-radius: 14px;
+      padding: 20px;
+      position: relative;
+    }
+    .kpi-icon {
+      width: 44px;
+      height: 44px;
+      background: #eee;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    .kpi-label {
+      font-size: 11px;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    .kpi-value {
+      font-size: 22px;
+      font-weight: bold;
+      color: #333;
+    }
+    .kpi-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 10px;
+      padding: 3px 10px;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: bold;
+      color: #666;
+    }
+
+    /* Charts Grid */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .chart-card {
+      background: #fff;
+      border: 2px solid #e0e0e0;
+      border-radius: 14px;
+      padding: 24px;
+      position: relative;
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+    .chart-header h3 { font-size: 16px; font-weight: bold; }
+    .chart-header p { font-size: 11px; color: #999; margin-top: 2px; }
+    .chart-tag {
+      font-size: 9px;
+      background: #eee;
+      padding: 4px 10px;
+      border-radius: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: bold;
+      color: #666;
+    }
+    .chart-placeholder {
+      background: #f9f9f9;
+      border: 2px dashed #ddd;
+      border-radius: 8px;
+      height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #aaa;
+      font-size: 13px;
+    }
+
+    /* Risk Indicators */
+    .risk-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .risk-item .left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .risk-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .risk-item .name { font-size: 12px; font-weight: bold; }
+    .risk-item .sub { font-size: 9px; color: #999; }
+    .risk-item .value { font-size: 14px; font-weight: bold; text-align: right; }
+    .risk-item .pct { font-size: 9px; color: #999; }
+    .risk-bar {
+      width: 100%;
+      height: 6px;
+      background: #eee;
+      border-radius: 3px;
+      margin-top: 6px;
+      margin-bottom: 16px;
+    }
+    .risk-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: #999;
+    }
+
+    /* Modules Grid — REDESIGNED as list */
+    .modules-section {
+      margin-bottom: 24px;
+    }
+    .modules-section h3 {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    .modules-section .sub {
+      font-size: 11px;
+      color: #999;
+      margin-bottom: 16px;
+    }
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+    }
+    .module-card {
+      background: #fff;
+      border: 2px solid #e0e0e0;
+      border-radius: 14px;
+      padding: 20px 12px;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+    }
+    .module-icon {
+      width: 48px;
+      height: 48px;
+      background: #eee;
+      border-radius: 14px;
+      margin: 0 auto 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+    .module-card .name { font-size: 12px; font-weight: bold; }
+    .module-card .desc { font-size: 9px; color: #999; margin-top: 2px; }
+
+    /* Priorities Section — REDESIGNED */
+    .priorities-section {
+      position: relative;
+    }
+    .priority-card {
+      background: #fff;
+      border: 2px solid #e0e0e0;
+      border-radius: 14px;
+      padding: 24px;
+      position: relative;
+    }
+    .priority-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .priority-header h3 { font-size: 16px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+    .priority-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      background: #f9f9f9;
+      border: 1px solid #eee;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+    .priority-item .left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .priority-count {
+      width: 48px;
+      height: 48px;
+      background: #eee;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .priority-item .title { font-size: 13px; font-weight: bold; }
+    .priority-item .desc { font-size: 11px; color: #999; margin-top: 2px; }
+    .priority-arrow { font-size: 18px; color: #ccc; }
+
+    /* Annotations */
+    .annotation {
+      position: absolute;
+      background: #ffffcc;
+      border: 1px solid #e6e600;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 9px;
+      font-family: Arial, sans-serif;
+      color: #666600;
+      z-index: 20;
+      max-width: 180px;
+      line-height: 1.3;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .layout { flex-direction: column; }
+      .sidebar { width: 100%; border-right: none; border-bottom: 2px solid #ccc; }
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .charts-grid { grid-template-columns: 1fr; }
+      .modules-grid { grid-template-columns: repeat(3, 1fr); }
+      .welcome-section { flex-direction: column; }
+      .welcome-stats { border-left: none; border-top: 1px solid rgba(255,255,255,0.2); padding-left: 0; padding-top: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="wireframe-title">
+  <h1>📐 MicroCredit SaaS — Dashboard Redesign Wireframe</h1>
+  <p>Balanced approach: reuses existing components, fixes critical issues (accessibility, broken links, data), and improves consistency</p>
+</div>
+
+<div class="layout">
+
+  <!-- ==================== SIDEBAR ==================== -->
+  <!-- REUSABLE: Sidebar from src/components/sidebar.tsx -->
+  <div class="sidebar" style="position: relative;">
+    <span class="badge-reuse" style="top: 4px; right: 4px;" title="src/components/sidebar.tsx">[REUSE] Sidebar</span>
+
+    <div class="sidebar-logo">
+      <div class="logo-box">M</div>
+      <div>
+        <div class="logo-text">MicroCred</div>
+        <div class="logo-sub">Enterprise</div>
+      </div>
+    </div>
+
+    <div class="nav-item active">
+      <div class="icon"></div>
+      Painel Principal
+    </div>
+    <div class="nav-item">
+      <div class="icon"></div>
+      Clientes
+    </div>
+    <div class="nav-item">
+      <div class="icon"></div>
+      Empréstimos
+    </div>
+    <div class="nav-item">
+      <div class="icon"></div>
+      Pagamentos
+    </div>
+    <div class="nav-item">
+      <div class="icon"></div>
+      Notificações
+    </div>
+    <div class="nav-item">
+      <div class="icon"></div>
+      Caixas
+    </div>
+    <div class="nav-item">
+      <div class="icon"></div>
+      Relatórios
+    </div>
+    <div class="nav-item">
+      <div class="icon"></div>
+      Configurações
+    </div>
+
+    <div class="support-card">
+      <div class="title">🎧 Ajuda Especializada</div>
+      <div class="sub">● Suporte Online</div>
+    </div>
+  </div>
+
+  <!-- ==================== MAIN ==================== -->
+  <div class="main">
+
+    <!-- Header -->
+    <!-- REUSABLE: Header from src/components/header.tsx -->
+    <div class="header" style="position: relative;">
+      <span class="badge-reuse" style="top: 4px; right: 4px;" title="src/components/header.tsx">[REUSE] Header</span>
+
+      <div class="search-box">Pesquisar clientes, empréstimos...</div>
+
+      <div class="header-actions">
+        <div class="header-btn">💲 Registrar Pagamento</div>
+        <div class="header-btn primary">＋ Novo Empréstimo</div>
+        <div style="width:1px; height:30px; background:#e0e0e0;"></div>
+        <div class="notif-icon">🔔<div class="notif-dot"></div></div>
+        <!-- REUSABLE: UserNav from src/components/user-nav.tsx -->
+        <div class="avatar" style="position: relative;">
+          <span class="badge-reuse" style="top: -10px; right: -30px; font-size: 8px;" title="src/components/user-nav.tsx">[REUSE] UserNav</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Page Content -->
+    <div class="page-content">
+
+      <!-- ===== WELCOME HERO (Uses Link on buttons) ===== -->
+      <!-- REUSABLE: Card from src/components/ui/card.tsx + Button from src/components/ui/button.tsx -->
+      <div class="welcome-section" style="position: relative;">
+        <span class="badge-reuse" style="top: 4px; right: 4px;" title="src/components/ui/card.tsx">[REUSE] Card + Button</span>
+
+        <div>
+          <div style="display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,0.15); padding:3px 10px; border-radius:20px; font-size:9px; letter-spacing:1px; margin-bottom:10px;">
+            <span style="width:6px;height:6px;border-radius:50%;background:#9f9;"></span>
+            MICROCRED ENTERPRISE
+          </div>
+          <h2>Bem-vindo, Gestor</h2>
+          <p>Aqui está o pulso da sua carteira de microcrédito hoje.</p>
+          <div class="welcome-actions">
+            <div class="welcome-btn light">＋ Novo Empréstimo</div>
+            <div class="welcome-btn outline">Ver Relatórios</div>
+          </div>
+          <!-- FIX ANNOTATION -->
+          <div class="annotation" style="bottom: -30px; left: 0;">
+            ✅ FIX: Buttons now wrapped in &lt;Link&gt; — navigates to /loans/new and /reports
+          </div>
+        </div>
+
+        <div class="welcome-stats">
+          <div class="welcome-stat">
+            <div class="label">Crescimento</div>
+            <div class="value">+12.5%</div>
+          </div>
+          <div class="welcome-stat">
+            <div class="label">Eficiência</div>
+            <div class="value">94.2%</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:12px;"></div>
+
+      <!-- ===== ALERT BAR (Accessible Carousel) ===== -->
+      <!-- NEW COMPONENT: AccessibleAlertCarousel -->
+      <div class="alert-bar" style="position: relative;">
+        <span class="badge-new" style="top: -8px; right: -8px;" title="NEW: src/components/dashboard/alert-carousel.tsx">[NEW] AccessibleAlertCarousel</span>
+
+        <div class="alert-dots">
+          <div class="alert-dot active"></div>
+          <div class="alert-dot"></div>
+          <div class="alert-dot"></div>
+        </div>
+
+        <div class="alert-icon">⚠️</div>
+        <div class="alert-content">
+          <div class="title">Complete o Perfil da Instituição</div>
+          <div class="desc">Algumas informações importantes (NUIT, Endereço) estão faltando.</div>
+        </div>
+        <div class="alert-action">Completar Agora →</div>
+        <div class="alert-a11y">✅ aria-live="polite" + keyboard nav + pause on hover</div>
+      </div>
+
+      <!-- ===== KPI CARDS ===== -->
+      <!-- REUSABLE: Card from src/components/ui/card.tsx -->
+      <div class="kpi-grid">
+
+        <div class="kpi-card" style="position: relative;">
+          <span class="badge-reuse" style="top: -8px; right: -8px;" title="src/components/ui/card.tsx">[REUSE] Card</span>
+          <div class="kpi-icon">💼</div>
+          <div class="kpi-label">Carteira Ativa</div>
+          <div class="kpi-value">MT 125.000,00</div>
+          <div class="kpi-badge">↗ +12.5% mês</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon">💰</div>
+          <div class="kpi-label">Total Recebido</div>
+          <div class="kpi-value">MT 89.450,00</div>
+          <div class="kpi-badge">↗ Recebido</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon">⏰</div>
+          <div class="kpi-label">A Receber (30D)</div>
+          <div class="kpi-value">MT 35.550,00</div>
+          <div class="kpi-badge">Fluxo Previsto</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon">⚡</div>
+          <div class="kpi-label">Risco da Carteira</div>
+          <div class="kpi-value">2.4%</div>
+          <div class="kpi-badge">↘ Excelente</div>
+          <!-- Annotation for minimum font size -->
+          <div class="annotation" style="bottom: -26px; left: 0;">
+            ✅ FIX: Labels agora 12px min (text-xs) — WCAG compliant
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ===== CHARTS ROW ===== -->
+      <div class="charts-grid">
+
+        <!-- Main Chart -->
+        <!-- REUSABLE: ChartContainer from shadcn + AreaChart from recharts -->
+        <div class="chart-card" style="position: relative;">
+          <span class="badge-new" style="top: -8px; right: -8px;" title="Migrate to ChartContainer">[FIX] Use ChartContainer</span>
+
+          <div class="chart-header">
+            <div>
+              <h3>Evolução da Carteira</h3>
+              <p>Crescimento do volume emprestado vs. recebido</p>
+            </div>
+            <div class="chart-tag">Semestral</div>
+          </div>
+          <div class="chart-placeholder">
+            [AreaChart — Emprestado ● / Recebido ●]
+            <br><br>
+            <span style="font-size:10px; color:#4CAF50;">✅ FIX: Use REAL data from Supabase instead of mock</span>
+          </div>
+          <!-- Accessibility annotation -->
+          <div class="annotation" style="bottom: -26px; left: 0;">
+            ✅ FIX: Add role="img" aria-label + SR-only data table
+          </div>
+        </div>
+
+        <!-- Risk Chart + Indicators -->
+        <!-- REUSABLE: RiskChart from src/components/dashboard/risk-chart.tsx -->
+        <div class="chart-card" style="position: relative;">
+          <span class="badge-reuse" style="top: -8px; right: -8px;" title="src/components/dashboard/risk-chart.tsx">[REUSE] RiskChart</span>
+
+          <div class="chart-header">
+            <div>
+              <h3>Status de Risco</h3>
+              <p>Distribuição de contratos por atraso</p>
+            </div>
+          </div>
+
+          <div class="chart-placeholder" style="height:140px;">
+            [PieChart — Donut]
+          </div>
+
+          <div style="margin-top:20px;">
+            <!-- REUSABLE: RiskIndicators from src/components/dashboard/risk-indicators.tsx -->
+            <div style="position: relative; display: inline-block; width: 100%;">
+              <span class="badge-reuse" style="top: -8px; right: -8px;" title="src/components/dashboard/risk-indicators.tsx">[REUSE] RiskIndicators</span>
+
+              <div class="risk-item">
+                <div class="left">
+                  <div class="risk-dot" style="background:#999;"></div>
+                  <div>
+                    <div class="name">Saudável</div>
+                    <div class="sub">0-30 DIAS</div>
+                  </div>
+                </div>
+                <div><div class="value">MT 5.200</div><div class="pct">65% do total</div></div>
+              </div>
+              <div class="risk-bar"><div class="risk-bar-fill" style="width:65%;"></div></div>
+
+              <div class="risk-item">
+                <div class="left">
+                  <div class="risk-dot" style="background:#aaa;"></div>
+                  <div>
+                    <div class="name">Atenção</div>
+                    <div class="sub">31-60 DIAS</div>
+                  </div>
+                </div>
+                <div><div class="value">MT 1.800</div><div class="pct">22% do total</div></div>
+              </div>
+              <div class="risk-bar"><div class="risk-bar-fill" style="width:22%;"></div></div>
+
+              <div class="risk-item">
+                <div class="left">
+                  <div class="risk-dot" style="background:#666;"></div>
+                  <div>
+                    <div class="name">Crítico</div>
+                    <div class="sub">+90 DIAS</div>
+                  </div>
+                </div>
+                <div><div class="value">MT 1.000</div><div class="pct">13% do total</div></div>
+              </div>
+              <div class="risk-bar"><div class="risk-bar-fill" style="width:13%;"></div></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ===== MODULES GRID ===== -->
+      <div class="modules-section">
+        <h3>Módulos e Ações</h3>
+        <div class="sub">Acesso rápido às ferramentas essenciais.</div>
+
+        <div class="modules-grid">
+          <!-- REUSABLE: Card from src/components/ui/card.tsx + Link wrapping entire card -->
+          <div class="module-card" style="position: relative;">
+            <span class="badge-reuse" style="top: -8px; right: -8px; font-size: 8px;" title="src/components/ui/card.tsx">[REUSE] Card</span>
+            <div class="module-icon">💳</div>
+            <div class="name">Novo Empréstimo</div>
+            <div class="desc">Contratos</div>
+          </div>
+          <div class="module-card">
+            <div class="module-icon">👥</div>
+            <div class="name">Clientes</div>
+            <div class="desc">Base CRM</div>
+          </div>
+          <div class="module-card">
+            <div class="module-icon">💰</div>
+            <div class="name">Pagamentos</div>
+            <div class="desc">Baixar</div>
+          </div>
+          <div class="module-card">
+            <div class="module-icon">📊</div>
+            <div class="name">Relatórios</div>
+            <div class="desc">Análise</div>
+          </div>
+          <div class="module-card">
+            <div class="module-icon">🏢</div>
+            <div class="name">Instituição</div>
+            <div class="desc">Branding</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PRIORITIES (Real Data) ===== -->
+      <!-- NEW COMPONENT: PrioritiesCard (fetches real data) -->
+      <div class="priorities-section">
+        <div class="priority-card" style="position: relative;">
+          <span class="badge-new" style="top: -8px; right: -8px;" title="NEW: src/components/dashboard/priorities-card.tsx">[NEW] PrioritiesCard</span>
+
+          <div class="priority-header">
+            <h3>⚠️ Prioridades do Dia</h3>
+            <div class="alert-action">Central de Alertas →</div>
+          </div>
+
+          <div class="priority-item">
+            <div class="left">
+              <div class="priority-count">{ n }</div>
+              <div>
+                <div class="title">Parcelas Vencidas</div>
+                <div class="desc">Acompanhamento necessário para { valor real }</div>
+              </div>
+            </div>
+            <div class="priority-arrow">›</div>
+          </div>
+
+          <div class="priority-item">
+            <div class="left">
+              <div class="priority-count">{ n }</div>
+              <div>
+                <div class="title">Aprovações Pendentes</div>
+                <div class="desc">Novos clientes aguardando revisão.</div>
+              </div>
+            </div>
+            <div class="priority-arrow">›</div>
+          </div>
+
+          <!-- Annotation -->
+          <div class="annotation" style="bottom: -28px; left: 0;">
+            ✅ FIX: Data fetched from Supabase in real-time (overdue count, pending approvals). No more hardcoded "15" and "MT 4.560"
+          </div>
+        </div>
+      </div>
+
+      <div style="height: 60px;"></div>
+
+      <!-- ===== DESIGN NOTES ===== -->
+      <div style="background: #fff; border: 2px solid #e0e0e0; border-radius: 14px; padding: 24px; margin-bottom: 24px;">
+        <h3 style="font-size: 15px; margin-bottom: 14px;">📋 Key Changes in This Redesign</h3>
+        <ul style="font-size: 12px; line-height: 2; color: #666; list-style: none; padding: 0;">
+          <li>🔴 <b>CRITICAL FIX:</b> Hero buttons wrapped in &lt;Link&gt; — now navigate to /loans/new and /reports</li>
+          <li>🔴 <b>CRITICAL FIX:</b> All text-[10px] upgraded to text-xs (12px) minimum for WCAG compliance</li>
+          <li>🔴 <b>CRITICAL FIX:</b> Alert carousel has aria-live, keyboard nav (← →), pause on hover/focus</li>
+          <li>🔴 <b>CRITICAL FIX:</b> Charts have role="img" + aria-label + screen-reader data table</li>
+          <li>🟠 <b>HIGH FIX:</b> "Prioridades do Dia" fetches real overdue/pending counts from Supabase</li>
+          <li>🟠 <b>HIGH FIX:</b> OverviewChart uses real loan data instead of static mock array</li>
+          <li>🟡 <b>MEDIUM FIX:</b> Standardized border-radius to 3 tiers: 12px (md), 16px (lg), 24px (xl)</li>
+          <li>🟡 <b>MEDIUM FIX:</b> Charts migrated to shadcn ChartContainer</li>
+          <li>⚪ <b>NEW:</b> UserContext provider eliminates 4x duplicate getUser() queries</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
