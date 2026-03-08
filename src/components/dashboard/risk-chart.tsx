@@ -39,12 +39,12 @@ export function RiskChart() {
       // Fetch all installments with their loan info
       let query = supabase
         .from("installments")
-        .select("*, loan:loans(institution_id)")
+        .select("*")
         .eq("status", "pending");
 
       // Filter by institution if not admin_geral
       if (!isAdminGeral && userData?.institution_id) {
-        query = query.eq("loan.institution_id", userData.institution_id);
+        query = query.eq("institution_id", userData.institution_id);
       }
 
       const { data: installments } = await query;

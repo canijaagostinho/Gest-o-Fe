@@ -72,7 +72,7 @@ export default function LandingPage() {
                                 Login
                             </Button>
                         </Link>
-                        <Link href="/auth/register">
+                        <Link href="/auth/signup">
                             <Button className="bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl px-6 h-10 shadow-lg shadow-blue-600/20 transition-all hover:scale-105 active:scale-95">
                                 Teste Grátis
                             </Button>
@@ -320,7 +320,7 @@ export default function LandingPage() {
                                     <li className="flex items-center gap-3"><CheckCircle2 className="h-4 w-4 text-blue-500" /> Motor de Crédito Avançado</li>
                                     <li className="flex items-center gap-3"><CheckCircle2 className="h-4 w-4 text-blue-500" /> Dashboard Analytics</li>
                                 </ul>
-                                <Link href="/auth/register">
+                                <Link href="/auth/signup">
                                     <Button className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-2xl h-12">
                                         Assinar Plano
                                     </Button>
@@ -344,7 +344,7 @@ export default function LandingPage() {
                                     <li className="flex items-center gap-3"><CheckCircle2 className="h-4 w-4 text-blue-300" /> Dashboard Analytics</li>
                                     <li className="flex items-center gap-3"><CheckCircle2 className="h-4 w-4 text-blue-300" /> Suporte Prioritário</li>
                                 </ul>
-                                <Link href="/auth/register">
+                                <Link href="/auth/signup">
                                     <Button className="w-full bg-white hover:bg-slate-100 text-indigo-700 font-black rounded-2xl h-12 shadow-lg">
                                         Assinar Plano
                                     </Button>
@@ -365,7 +365,7 @@ export default function LandingPage() {
                                     <li className="flex items-center gap-3"><CheckCircle2 className="h-4 w-4 text-blue-500" /> Dashboard Analytics</li>
                                     <li className="flex items-center gap-3"><CheckCircle2 className="h-4 w-4 text-blue-500" /> Economia de 1.195 MTN</li>
                                 </ul>
-                                <Link href="/auth/register">
+                                <Link href="/auth/signup">
                                     <Button className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-2xl h-12">
                                         Assinar Plano
                                     </Button>
@@ -386,7 +386,7 @@ export default function LandingPage() {
                                     <li className="flex items-center gap-3"><CheckCircle2 className="h-4 w-4 text-blue-500" /> Dashboard Analytics</li>
                                     <li className="flex items-center gap-3"><CheckCircle2 className="h-4 w-4 text-blue-500" /> Máxima Economia (3.589 MTN)</li>
                                 </ul>
-                                <Link href="/auth/register">
+                                <Link href="/auth/signup">
                                     <Button className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-2xl h-12">
                                         Assinar Plano
                                     </Button>
@@ -437,7 +437,7 @@ export default function LandingPage() {
                                 </p>
 
                                 <div className="flex flex-col sm:flex-row gap-6 justify-center">
-                                    <Link href="/auth/register">
+                                    <Link href="/auth/signup">
                                         <Button size="lg" className="h-20 px-12 bg-white text-slate-950 hover:bg-slate-100 font-black text-xl rounded-3xl shadow-xl shadow-white/5">
                                             Começar Teste Grátis
                                         </Button>

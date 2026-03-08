@@ -1,0 +1,8 @@
+{
+  "accounts": "EXISTS",
+  "commissions": "EXISTS",
+  "agents": "EXISTS",
+  "transactions": "EXISTS",
+  "loans": "EXISTS",
+  "installments": "EXISTS"
+}

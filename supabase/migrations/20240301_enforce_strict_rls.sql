@@ -22,35 +22,44 @@ DECLARE
 BEGIN
     FOR t_name in (SELECT tablename FROM pg_tables WHERE schemaname = 'public') LOOP
         FOR p_name IN (SELECT policyname FROM pg_policies WHERE schemaname = 'public' AND tablename = t_name) LOOP
-            IF p_name = 'Enable all access for now' OR p_name = 'Allow all access for now' THEN
-                EXECUTE format('DROP POLICY IF EXISTS %I ON public.%I', p_name, t_name);
-            END IF;
+            -- Drop ALL policies on public tables to ensure a clean slate
+            EXECUTE format('DROP POLICY IF EXISTS %I ON public.%I', p_name, t_name);
         END LOOP;
     END LOOP;
 END $$;
 
 -- 3. Enforce RLS on all primary tables
-ALTER TABLE public.institutions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.clients ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.loans ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.installments ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.payments ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.loan_collateral ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.commissions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.accounts ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.transactions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.agents ENABLE ROW LEVEL SECURITY;
+-- 3. Enforce RLS on all primary tables safely (ignores missing tables)
+DO $$
+DECLARE
+    target_tables TEXT[] := ARRAY['institutions', 'users', 'clients', 'loans', 'installments', 'payments', 'loan_collateral', 'commissions', 'accounts', 'transactions', 'agents'];
+    tbl TEXT;
+BEGIN
+    FOREACH tbl IN ARRAY target_tables
+    LOOP
+        IF EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = tbl) THEN
+            EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY;', tbl);
+        END IF;
+    END LOOP;
+END $$;
 
 -- 4. Apply Strict Policies using the cached functions
 
 -- Institutions: Normal users can only see their own. Admin Geral can do all.
+DROP POLICY IF EXISTS "Institutions visibility" ON public.institutions;
 CREATE POLICY "Institutions visibility" ON public.institutions FOR SELECT USING (id = public.user_institution_id() OR public.is_admin_geral());
+
+DROP POLICY IF EXISTS "Institutions update" ON public.institutions;
 CREATE POLICY "Institutions update" ON public.institutions FOR UPDATE USING (id = public.user_institution_id() OR public.is_admin_geral());
+
+DROP POLICY IF EXISTS "Institutions admin all" ON public.institutions;
 CREATE POLICY "Institutions admin all" ON public.institutions FOR ALL USING (public.is_admin_geral());
 
 -- Users Table
+DROP POLICY IF EXISTS "Users view own institution" ON public.users;
 CREATE POLICY "Users view own institution" ON public.users FOR SELECT USING (institution_id = public.user_institution_id() OR public.is_admin_geral());
+
+DROP POLICY IF EXISTS "Users edit own institution" ON public.users;
 CREATE POLICY "Users edit own institution" ON public.users FOR UPDATE USING ((institution_id = public.user_institution_id() AND id = auth.uid()) OR public.is_admin_geral());
 
 -- Macro to generate policies for all tables that have an `institution_id` column
@@ -66,10 +75,12 @@ BEGIN
             
             -- Only apply if the table actually has an institution_id column OR relates to an institution
             IF EXISTS (SELECT FROM information_schema.columns WHERE table_name = tbl AND column_name = 'institution_id') THEN
+                EXECUTE format('DROP POLICY IF EXISTS "Tenant Isolation %I" ON public.%I', tbl, tbl);
                 EXECUTE format('CREATE POLICY "Tenant Isolation %I" ON public.%I FOR ALL USING (institution_id = public.user_institution_id() OR public.is_admin_geral())', tbl, tbl);
             ELSE
                 -- Fallback: if table doesn't have institution_id, it must have a loan_id (payments, collateral)
                 IF EXISTS (SELECT FROM information_schema.columns WHERE table_name = tbl AND column_name = 'loan_id') THEN
+                     EXECUTE format('DROP POLICY IF EXISTS "Tenant Isolation via Loan %I" ON public.%I', tbl, tbl);
                      EXECUTE format('CREATE POLICY "Tenant Isolation via Loan %I" ON public.%I FOR ALL USING (
                         loan_id IN (SELECT id FROM public.loans WHERE institution_id = public.user_institution_id()) 
                         OR public.is_admin_geral()
