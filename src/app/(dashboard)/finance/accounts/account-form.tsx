@@ -85,6 +85,8 @@ export function AccountForm({ initialData, onClose }: AccountFormProps) {
         });
         if (res.success) {
           toast.success("Caixa atualizada com sucesso.");
+          router.refresh();
+          onClose();
         } else {
           toast.error(res.error);
         }
@@ -92,12 +94,12 @@ export function AccountForm({ initialData, onClose }: AccountFormProps) {
         const res = await createAccountAction(values);
         if (res.success) {
           toast.success("Caixa criada com sucesso.");
+          router.refresh();
+          onClose();
         } else {
           toast.error(res.error);
         }
       }
-      router.refresh();
-      onClose();
     } catch (error) {
       toast.error("Algo deu errado.");
     } finally {

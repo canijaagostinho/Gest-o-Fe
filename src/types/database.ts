@@ -124,11 +124,9 @@ export interface Account {
   institution_id: string;
   name: string;
   balance: number;
-  account_number?: string | null;
-  bank_name?: string | null;
+  bank_provider?: string | null;
   is_default: boolean;
   created_at: string;
-  updated_at: string;
 }
 
 export interface Notification {

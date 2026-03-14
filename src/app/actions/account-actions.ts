@@ -40,6 +40,7 @@ export async function createAccountAction(data: AccountCreateData): Promise<Acti
       .single();
 
     const roleName = (userData?.role as unknown as { name: RoleName })?.name;
+
     if (roleName === "admin_geral") {
       throw new Error(
         "O Administrador Geral não pode possuir caixas. Cada instituição gere os seus próprios fundos.",
@@ -54,14 +55,14 @@ export async function createAccountAction(data: AccountCreateData): Promise<Acti
 
     // If this is default, unset other defaults
     if (data.is_default) {
-      await supabase
+      const { error: resetError } = await supabase
         .from("accounts")
         .update({ is_default: false })
         .eq("institution_id", institutionId)
         .neq("id", "00000000-0000-0000-0000-000000000000");
     }
 
-    const { data: account, error } = await supabase
+    const { data: account, error: accError } = await supabase
       .from("accounts")
       .insert({
         name: data.name,
@@ -73,19 +74,26 @@ export async function createAccountAction(data: AccountCreateData): Promise<Acti
       .select()
       .single();
 
-    if (error) throw error;
+    if (accError) {
+      console.error("ACCOUNT INSERT ERROR:", accError);
+      throw new Error(`Erro ao criar conta: ${accError.message}`);
+    }
 
     // If initial balance > 0, record transaction
     if (data.balance > 0) {
-      await supabase.from("transactions").insert({
+      const { error: txError } = await supabase.from("transactions").insert({
         account_id: account.id,
         type: "credit",
         amount: data.balance,
         description: "Saldo Inicial",
         reference_type: "adjustment",
-        reference_id: account.id, // Self ref or null
-        institution_id: institutionId, // Explicitly set institution_id
+        reference_id: account.id,
+        institution_id: institutionId,
       });
+      if (txError) {
+        console.error("TRANSACTION INSERT ERROR:", txError);
+        throw new Error(`Conta criada mas falha ao registar saldo inicial: ${txError.message}`);
+      }
     }
 
     revalidatePath("/finance/accounts");
