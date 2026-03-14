@@ -37,7 +37,7 @@ export async function getFinancialMetricsAction(
     // 1. Fetch all payments (Revenue)
     let paymentsQuery = supabase
       .from("payments")
-      .select("amount, payment_date, status")
+      .select("amount_paid, payment_date, status")
       .eq("status", "paid");
 
     if (!isAdminGeral && institutionId) {
@@ -75,7 +75,7 @@ export async function getFinancialMetricsAction(
 
     // 3. Aggregate totals
     const totalReceived =
-      payments?.reduce((sum, p) => sum + Number(p.amount), 0) || 0;
+      payments?.reduce((sum, p) => sum + Number(p.amount_paid), 0) || 0;
     const totalLent =
       loans?.reduce((sum, l) => sum + Number(l.loan_amount), 0) || 0;
     const netProfit = totalReceived - totalLent; // Simplified: In microcredit, profit is interest, but here we show cash flow balance
@@ -96,7 +96,7 @@ export async function getFinancialMetricsAction(
             const d = new Date(p.payment_date);
             return d >= mStart && d <= mEnd;
           })
-          .reduce((sum, p) => sum + Number(p.amount), 0) || 0;
+          .reduce((sum, p) => sum + Number(p.amount_paid), 0) || 0;
 
       const monthlyExpenses =
         loans

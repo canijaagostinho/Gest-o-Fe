@@ -56,6 +56,7 @@ export default function DashboardPage() {
     });
 
     const isGlobalAdmin = (user?.role as any)?.name === "admin_geral";
+    const isOperador = (user?.role as any)?.name === "operador";
 
     useEffect(() => {
         const fetchData = async () => {
@@ -451,6 +452,7 @@ export default function DashboardPage() {
             </motion.div>
 
             {/* Block 2: Main KPIs (CoinDepo Style - Vertical Stack) */}
+            {!isOperador && (
             <motion.div
                 variants={container}
                 initial="hidden"
@@ -589,8 +591,10 @@ export default function DashboardPage() {
                     </Card>
                 </motion.div>
             </motion.div>
+            )}
 
             {/* Block 3: Charts */}
+            {!isOperador && (
             <motion.div
                 initial={{ opacity: 0, y: 0 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -641,6 +645,7 @@ export default function DashboardPage() {
                     </CardContent>
                 </Card>
             </motion.div>
+            )}
 
             {/* Block 4: Functionality Grid */}
             <motion.div
@@ -707,7 +712,7 @@ export default function DashboardPage() {
                             desc: "Sistema",
                             adminOnly: true,
                         },
-                    ].map((action, idx) => (
+                    ].filter(action => !action.adminOnly || isGlobalAdmin || (user?.role as any)?.name === "gestor").map((action, idx) => (
                         <Link key={idx} href={action.href} className="group outline-none">
                             <Card
                                 className={cn(

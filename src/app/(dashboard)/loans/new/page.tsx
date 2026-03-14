@@ -242,10 +242,7 @@ export default function NewLoanPage({
       const res = await getAccountsAction();
       if (res.success && res.data) {
         setAccounts(res.data);
-        const defaultAcc = res.data.find((a: any) => a.is_default);
-        if (defaultAcc) {
-          form.setValue("account_id", defaultAcc.id);
-        }
+        // Default account pre-fill removed so user is forced to choose
       }
     }
     fetchData();
@@ -463,7 +460,7 @@ export default function NewLoanPage({
           <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 min-h-[500px] flex flex-col justify-between">
             <Form {...form}>
               <form
-                onSubmit={form.handleSubmit(onSubmit, onInvalid)}
+                onSubmit={(e) => e.preventDefault()}
                 className="space-y-6 h-full flex flex-col"
               >
                 <div className="flex-1">
@@ -1132,7 +1129,8 @@ export default function NewLoanPage({
                   ) : (
                     <Button
                       disabled={loading || !watchAll.account_id}
-                      type="submit"
+                      type="button"
+                      onClick={form.handleSubmit(onSubmit, onInvalid)}
                       className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full px-8 shadow-lg shadow-emerald-200"
                     >
                       {loading ? "Processando..." : "Aprovar e Gerar Contrato"}

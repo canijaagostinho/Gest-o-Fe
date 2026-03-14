@@ -119,50 +119,51 @@ export default function DashboardLayout({
       return;
     }
 
-    const adminGeralOnly = [
-      "/institutions",
-      "/audit-logs",
-      "/finance/accounts",
-    ];
-    const institutionalOnly = ["/clients", "/loans", "/payments"];
-    const managerRoutes = ["/users", "/settings", "/agents"];
+    // --- ROTA E PERMISSÕES ---
+    // Explicit categories for better management
+    const platformRoutes = ["/institutions", "/audit-logs", "/plans"]; // SaaS Admin only
+    const managementRoutes = ["/users", "/settings", "/monitoring", "/agents"]; // Managers and Admins
+    const standardRoutes = ["/finance/accounts", "/finance/expenses", "/notifications", "/clients", "/loans", "/payments", "/reports"]; // Everyone authenticated (with internal page logic)
 
-    const isTryingAdminRoute = adminGeralOnly.some((p) =>
-      pathname.startsWith(p),
-    );
-    const isTryingInstitutionalRoute = institutionalOnly.some((p) =>
-      pathname.startsWith(p),
-    );
-    const isTryingManagerRoute = managerRoutes.some((p) =>
-      pathname.startsWith(p),
-    );
+    const isPlatformRoute = platformRoutes.some(p => pathname.startsWith(p));
+    const isManagementRoute = managementRoutes.some(p => pathname.startsWith(p));
+    const isStandardRoute = standardRoutes.some(p => pathname.startsWith(p));
 
-    if (role === "admin_geral") {
-      if (isTryingInstitutionalRoute) {
-        router.push("/");
-        return;
-      }
-    } else {
-      if (isTryingAdminRoute) {
-        router.push("/");
-        return;
-      }
-    }
+    console.log("PERMISSION CHECK:", {
+      role,
+      pathname,
+      isPlatformRoute,
+      isManagementRoute,
+      isStandardRoute,
+      subStatus: (window as any).__subscriptionStatus || "active"
+    });
 
-    if (isTryingManagerRoute && role !== "admin_geral" && role !== "gestor") {
+    // 1. Platfform Routes (admin_geral only)
+    if (isPlatformRoute && role !== "admin_geral") {
+      console.warn("REDIRECT: Platform route restricted to admin_geral", { pathname, role });
       router.push("/");
       return;
     }
 
+    // 2. Management Routes (admin_geral and gestor only)
+    if (isManagementRoute && role !== "admin_geral" && role !== "gestor") {
+      console.warn("REDIRECT: Management route restricted to gestor/admin", { pathname, role });
+      router.push("/");
+      return;
+    }
+
+    // 3. Verificação de Assinatura (Bloqueia todos exceto Admin Geral se expirado/cancelado)
     const subStatus = (window as any).__subscriptionStatus || "active";
     if (
       role !== "admin_geral" &&
       (subStatus === "past_due" || subStatus === "canceled")
     ) {
+      console.warn("REDIRECT: Inactive subscription - account blocked", { subStatus, role });
       router.push("/billing/blocked");
       return;
     }
 
+    // 4. Fallback: If it's a known restricted route that didn't pass above, or just set authorized
     setAuthorized(true);
   }, [pathname, role, isLoading, router, error]);
 

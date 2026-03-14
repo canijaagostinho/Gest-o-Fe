@@ -153,18 +153,18 @@ export function ExpenseList({
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
+        <Card className="bg-gradient-to-br from-red-500 to-rose-600 border-none shadow-md text-white">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="text-sm font-medium text-red-100">
               Total do Período
             </CardTitle>
-            <span className="text-muted-foreground font-black">MT</span>
+            <span className="text-red-200 font-extrabold">MT</span>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-3xl font-bold tracking-tight">
               {formatCurrency(totalAmount)}
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-red-200/80 mt-1 font-medium">
               {filteredExpenses.length} registros
             </p>
           </CardContent>

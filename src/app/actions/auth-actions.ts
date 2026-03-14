@@ -21,6 +21,15 @@ export async function registerAndLoginAction(data: {
     return { success: false, error: "Todos os campos são obrigatórios." };
   }
 
+  // Strict password validation
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
+  if (!passwordRegex.test(data.password)) {
+    return {
+      success: false,
+      error: "A senha deve ter pelo menos 8 caracteres, incluindo letras maiúsculas, minúsculas e um caractere especial."
+    };
+  }
+
   // 2. Setup Admin Client (for privileged creation)
   if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
     console.error("CRITICAL: SUPABASE_SERVICE_ROLE_KEY missing.");
