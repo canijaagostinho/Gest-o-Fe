@@ -231,24 +231,26 @@ export default function SettingsPage() {
           </Card>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card className="border-none shadow-sm bg-white">
+            <Card className="border-none shadow-md bg-gradient-to-br from-emerald-600 to-teal-700 text-white">
               <CardHeader>
-                <CardTitle className="text-lg">Parâmetros de Rede</CardTitle>
-                <CardDescription>
-                  Configurações globais para novas instâncias.
-                </CardDescription>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <CardTitle className="text-xl">Planos de Assinatura</CardTitle>
+                    <CardDescription className="text-emerald-100 mt-2">
+                      Crie, edite e gerencie os planos e preços de subscrição da plataforma.
+                    </CardDescription>
+                  </div>
+                  <Save className="h-12 w-12 text-white/10" />
+                </div>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-sm text-slate-500 italic">
-                  Planos de assinatura e limites de rede são gerenciados pelo
-                  backend central.
-                </p>
+              <CardContent>
                 <Link href="/settings/plans">
                   <Button
-                    variant="secondary"
-                    className="w-full bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold border-0 h-10"
+                    size="lg"
+                    className="bg-white text-emerald-700 hover:bg-emerald-50 font-bold shadow-lg border-0"
                   >
-                    Editar Planos
+                    <Save className="mr-2 h-4 w-4" />
+                    Gerir Planos e Preços
                   </Button>
                 </Link>
               </CardContent>

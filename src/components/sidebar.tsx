@@ -89,6 +89,12 @@ const adminGeralRoutes = [
         href: "/reports",
         color: "text-orange-700",
       },
+      {
+        label: "Planos de Assinatura",
+        icon: CreditCard,
+        href: "/settings/plans",
+        color: "text-emerald-500",
+      },
     ],
   },
 ];
@@ -245,11 +251,12 @@ export function Sidebar() {
 
     // Filter routes for 'funcionario' (Operador)
     if (userRole === "operador") {
+      const operadorBlocked = ["/agents", "/monitoring", "/settings/plans", "/reports"];
       groups = groups
         .map((group) => ({
           ...group,
           items: group.items.filter(
-            (item: any) => !["/agents"].includes(item.href),
+            (item: any) => !operadorBlocked.includes(item.href),
           ),
         }))
         .filter((group) => group.items.length > 0);

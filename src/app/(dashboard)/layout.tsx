@@ -122,7 +122,14 @@ export default function DashboardLayout({
     // --- ROTA E PERMISSÕES ---
     // Explicit categories for better management
     const platformRoutes = ["/institutions", "/audit-logs", "/plans"]; // SaaS Admin only
-    const managementRoutes = ["/users", "/settings", "/monitoring", "/agents"]; // Managers and Admins
+    // Operador-restricted routes (gestor and admin_geral only)
+    const operadorBlockedSubRoutes = ["/settings/billing", "/settings/plans", "/settings/institution", "/monitoring"];
+    const isOperadorBlockedSubRoute = operadorBlockedSubRoutes.some(p => pathname.startsWith(p));
+    if (isOperadorBlockedSubRoute && role === "operador") {
+      router.push("/settings");
+      return;
+    }
+    const managementRoutes = ["/users", "/monitoring", "/agents"]; // Managers and Admins
     const standardRoutes = ["/finance/accounts", "/finance/expenses", "/notifications", "/clients", "/loans", "/payments", "/reports"]; // Everyone authenticated (with internal page logic)
 
     const isPlatformRoute = platformRoutes.some(p => pathname.startsWith(p));
