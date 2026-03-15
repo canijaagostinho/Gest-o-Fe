@@ -156,7 +156,10 @@ export default function MonitoringClient({ initialLogs }: Props) {
               <TableHeader className="bg-white">
                 <TableRow className="hover:bg-transparent border-slate-100">
                   <TableHead className="font-extrabold text-slate-400 text-xs tracking-wider uppercase">
-                    Data e Hora
+                    Data
+                  </TableHead>
+                  <TableHead className="font-extrabold text-slate-400 text-xs tracking-wider uppercase">
+                    Hora
                   </TableHead>
                   <TableHead className="font-extrabold text-slate-400 text-xs tracking-wider uppercase">
                     Usuário Responsável
@@ -176,7 +179,7 @@ export default function MonitoringClient({ initialLogs }: Props) {
                 {filteredLogs.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={5}
+                      colSpan={6}
                       className="h-48 text-center text-slate-500"
                     >
                       <div className="flex flex-col items-center justify-center gap-2">
@@ -195,13 +198,20 @@ export default function MonitoringClient({ initialLogs }: Props) {
                       onClick={() => setSelectedLog(log)}
                     >
                       <TableCell className="font-medium text-slate-600 py-4">
-                        {new Date(log.created_at).toLocaleString("pt-MZ", {
+                        {new Date(log.created_at).toLocaleDateString("pt-MZ", {
                           day: "2-digit",
                           month: "2-digit",
                           year: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
                         })}
+                      </TableCell>
+                      <TableCell className="font-medium text-slate-600 py-4">
+                        <span className="font-black text-slate-800">
+                          {new Date(log.created_at).toLocaleTimeString("pt-MZ", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            second: "2-digit",
+                          })}
+                        </span>
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-col">
