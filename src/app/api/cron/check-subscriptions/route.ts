@@ -41,19 +41,18 @@ export async function GET(req: Request) {
 
     if (activeErr) console.error("Error updating expired actives:", activeErr);
 
-    // 2. Alert institutions 3 days before expiration
-    // Calculate 3 days from now
-    const threeDaysFromNow = new Date();
-    threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3);
-
-    // Fetch subscriptions trialing or active that end within the next 3 days
-    // and haven't been notified in the last 7 days
+    // 2. Alert institutions approaching expiration (3, 2, 1 days before)
+    // For subscriptions > 3 days away, use 7-day cooldown to avoid spam.
+    // For 1-3 days, use 20-hour cooldown so we notify once per day.
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
+    const twentyHoursAgo = new Date();
+    twentyHoursAgo.setHours(twentyHoursAgo.getHours() - 20);
+
     console.log("Checking for approaching expirations...");
 
-    let query = supabaseAdmin
+    const { data: potentialAlerts, error: soonErr } = await supabaseAdmin
       .from("subscriptions")
       .select(
         `
@@ -69,12 +68,7 @@ export async function GET(req: Request) {
                 )
             `,
       )
-      .in("status", ["trialing", "active"])
-      .or(
-        `last_notified_at.is.null,last_notified_at.lt.${sevenDaysAgo.toISOString()}`,
-      );
-
-    const { data: potentialAlerts, error: soonErr } = await query;
+      .in("status", ["trialing", "active"]);
 
     if (soonErr)
       console.error("Error fetching expiring subscriptions:", soonErr);
@@ -93,57 +87,65 @@ export async function GET(req: Request) {
         const diffTime = endDate.getTime() - today.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-        // We only alert if exactly 3 days left (or less, if we missed a day, but not if already expired)
-        if (diffDays > 0 && diffDays <= 3) {
-          const inst = sub.institutions as any;
+        // Only send alerts at 3, 2, or 1 days remaining
+        if (diffDays <= 0 || diffDays > 3) continue;
 
-          // 1. Send Email
-          if (inst && inst.email) {
-            try {
-              await resend.emails.send({
-                from: "Gestão Flex <financeiro@gestaoflex.mz>",
-                to: inst.email,
-                subject: isTrial
-                  ? "Aviso: O seu período de teste termina em 3 dias"
-                  : "Aviso: Sua assinatura expira em 3 dias",
-                react: TrialExpiringEmail({
-                  institutionName: inst.name,
-                  daysLeft: diffDays,
-                  isTrial,
-                  endDate: endDate.toLocaleDateString("pt-MZ"),
-                }) as React.ReactElement,
-              });
-              emailsSent++;
-            } catch (emailErr) {
-              console.error(`Failed to send email to ${inst.email}`, emailErr);
-            }
-          }
+        // In the critical 3-day window: use 20-hour cooldown so we notify once per day
+        const cooldownDate = twentyHoursAgo;
+        const lastNotified = sub.last_notified_at
+          ? new Date(sub.last_notified_at)
+          : null;
 
-          // 2. Create In-App Notification
+        if (lastNotified && lastNotified > cooldownDate) continue;
+
+        const inst = sub.institutions as any;
+
+        // 1. Send Email
+        if (inst && inst.email) {
           try {
-            await supabaseAdmin.from("system_notifications").insert({
-              institution_id: inst.id,
-              title: isTrial
-                ? "Teste Gratuito a Terminar"
-                : "Assinatura a Terminar",
-              message: `O seu acesso ao sistema expira em ${diffDays} dias (${endDate.toLocaleDateString("pt-MZ")}). Por favor, regularize a sua subscrição para evitar interrupções.`,
-              type: "warning",
-              link: "/settings/billing",
+            await resend.emails.send({
+              from: "Gestão Flex <financeiro@gestaoflex.mz>",
+              to: inst.email,
+              subject: isTrial
+                ? `Aviso: O seu período de teste termina em ${diffDays} ${diffDays === 1 ? "dia" : "dias"}`
+                : `Aviso: Sua assinatura expira em ${diffDays} ${diffDays === 1 ? "dia" : "dias"}`,
+              react: TrialExpiringEmail({
+                institutionName: inst.name,
+                daysLeft: diffDays,
+                isTrial,
+                endDate: endDate.toLocaleDateString("pt-MZ"),
+              }) as React.ReactElement,
             });
-            systemNotifsCreated++;
-          } catch (notifErr) {
-            console.error(
-              `Failed to create system notification for ${inst.id}`,
-              notifErr,
-            );
+            emailsSent++;
+          } catch (emailErr) {
+            console.error(`Failed to send email to ${inst.email}`, emailErr);
           }
-
-          // 3. Mark as notified
-          await supabaseAdmin
-            .from("subscriptions")
-            .update({ last_notified_at: today.toISOString() })
-            .eq("id", sub.id);
         }
+
+        // 2. Create In-App Notification
+        try {
+          await supabaseAdmin.from("system_notifications").insert({
+            institution_id: inst.id,
+            title: isTrial
+              ? `Teste Gratuito: Faltam ${diffDays} ${diffDays === 1 ? "dia" : "dias"}`
+              : `Assinatura: Faltam ${diffDays} ${diffDays === 1 ? "dia" : "dias"}`,
+            message: `O seu acesso ao sistema expira em ${diffDays} ${diffDays === 1 ? "dia" : "dias"} (${endDate.toLocaleDateString("pt-MZ")}). Por favor, regularize a sua subscrição para evitar interrupções.`,
+            type: "warning",
+            link: "/settings/billing",
+          });
+          systemNotifsCreated++;
+        } catch (notifErr) {
+          console.error(
+            `Failed to create system notification for ${inst.id}`,
+            notifErr,
+          );
+        }
+
+        // 3. Mark as notified with current timestamp
+        await supabaseAdmin
+          .from("subscriptions")
+          .update({ last_notified_at: today.toISOString() })
+          .eq("id", sub.id);
       }
     }
 

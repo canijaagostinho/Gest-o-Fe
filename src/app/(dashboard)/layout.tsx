@@ -3,6 +3,7 @@
 import { Sidebar } from "@/components/sidebar";
 import { Header } from "@/components/header";
 import { InstitutionCompletionBanner } from "@/components/institution-completion-banner";
+import { SubscriptionCountdownBanner } from "@/components/subscription-countdown-banner";
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
@@ -213,6 +214,7 @@ export default function DashboardLayout({
 
       <main className="md:pl-72 flex flex-col min-h-screen">
         <Header onMenuClick={() => { }} role={role} />
+        <SubscriptionCountdownBanner role={role} />
         <InstitutionCompletionBanner role={role} />
         <div className="flex-1 p-6 md:p-8 pt-6 max-w-7xl mx-auto w-full">
           {children}
