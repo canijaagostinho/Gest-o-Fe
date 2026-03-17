@@ -40,7 +40,7 @@ export function InstitutionCompletionBanner({ role }: Props) {
 
         const { data: institution } = await supabase
           .from("institutions")
-          .select("name, email, phone, address")
+          .select("name, email, phone, nuit, province, district, address_line, responsible_name")
           .eq("id", profile.institution_id)
           .single();
 
@@ -51,7 +51,11 @@ export function InstitutionCompletionBanner({ role }: Props) {
           !institution.name?.trim() ||
           !institution.email?.trim() ||
           !institution.phone?.trim() ||
-          !institution.address?.trim();
+          !institution.nuit?.trim() ||
+          !institution.province?.trim() ||
+          !institution.district?.trim() ||
+          !institution.address_line?.trim() ||
+          !institution.responsible_name?.trim();
 
         setIsIncomplete(incomplete);
         // Reset dismissed when data becomes complete

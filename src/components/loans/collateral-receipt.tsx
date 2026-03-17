@@ -176,9 +176,7 @@ export const CollateralReceipt = ({
         </View>
       </View>
 
-      <Text style={styles.footer}>
-        Gerado automaticamente pelo sistema de gestão de microcrédito.
-      </Text>
+
     </Page>
   </Document>
 );

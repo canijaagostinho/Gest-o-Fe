@@ -161,6 +161,41 @@ export default function LoanDetailsPage({
     setIsPaymentModalOpen(true);
   };
 
+  const handleDownloadGuide = async (installment: any) => {
+    const { PDFService } = await import("@/services/pdf-service");
+
+    toast.promise(
+      async () => {
+        const pdf = new PDFService({
+          name: settings?.institution?.name || "Instituição",
+          address: settings?.institution?.address,
+          nuit: settings?.institution?.nuit,
+          email: settings?.institution?.email,
+          phone: settings?.institution?.phone,
+          logo_url: settings?.institution?.logo_url,
+          primary_color: settings?.institution?.primary_color,
+        });
+
+        await pdf.generateInstallmentGuide(
+          loan,
+          installment,
+          {
+            full_name: client.full_name,
+            document_id: client.id_number,
+            phone: client.phone,
+            email: client.email,
+            address: client.address,
+          }
+        );
+      },
+      {
+        loading: "Gerando guia de pagamento...",
+        success: "Guia baixada com sucesso!",
+        error: "Erro ao gerar guia de pagamento",
+      }
+    );
+  };
+
   const handleGenericPayment = () => {
     // Find first unpaid installment
     const nextUnpaid = installments.find((i) => i.status !== "paid");
@@ -535,6 +570,7 @@ export default function LoanDetailsPage({
                                 size="sm"
                                 variant="ghost"
                                 className="h-8 w-8 p-0"
+                                onClick={() => handleDownloadGuide(inst)}
                               >
                                 <FileText className="h-4 w-4 text-slate-400" />
                                 <span className="sr-only">Boleto</span>
@@ -629,7 +665,13 @@ export default function LoanDetailsPage({
               <div className="flex justify-between py-2 border-b border-slate-50 last:border-0">
                 <span className="text-sm text-slate-500">Frequência</span>
                 <span className="text-sm font-medium capitalize">
-                  {loan.payment_frequency}
+                  {loan.payment_frequency === "monthly"
+                    ? "Mensal"
+                    : loan.payment_frequency === "weekly"
+                      ? "Semanal"
+                      : loan.payment_frequency === "daily"
+                        ? "Diário"
+                        : loan.payment_frequency}
                 </span>
               </div>
               <div className="flex justify-between py-2 border-b border-slate-50 last:border-0">

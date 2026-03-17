@@ -167,10 +167,7 @@ export class PDFService {
       pageHeight - 10,
     );
 
-    // Right
-    doc.text("Documento Processado Digitalmente", 195, pageHeight - 10, {
-      align: "right",
-    });
+
   }
 
   public async generatePaymentReceipt(
@@ -283,6 +280,114 @@ export class PDFService {
 
     // Save
     doc.save(`Recibo_${payment.id.slice(0, 8)}.pdf`);
+  }
+
+  public async generateInstallmentGuide(
+    loan: any,
+    installment: any,
+    client: ClientProfile,
+  ) {
+    const doc = this.doc;
+    const startY = await this.drawHeader();
+
+    // Title
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(30, 41, 59);
+    doc.text("GUIA DE PAGAMENTO", 105, startY, { align: "center" });
+
+    doc.setFontSize(10);
+    doc.setTextColor(100, 116, 139);
+    doc.text(`Parcela Nº ${installment.installment_number}`, 105, startY + 7, {
+      align: "center",
+    });
+
+    let currentY = startY + 25;
+
+    // Client and Loan Info
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(71, 85, 105);
+    doc.text("DADOS DO CLIENTE", 15, currentY);
+
+    doc.text("DETALHES DO EMPRÉSTIMO", 105, currentY);
+
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(15, 23, 42);
+    currentY += 8;
+
+    // Client Column
+    doc.text(client.full_name || "N/A", 15, currentY);
+    currentY += 6;
+    doc.text(`ID: ${client.document_id || "N/A"}`, 15, currentY);
+    currentY += 6;
+    doc.text(`Tel: ${client.phone || "N/A"}`, 15, currentY);
+
+    // Loan Column (reset Y for loan info)
+    let loanY = startY + 25 + 8;
+    doc.text(`Contrato: #${loan.id.slice(0, 8).toUpperCase()}`, 105, loanY);
+    loanY += 6;
+    doc.text(`Data do Contrato: ${new Date(loan.created_at).toLocaleDateString("pt-MZ")}`, 105, loanY);
+    loanY += 6;
+    doc.text(`Taxa: ${loan.interest_rate}%`, 105, loanY);
+
+    currentY = Math.max(currentY, loanY) + 15;
+
+    // Table with Installment Details
+    autoTable(doc, {
+      startY: currentY,
+      head: [["Descrição", "Vencimento", "Valor Original", "Multas/Mora", "Total a Pagar"]],
+      body: [
+        [
+          `Parcela ${installment.installment_number}`,
+          new Date(installment.due_date).toLocaleDateString("pt-MZ"),
+          formatCurrency(installment.amount),
+          "A calcular no momento do pagamento",
+          formatCurrency(installment.amount),
+        ],
+      ],
+      theme: "striped",
+      headStyles: {
+        fillColor: this.primaryColor,
+        textColor: 255,
+        fontStyle: "bold",
+      },
+      styles: {
+        fontSize: 10,
+        cellPadding: 5,
+      },
+      columnStyles: {
+        2: { halign: "right" },
+        3: { halign: "right" },
+        4: { halign: "right", fontStyle: "bold" },
+      },
+    });
+
+    currentY = (doc as any).lastAutoTable.finalY + 20;
+
+    // Instructions Box
+    doc.setFillColor(241, 245, 249);
+    doc.setDrawColor(226, 232, 240);
+    doc.roundedRect(15, currentY, 180, 40, 2, 2, "FD");
+
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(71, 85, 105);
+    doc.text("INSTRUÇÕES PARA PAGAMENTO", 20, currentY + 10);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(30, 41, 59);
+    doc.text("1. Este documento serve apenas como guia para pagamento de prestação.", 20, currentY + 18);
+    doc.text("2. O valor total pode sofrer alterações devido a multas por atraso.", 20, currentY + 24);
+    doc.text("3. Após o pagamento, exija o seu recibo definitivo processado pelo sistema.", 20, currentY + 30);
+    doc.text("4. Pagamentos via M-Pesa/Transferência devem incluir a referência do contrato.", 20, currentY + 36);
+
+    // Footer lines
+    this.drawFooter();
+
+    // Save
+    doc.save(`Guia_Pagamento_${loan.id.slice(0, 8)}_P${installment.installment_number}.pdf`);
   }
 
   public async generateFinancialReport(
