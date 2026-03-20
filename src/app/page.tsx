@@ -72,36 +72,29 @@ export default function LandingPage() {
     const [scrolled, setScrolled] = useState(false);
     const [activeFaq, setActiveFaq] = useState<number | null>(null);
 
+    const [showFloatingCTA, setShowFloatingCTA] = useState(false);
+
     useEffect(() => {
-        const handleScroll = () => setScrolled(window.scrollY > 20);
+        const handleScroll = () => {
+            setScrolled(window.scrollY > 20);
+            setShowFloatingCTA(window.scrollY > 600);
+        };
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
     const faqItems = [
         {
-            q: "Como funciona a implementação do sistema?",
-            a: "Nossa implementação é rápida e guiada. Em 3 a 5 dias úteis, sua equipe estará treinada e o sistema configurado com as regras e produtos do seu negócio. Fornecemos suporte dedicado durante toda a transição."
+            q: "Preciso saber usar computador?",
+            a: "Não! O sistema foi desenhado para ser intuitivo. Se você sabe usar o WhatsApp, conseguirá usar o GestãoFlex em poucos minutos."
         },
         {
-            q: "Meus dados estão realmente seguros?",
-            a: "Utilizamos criptografia de ponta a ponta (AES-256) e infraestrutura de nível bancário com backups automáticos diários, isolamento total de dados por instituição e conformidade com as melhores práticas de segurança."
+            q: "Funciona no telemóvel?",
+            a: "Sim! O sistema é 100% responsivo e possui uma interface otimizada para smartphones e tablets."
         },
         {
-            q: "Existe suporte técnico disponível?",
-            a: "Sim. Oferecemos suporte especializado via chat em tempo real, email e telefone, com tempos de resposta garantidos em contrato (SLA de até 4 horas para casos críticos)."
-        },
-        {
-            q: "Posso acessar o sistema pelo telemóvel?",
-            a: "Sim! O sistema é 100% responsivo e possui uma interface otimizada para smartphones e tablets, permitindo gerir o negócio de qualquer lugar, a qualquer hora."
-        },
-        {
-            q: "O sistema pode ser personalizado para minha instituição?",
-            a: "Sim. O nosso motor de crédito e os fluxos operacionais são altamente configuráveis para se adaptarem às regras, produtos e processos específicos da sua instituição."
-        },
-        {
-            q: "Qual é o período mínimo de contrato?",
-            a: "Trabalhamos com contratos mensais ou anuais (com desconto). Não há penalidade de saída. A nossa confiança no produto é a nossa maior garantia."
+            q: "Tem custo?",
+            a: "Você pode começar gratuitamente para conhecer as funcionalidades. Temos planos que crescem com o seu negócio."
         }
     ];
 
@@ -116,10 +109,8 @@ export default function LandingPage() {
                 "Gestão de empréstimos",
                 "Relatórios básicos",
                 "Suporte via email",
-                "1 utilizador admin",
-                "Backup diário",
             ],
-            cta: "Começar Agora",
+            cta: "Começar Grátis",
             highlighted: false,
         },
         {
@@ -130,12 +121,8 @@ export default function LandingPage() {
             features: [
                 "Clientes ilimitados",
                 "Motor de crédito avançado",
-                "Dashboards em tempo real",
                 "Cobrança automática",
-                "Relatórios exportáveis (PDF/Excel)",
-                "Até 10 utilizadores",
-                "Suporte prioritário (SLA 4h)",
-                "Integração bancária",
+                "Relatórios PDF/Excel",
             ],
             cta: "Solicitar Demo",
             highlighted: true,
@@ -144,15 +131,12 @@ export default function LandingPage() {
             name: "Enterprise",
             price: "Sob consulta",
             currency: "",
-            desc: "Para redes e cooperativas de grande porte",
+            desc: "Para redes de grande porte",
             features: [
-                "Multi-filiais e multi-moeda",
-                "API completa de integração",
-                "Utilizadores ilimitados",
+                "Multi-filiais",
+                "API completa",
                 "Personalização total",
-                "Gestor de conta dedicado",
-                "SLA garantido 24/7",
-                "Auditoria e conformidade",
+                "Gestor dedicado",
             ],
             cta: "Falar com Especialista",
             highlighted: false,
@@ -160,41 +144,57 @@ export default function LandingPage() {
     ];
 
     const stats = [
-        { value: "+500", label: "Instituições Activas", icon: Building2 },
-        { value: "40%", label: "Redução de Inadimplência", icon: TrendingUp },
-        { value: "3x", label: "Mais Produtividade", icon: Zap },
-        { value: "99.9%", label: "Uptime Garantido", icon: ShieldCheck },
+        { value: "+500", label: "Gestores Activos", icon: Building2 },
+        { value: "40%", label: "Menos Inadimplência", icon: TrendingUp },
+        { value: "3x", label: "Mais Rapidez", icon: Zap },
+        { value: "99.9%", label: "Segurança Total", icon: ShieldCheck },
     ];
 
     return (
-        <div className="flex flex-col min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-600/10 selection:text-blue-600 overflow-x-hidden">
+        <div className="flex flex-col min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-600/10 selection:text-blue-600 overflow-x-hidden">
+
+            {/* Floating CTA */}
+            <motion.div
+                initial={{ opacity: 0, y: 100 }}
+                animate={{ opacity: showFloatingCTA ? 1 : 0, y: showFloatingCTA ? 0 : 100 }}
+                className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[60] w-[90%] max-w-md"
+            >
+                <div className="bg-white/80 backdrop-blur-xl border border-slate-200 p-2 rounded-full shadow-2xl flex items-center justify-between pl-6">
+                    <span className="text-sm font-bold text-slate-700 hidden sm:block">Controle total hoje mesmo</span>
+                    <Link href="#demonstracao">
+                        <Button className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-full px-6 shadow-lg shadow-emerald-500/20">
+                            Criar Conta Grátis
+                        </Button>
+                    </Link>
+                </div>
+            </motion.div>
 
             {/* Navigation */}
             <header className={cn(
                 "fixed top-0 w-full z-50 transition-all duration-300",
-                scrolled ? "bg-white/90 backdrop-blur-md border-b border-slate-200 py-3 shadow-sm" : "bg-transparent py-6"
+                scrolled ? "bg-white/95 backdrop-blur-md border-b border-slate-200 py-3 shadow-sm" : "bg-transparent py-6"
             )}>
                 <nav className="max-w-7xl mx-auto px-6 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <div className="h-9 w-9 bg-blue-600 rounded-lg flex items-center justify-center text-white shadow-md">
-                            <Building2 className="h-5 w-5" />
+                        <div className="h-10 w-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-600/20">
+                            <Building2 className="h-6 w-6" />
                         </div>
-                        <span className="text-xl font-bold tracking-tight text-slate-900">
+                        <span className="text-2xl font-black tracking-tight text-slate-900">
                             Gestão<span className="text-blue-600">Flex</span>
                         </span>
                     </div>
 
-                    <div className="hidden md:flex items-center gap-8">
+                    <div className="hidden lg:flex items-center gap-10">
                         {[
-                            { label: "Soluções", href: "#solucoes" },
+                            { label: "O Problema", href: "#problema" },
+                            { label: "Solução", href: "#solucao" },
                             { label: "Benefícios", href: "#beneficios" },
-                            { label: "Preços", href: "#precos" },
-                            { label: "FAQ", href: "#faq" },
+                            { label: "Segurança", href: "#seguranca" },
                         ].map((item) => (
                             <Link
                                 key={item.label}
                                 href={item.href}
-                                className="text-sm font-semibold text-slate-600 hover:text-blue-600 transition-colors"
+                                className="text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors uppercase tracking-widest"
                             >
                                 {item.label}
                             </Link>
@@ -203,13 +203,13 @@ export default function LandingPage() {
 
                     <div className="flex items-center gap-4">
                         <Link href="/auth/login">
-                            <Button variant="ghost" className="text-sm font-semibold text-slate-600 hover:bg-slate-100 px-4 h-10">
+                            <Button variant="ghost" className="text-sm font-bold text-slate-600 hover:bg-slate-100 px-4 h-11 rounded-xl">
                                 Entrar
                             </Button>
                         </Link>
                         <Link href="#demonstracao">
-                            <Button className="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg px-6 h-10 shadow-lg shadow-blue-600/20 transition-all">
-                                Solicitar Demo
+                            <Button className="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl px-6 h-11 shadow-lg shadow-blue-600/20 transition-all">
+                                Criar Conta Grátis
                             </Button>
                         </Link>
                     </div>
@@ -217,343 +217,162 @@ export default function LandingPage() {
             </header>
 
             <main className="flex-grow">
-                {/* 1. HERO */}
-                <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden bg-gradient-to-b from-blue-50/60 to-white">
-                    <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-[700px] h-[700px] bg-blue-100/40 rounded-full blur-3xl pointer-events-none" />
-                    <div className="absolute bottom-0 left-0 translate-y-1/3 -translate-x-1/4 w-[400px] h-[400px] bg-emerald-50/60 rounded-full blur-3xl pointer-events-none" />
-
-                    <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center relative z-10">
-                        <div className="space-y-10">
+                {/* 1. HERO SECTION */}
+                <section className="relative pt-32 pb-24 lg:pt-52 lg:pb-40 overflow-hidden bg-white">
+                    {/* Premium Background Elements */}
+                    <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-[800px] h-[800px] bg-blue-50 rounded-full blur-[120px] pointer-events-none opacity-60" />
+                    <div className="absolute bottom-0 left-0 translate-y-1/3 -translate-x-1/4 w-[600px] h-[600px] bg-emerald-50 rounded-full blur-[100px] pointer-events-none opacity-50" />
+                    
+                    <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
+                        <div className="max-w-4xl mx-auto space-y-10">
                             <motion.div
-                                initial={{ opacity: 0, y: 20 }}
+                                initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="inline-flex items-center gap-2 px-3 py-1 bg-blue-600/10 border border-blue-600/20 rounded-full text-[12px] font-bold text-blue-700 uppercase tracking-wider"
+                                className="inline-flex items-center gap-3 px-4 py-2 bg-slate-50 border border-slate-200 rounded-full text-[11px] font-black text-slate-500 uppercase tracking-[0.2em] shadow-sm"
                             >
-                                <Zap className="h-3 w-3" />
-                                Gestão Inteligente de Microcrédito
+                                <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                                Premium SaaS para Microcrédito
                             </motion.div>
 
                             <motion.div
                                 initial={{ opacity: 0, y: 30 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.1 }}
-                                className="space-y-6"
+                                className="space-y-8"
                             >
-                                <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight leading-[1.05]">
-                                    Mais <span className="text-blue-600 italic">Escala</span>, <br />
-                                    Total <span className="text-blue-600 italic">Controlo</span>, <br />
-                                    Maior <span className="text-emerald-600 italic">Lucro.</span>
+                                <h1 className="text-6xl md:text-8xl font-[900] text-slate-900 tracking-tighter leading-[0.95] lg:px-10">
+                                    Controle total do seu <span className="text-blue-600">microcrédito</span>
                                 </h1>
-                                <p className="text-lg md:text-xl text-slate-600 leading-relaxed max-w-xl font-medium">
-                                    A plataforma definitiva para automatizar todo o ciclo do microcrédito, reduzir a inadimplência e transformar a sua operação financeira.
+                                <p className="text-xl md:text-3xl font-medium text-slate-500 tracking-tight max-w-3xl mx-auto leading-tight">
+                                    Sem erros, sem confusão e sem planilhas. Automatize cobranças e acompanhe pagamentos em tempo real.
                                 </p>
                             </motion.div>
 
                             <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: 0.2 }}
-                                className="flex flex-col sm:flex-row gap-4"
+                                className="flex flex-col sm:flex-row gap-6 justify-center"
                             >
                                 <Link href="#demonstracao">
-                                    <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white font-bold h-14 px-8 text-base rounded-xl shadow-xl shadow-blue-600/20 group w-full sm:w-auto">
-                                        Solicitar Demonstração Grátis
-                                        <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                                    <Button size="lg" className="bg-emerald-500 hover:bg-emerald-600 text-white font-black h-16 px-10 text-lg rounded-2xl shadow-2xl shadow-emerald-500/30 group w-full sm:w-auto">
+                                        Começar gratuitamente agora
+                                        <ArrowRight className="ml-2 h-6 w-6 transition-transform group-hover:translate-x-1" />
                                     </Button>
                                 </Link>
-                                <Link href="#solucoes">
-                                    <Button size="lg" variant="outline" className="border-slate-200 text-slate-700 hover:bg-slate-50 font-bold h-14 px-8 text-base rounded-xl w-full sm:w-auto">
+                                <Link href="#solucao">
+                                    <Button size="lg" variant="outline" className="bg-white border-slate-200 text-slate-700 hover:bg-slate-50 font-black h-16 px-10 text-lg rounded-2xl shadow-sm w-full sm:w-auto">
                                         Ver como funciona
                                     </Button>
                                 </Link>
                             </motion.div>
-
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ delay: 0.4 }}
-                                className="flex items-center gap-6 pt-4 border-t border-slate-100"
-                            >
-                                <div className="flex -space-x-3">
-                                    {[1, 2, 3, 4].map(i => (
-                                        <div key={i} className="h-10 w-10 rounded-full border-2 border-white bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-bold shadow">
-                                            {["MF", "AC", "BM", "RM"][i - 1]}
-                                        </div>
-                                    ))}
-                                </div>
-                                <p className="text-sm font-semibold text-slate-500">
-                                    <span className="text-slate-900 font-bold">+500 instituições</span> já confiam em nós.
-                                </p>
-                            </motion.div>
                         </div>
 
-                        {/* Hero visual — mockup image */}
+                        {/* Hero Mockup */}
                         <motion.div
-                            initial={{ opacity: 0, x: 50 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.9, ease: "easeOut", delay: 0.3 }}
-                            className="relative hidden lg:block"
+                            initial={{ opacity: 0, y: 60 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 1, ease: "easeOut", delay: 0.4 }}
+                            className="mt-20 relative max-w-6xl mx-auto"
                         >
-                            {/* Glow behind image */}
-                            <div className="absolute inset-0 bg-blue-500/10 blur-[80px] rounded-full -z-10 scale-110" />
-
-                            {/* Main mockup */}
+                            <div className="absolute inset-0 bg-blue-500/5 blur-[100px] rounded-full -z-10 scale-110" />
+                            
                             <img
                                 src="/hero-mockup.png"
-                                alt="Dashboard GestãoFlex em múltiplos dispositivos"
-                                className="w-full h-auto drop-shadow-2xl rounded-2xl"
+                                alt="Dashboard GestãoFlex"
+                                className="w-full h-auto drop-shadow-[0_40px_80px_rgba(0,0,0,0.15)] rounded-[2rem] border border-slate-100"
                             />
-
-                            {/* Floating badge — top left */}
-                            <motion.div
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.8 }}
-                                className="absolute -left-8 top-1/4 bg-white rounded-2xl shadow-2xl shadow-blue-600/15 border border-slate-100 px-4 py-3 flex items-center gap-3"
-                            >
-                                <div className="h-10 w-10 rounded-xl bg-emerald-500 flex items-center justify-center text-white flex-shrink-0">
-                                    <TrendingUp className="h-5 w-5" />
-                                </div>
-                                <div>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Inadimplência</p>
-                                    <p className="text-lg font-extrabold text-slate-900 leading-tight">-40% <span className="text-emerald-500 text-sm">↓</span></p>
-                                </div>
-                            </motion.div>
-
-                            {/* Floating badge — bottom right */}
-                            <motion.div
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 1 }}
-                                className="absolute -right-6 bottom-1/4 bg-white rounded-2xl shadow-2xl shadow-blue-600/15 border border-slate-100 px-4 py-3 flex items-center gap-3"
-                            >
-                                <div className="h-10 w-10 rounded-xl bg-blue-600 flex items-center justify-center text-white flex-shrink-0">
-                                    <ShieldCheck className="h-5 w-5" />
-                                </div>
-                                <div>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Uptime</p>
-                                    <p className="text-lg font-extrabold text-slate-900 leading-tight">99.9%</p>
-                                </div>
-                            </motion.div>
                         </motion.div>
                     </div>
                 </section>
 
-                {/* 2. STATS BAR */}
-                <section className="py-16 bg-slate-900 px-6">
-                    <div className="max-w-7xl mx-auto grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                        {stats.map((stat, i) => (
-                            <FadeIn key={i} delay={i * 100}>
-                                <div className="text-center space-y-3">
-                                    <div className="inline-flex items-center justify-center h-12 w-12 rounded-2xl bg-blue-600/20 text-blue-400 mx-auto">
-                                        <stat.icon className="h-6 w-6" />
-                                    </div>
-                                    <p className="text-4xl md:text-5xl font-extrabold text-white tracking-tight">{stat.value}</p>
-                                    <p className="text-sm font-semibold text-slate-400 uppercase tracking-widest">{stat.label}</p>
-                                </div>
+                {/* 2. PROBLEMA */}
+                <section id="problema" className="py-32 bg-slate-50 px-6 relative overflow-hidden">
+                    <div className="max-w-7xl mx-auto">
+                        <div className="grid lg:grid-cols-2 gap-20 items-center">
+                            <FadeIn className="space-y-8">
+                                <div className="h-1.5 w-16 bg-rose-500 rounded-full" />
+                                <h2 className="text-4xl md:text-6xl font-[900] text-slate-900 tracking-tighter leading-none">
+                                    Se você gere crédito manualmente… <br />
+                                    <span className="text-rose-500">você está a perder dinheiro.</span>
+                                </h2>
+                                <p className="text-xl text-slate-600 font-medium leading-relaxed italic border-l-4 border-slate-200 pl-6">
+                                    "No fim do mês, você trabalhou duro, atendeu clientes, mas não sabe exatamente para onde o seu dinheiro foi ou quem ainda te deve."
+                                </p>
                             </FadeIn>
-                        ))}
-                    </div>
-                </section>
-
-                {/* 3. PROBLEMA */}
-                <section className="py-24 bg-white px-6">
-                    <div className="max-w-7xl mx-auto">
-                        <FadeIn className="text-center max-w-3xl mx-auto space-y-4 mb-16">
-                            <h2 className="text-sm font-black text-rose-500 uppercase tracking-[0.2em]">O Desafio</h2>
-                            <h3 className="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight">O Excel não foi feito para gerir o seu futuro.</h3>
-                            <p className="text-lg text-slate-500 font-medium">Muitas instituições perdem dinheiro e eficiência por falta de ferramentas adequadas.</p>
-                        </FadeIn>
-
-                        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            {[
-                                { title: "Caos no Excel", desc: "Planilhas complexas que geram erros humanos e perda de dados críticos.", icon: FileText },
-                                { title: "Falta de Controlo", desc: "Dificuldade em saber quem pagou, quem deve e quando cobrar.", icon: ShieldAlert },
-                                { title: "Inadimplência Alta", desc: "Sem alertas automáticos, o atraso torna-se prejuízo inevitável.", icon: TrendingUp },
-                                { title: "Relatórios Fracos", desc: "Horas perdidas a consolidar dados que não refletem a realidade.", icon: BarChart3 },
-                            ].map((pain, i) => (
-                                <FadeIn key={i} delay={i * 100}>
-                                    <div className="p-8 rounded-2xl bg-slate-50 border border-slate-100 space-y-4 hover:border-rose-200 hover:bg-rose-50/30 transition-all group h-full">
-                                        <div className="h-12 w-12 rounded-xl bg-white flex items-center justify-center shadow-sm text-slate-400 group-hover:text-rose-500 transition-colors">
-                                            <pain.icon className="h-6 w-6" />
-                                        </div>
-                                        <h4 className="text-xl font-bold text-slate-900">{pain.title}</h4>
-                                        <p className="text-slate-600 text-sm leading-relaxed">{pain.desc}</p>
-                                    </div>
-                                </FadeIn>
-                            ))}
-                        </div>
-                    </div>
-                </section>
-
-                {/* 4. SOLUÇÃO */}
-                <section id="solucoes" className="py-24 bg-slate-900 text-white px-6 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(37,99,235,0.15),transparent_60%)]" />
-                    <div className="max-w-7xl mx-auto relative z-10 grid lg:grid-cols-2 gap-16 items-center">
-                        <FadeIn className="space-y-8">
-                            <div className="inline-flex items-center gap-2 text-blue-400 font-bold uppercase tracking-widest text-xs">
-                                <div className="h-1 w-8 bg-blue-500" />
-                                A Solução Definitiva
-                            </div>
-                            <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.1]">
-                                Deixe para trás o manual. <br />
-                                Entre na <span className="text-blue-400">Era do Controlo.</span>
-                            </h2>
-                            <p className="text-lg text-slate-400 font-medium leading-relaxed">
-                                O GestãoFlex automatiza todo o ciclo do microcrédito — desde a simulação inicial até à cobrança automática — funcionando como o centro de comando digital do seu negócio.
-                            </p>
-                            <div className="space-y-4 pt-4 text-slate-200 font-medium">
+                            
+                            <div className="grid sm:grid-cols-2 gap-6">
                                 {[
-                                    "Automatize 100% dos seus fluxos operacionais.",
-                                    "Tenha visão clara de cada centavo em tempo real.",
-                                    "Tome decisões baseadas em dados, não em palpites.",
-                                    "Reduza erros humanos e aumente a confiança."
-                                ].map((item, i) => (
-                                    <div key={i} className="flex items-center gap-3">
-                                        <CheckCircle2 className="h-5 w-5 text-emerald-500 flex-shrink-0" />
-                                        {item}
-                                    </div>
-                                ))}
-                            </div>
-                            <Link href="#demonstracao">
-                                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white font-bold h-14 px-8 text-base rounded-xl shadow-xl shadow-blue-600/40">
-                                    Descobrir Todos os Módulos
-                                </Button>
-                            </Link>
-                        </FadeIn>
-                        <FadeIn delay={150} className="relative">
-                            <div className="absolute inset-0 bg-blue-500/10 blur-[60px] rounded-full -z-10" />
-                            <img
-                                src="/mockup-parcelas.png"
-                                alt="GestãoFlex - Gestão de parcelas e contratos em múltiplos dispositivos"
-                                className="w-full h-auto rounded-2xl drop-shadow-2xl"
-                            />
-                        </FadeIn>
-                    </div>
-                </section>
-
-                {/* 5. BENEFÍCIOS */}
-                <section id="beneficios" className="py-24 bg-slate-50 px-6">
-                    <div className="max-w-7xl mx-auto">
-                        <FadeIn className="text-center max-w-2xl mx-auto space-y-6 mb-20">
-                            <h2 className="text-sm font-black text-blue-600 uppercase tracking-[0.3em]">Benefícios de Alto Impacto</h2>
-                            <h3 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">Foco total no seu crescimento.</h3>
-                        </FadeIn>
-
-                        <div className="grid md:grid-cols-2 gap-6">
-                            {[
-                                { title: "Automação de Processos", desc: "Elimine tarefas repetitivas e aumente a produtividade da sua equipe em até 3x.", icon: Zap, label: "Produtividade" },
-                                { title: "Redução da Inadimplência", desc: "Regras de crédito inteligentes e cobrança automática que aumentam o seu lucro real.", icon: TrendingUp, label: "Rentabilidade" },
-                                { title: "Dashboards em Tempo Real", desc: "Visibilidade total do negócio para decisões rápidas, precisas e seguras.", icon: PieChart, label: "Controlo" },
-                                { title: "Segurança de Dados", desc: "Arquitectura de nível bancário para garantir que os seus activos estejam sempre protegidos.", icon: Lock, label: "Confiança" },
-                            ].map((benefit, i) => (
-                                <FadeIn key={i} delay={i * 100}>
-                                    <div className="flex gap-6 p-8 rounded-2xl bg-white border border-slate-100 hover:border-blue-200 hover:shadow-xl hover:shadow-blue-600/5 transition-all group h-full">
-                                        <div className="h-14 w-14 rounded-2xl bg-blue-50 flex flex-shrink-0 items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all">
-                                            <benefit.icon className="h-7 w-7" />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <span className="text-[10px] font-black uppercase text-blue-600 tracking-widest">{benefit.label}</span>
-                                            <h4 className="text-xl font-bold text-slate-900">{benefit.title}</h4>
-                                            <p className="text-slate-500 font-medium leading-relaxed text-sm">{benefit.desc}</p>
-                                        </div>
-                                    </div>
-                                </FadeIn>
-                            ))}
-                        </div>
-                    </div>
-                </section>
-
-                {/* 6. FUNCIONALIDADES */}
-                <section className="py-24 bg-white px-6 overflow-hidden">
-                    <div className="max-w-7xl mx-auto">
-                        {/* Top header */}
-                        <FadeIn className="text-center max-w-2xl mx-auto space-y-4 mb-16">
-                            <div className="h-1.5 w-12 bg-emerald-500 rounded-full mx-auto" />
-                            <h2 className="text-4xl font-extrabold text-slate-900 tracking-tight">Poderoso por dentro, <br /><span className="text-blue-600">SIMPLES</span> por fora.</h2>
-                            <p className="text-lg text-slate-500 font-medium leading-relaxed">
-                                Complexidade técnica com uma interface intuitiva que qualquer pessoa pode operar.
-                            </p>
-                        </FadeIn>
-
-                        <div className="grid lg:grid-cols-2 gap-16 items-center">
-                            {/* Features list */}
-                            <div className="grid sm:grid-cols-2 gap-y-8 gap-x-6">
-                                {[
-                                    { title: "Gestão de Clientes", desc: "Cadastro completo com histórico de empréstimos e perfil de risco.", icon: Users },
-                                    { title: "Simulação de Empréstimos", desc: "Cálculos instantâneos de juros, multas e prazos personalizados.", icon: Calculator },
-                                    { title: "Motor de Crédito", desc: "Avaliação automática baseada em regras de negócio configuráveis.", icon: Cpu },
-                                    { title: "Cobrança Automática", desc: "Lembretes automáticos e controlo rigoroso de datas de pagamento.", icon: Bell },
-                                    { title: "Relatórios Exportáveis", desc: "PDF e Excel de alta qualidade para auditoria e gestão financeira.", icon: FileText },
-                                    { title: "Controlo de Utilizadores", desc: "Permissões granulares para cada membro da sua instituição.", icon: UserCheck },
-                                ].map((feat, i) => (
-                                    <FadeIn key={i} delay={i * 80}>
-                                        <div className="flex gap-4 group p-4 rounded-xl hover:bg-blue-50 transition-colors">
-                                            <div className="h-10 w-10 flex-shrink-0 flex items-center justify-center text-blue-600 bg-blue-50 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-all">
-                                                <feat.icon className="h-5 w-5" />
+                                    { title: "Clientes esquecem", desc: "A cada dia de atraso, seu lucro diminui sem você perceber.", icon: Clock },
+                                    { title: "Registos no papel", desc: "Cadernos perdem-se. Planilhas corrompem-se. Sua empresa para.", icon: FileText },
+                                    { title: "Cálculos errados", desc: "Um erro na vírgula pode custar meses de rendimento.", icon: Calculator },
+                                    { title: "Zero Controle", desc: "Você cresce sem saber se está realmente tendo lucro ou prejuízo.", icon: ShieldAlert },
+                                ].map((pain, i) => (
+                                    <FadeIn key={i} delay={i * 100}>
+                                        <div className="bg-white p-8 rounded-3xl border border-slate-200 space-y-4 shadow-sm hover:shadow-xl hover:shadow-rose-500/5 transition-all group">
+                                            <div className="h-12 w-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-rose-500 group-hover:text-white transition-all">
+                                                <pain.icon className="h-6 w-6" />
                                             </div>
-                                            <div className="space-y-1">
-                                                <h4 className="text-base font-bold text-slate-900">{feat.title}</h4>
-                                                <p className="text-slate-500 text-sm leading-relaxed">{feat.desc}</p>
-                                            </div>
+                                            <h4 className="text-xl font-black text-slate-900">{pain.title}</h4>
+                                            <p className="text-slate-500 text-sm font-semibold">{pain.desc}</p>
                                         </div>
                                     </FadeIn>
                                 ))}
                             </div>
-
-                            {/* Real screenshot */}
-                            <FadeIn delay={200} className="relative">
-                                <div className="absolute -right-10 -top-10 w-64 h-64 bg-blue-100/50 rounded-full blur-3xl -z-10" />
-                                <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-emerald-100/50 rounded-full blur-3xl -z-10" />
-                                <img
-                                    src="/mockup-emprestimos.png"
-                                    alt="GestãoFlex - Lista de empréstimos no MacBook"
-                                    className="w-full h-auto rounded-2xl shadow-2xl shadow-slate-900/10"
-                                />
-                                {/* Feature callout */}
-                                <div className="absolute -bottom-6 -left-6 bg-white rounded-2xl shadow-xl border border-slate-100 px-5 py-4">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Status em tempo real</p>
-                                    <div className="flex items-center gap-3">
-                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold">● Activo</span>
-                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold">● Em Análise</span>
-                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-red-100 text-red-700 text-xs font-bold">● Vencido</span>
-                                    </div>
-                                </div>
-                            </FadeIn>
-                        </div>
-
-                        <div className="text-center mt-12">
-                            <Link href="#demonstracao">
-                                <Button className="bg-blue-600 hover:bg-blue-700 text-white font-bold h-12 px-8 rounded-xl shadow-lg shadow-blue-600/20">
-                                    Ver tour completo do sistema
-                                    <ArrowRight className="ml-2 h-4 w-4" />
-                                </Button>
-                            </Link>
                         </div>
                     </div>
                 </section>
 
-                {/* 7. PÚBLICO-ALVO */}
-                <section className="py-24 bg-slate-50 px-6">
-                    <div className="max-w-7xl mx-auto text-center space-y-16">
-                        <FadeIn className="space-y-4">
-                            <h2 className="text-sm font-black text-blue-600 uppercase tracking-widest">Público-Alvo</h2>
-                            <h3 className="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight">Feito para o ecossistema financeiro.</h3>
+                {/* 3. SOLUÇÃO */}
+                <section id="solucao" className="py-32 bg-white px-6">
+                    <div className="max-w-5xl mx-auto text-center space-y-12">
+                        <FadeIn className="space-y-6">
+                            <h2 className="text-sm font-black text-blue-600 uppercase tracking-[0.3em]">A Solução Moderna</h2>
+                            <h3 className="text-5xl md:text-7xl font-[900] text-slate-900 tracking-tighter leading-[0.9]">
+                                O <span className="text-blue-600">GestãoFlex</span> resolve tudo isso automaticamente
+                            </h3>
+                            <p className="text-xl md:text-2xl text-slate-500 font-medium max-w-3xl mx-auto">
+                                Um sistema simples e inteligente para controlar todo o seu microcrédito em um único lugar. Do pequeno empreendedor à grande instituição.
+                            </p>
                         </FadeIn>
-                        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        
+                        <FadeIn delay={200}>
+                            <div className="relative group">
+                                <div className="absolute inset-0 bg-blue-600/5 blur-[100px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <img
+                                    src="/mockup-parcelas.png"
+                                    alt="GestãoFlex Dashboard"
+                                    className="w-full h-auto rounded-[2.5rem] border border-slate-100 shadow-2xl relative z-10"
+                                />
+                            </div>
+                        </FadeIn>
+                    </div>
+                </section>
+
+                {/* 4. BENEFÍCIOS */}
+                <section id="beneficios" className="py-32 bg-slate-50 px-6">
+                    <div className="max-w-7xl mx-auto">
+                        <FadeIn className="text-center max-w-2xl mx-auto space-y-6 mb-24">
+                            <h2 className="text-sm font-black text-blue-600 uppercase tracking-[0.3em]">Resultados Reais</h2>
+                            <h3 className="text-5xl md:text-6xl font-[900] text-slate-900 tracking-tighter leading-none">Foco total no seu lucro.</h3>
+                        </FadeIn>
+
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                             {[
-                                { label: "Instituições de Microcrédito", icon: Landmark, desc: "Gerencie toda a carteira com precisão." },
-                                { label: "Cooperativas de Crédito", icon: HeartHandshake, desc: "Fortaleça a governança e a confiança." },
-                                { label: "ONGs Financeiras", icon: Globe, desc: "Impacto social com controlo total." },
-                                { label: "Fintechs Emergentes", icon: Zap, desc: "Escale rapidamente com tecnologia sólida." },
-                            ].map((target, i) => (
+                                { title: "Cálculos Automáticos", desc: "Esqueça a calculadora. Juros, multas e parcelas são gerados em segundos.", icon: Calculator },
+                                { title: "Controle de Empréstimos", desc: "Saiba exatamente quanto tem na rua e quando o dinheiro volta.", icon: TrendingUp },
+                                { title: "Histórico de Clientes", desc: "Perfil completo de cada tomador para evitar maus pagadores.", icon: Users },
+                                { title: "Redução de Erros", desc: "Elimine falhas humanas que custam caro para o seu negócio.", icon: ShieldCheck },
+                                { title: "Economia de Tempo", desc: "Recupere horas do seu dia automatizando tarefas repetitivas.", icon: Clock },
+                                { title: "Mais Organização", desc: "Tudo centralizado, seguro e acessível de qualquer lugar.", icon: Zap },
+                            ].map((benefit, i) => (
                                 <FadeIn key={i} delay={i * 100}>
-                                    <div className="bg-white p-8 rounded-2xl border border-slate-200 flex flex-col items-center text-center space-y-4 hover:-translate-y-2 hover:shadow-xl hover:shadow-blue-600/5 transition-all duration-300 h-full">
-                                        <div className="h-14 w-14 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-xl shadow-blue-600/20">
-                                            <target.icon className="h-7 w-7" />
+                                    <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-blue-600/5 transition-all group h-full">
+                                        <div className="h-14 w-14 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all mb-8">
+                                            <benefit.icon className="h-7 w-7" />
                                         </div>
-                                        <p className="font-extrabold text-slate-900 text-base leading-tight">{target.label}</p>
-                                        <p className="text-xs text-slate-500 font-medium">{target.desc}</p>
+                                        <h4 className="text-2xl font-black text-slate-900 mb-4">{benefit.title}</h4>
+                                        <p className="text-slate-500 font-semibold leading-relaxed">{benefit.desc}</p>
                                     </div>
                                 </FadeIn>
                             ))}
@@ -561,177 +380,214 @@ export default function LandingPage() {
                     </div>
                 </section>
 
-                {/* 8. TESTEMUNHOS */}
-                <section className="py-24 bg-white px-6">
+                {/* 5. FUNCIONALIDADES */}
+                <section className="py-32 bg-white px-6 overflow-hidden">
                     <div className="max-w-7xl mx-auto">
-                        <FadeIn className="text-center space-y-4 mb-16">
-                            <h2 className="text-sm font-black text-blue-600 uppercase tracking-widest">Prova Social</h2>
-                            <h3 className="text-3xl md:text-4xl font-extrabold text-slate-900">O que dizem os nossos clientes.</h3>
+                        <div className="grid lg:grid-cols-2 gap-24 items-center">
+                            <div className="space-y-12">
+                                <FadeIn className="space-y-6">
+                                    <h2 className="text-sm font-black text-emerald-500 uppercase tracking-widest">Funcionalidades</h2>
+                                    <h3 className="text-5xl font-[900] text-slate-900 tracking-tighter leading-none">Tudo o que você precisa em um só lugar</h3>
+                                </FadeIn>
+
+                                <div className="space-y-8">
+                                    {[
+                                        { title: "Cadastro de Clientes", desc: "Fichas completas com fotos, documentos e referências." },
+                                        { title: "Gestão de Empréstimos", desc: "Contratos flexíveis, taxas personalizadas e prazos variados." },
+                                        { title: "Controle de Pagamentos", desc: "Baixa automática de parcelas e alertas de vencimento." },
+                                        { title: "Relatórios Automáticos", desc: "PDFs profissionais prontos para imprimir ou enviar." },
+                                        { title: "Dashboard Intuitivo", desc: "Gráficos claros que mostram a saúde do seu negócio." },
+                                    ].map((feat, i) => (
+                                        <FadeIn key={i} delay={i * 100} className="flex gap-6 group">
+                                            <div className="h-8 w-8 rounded-full bg-emerald-50 flex-shrink-0 flex items-center justify-center text-emerald-500 font-bold text-sm group-hover:bg-emerald-500 group-hover:text-white transition-all">
+                                                {i + 1}
+                                            </div>
+                                            <div className="space-y-1">
+                                                <h4 className="text-xl font-black text-slate-900">{feat.title}</h4>
+                                                <p className="text-slate-500 font-semibold">{feat.desc}</p>
+                                            </div>
+                                        </FadeIn>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <FadeIn delay={200} className="relative">
+                                <div className="absolute -right-20 -top-20 w-[500px] h-[500px] bg-emerald-50 rounded-full blur-[100px] -z-10 opacity-60" />
+                                <img
+                                    src="/mockup-emprestimos.png"
+                                    alt="Funcionalidades GestãoFlex"
+                                    className="w-full h-auto rounded-3xl shadow-[0_50px_100px_rgba(0,0,0,0.1)] border border-slate-100"
+                                />
+                            </FadeIn>
+                        </div>
+                    </div>
+                </section>
+
+                {/* 6. PROVA / AUTORIDADE */}
+                <section className="py-32 bg-slate-900 text-white px-6">
+                    <div className="max-w-7xl mx-auto space-y-24">
+                        <FadeIn className="text-center max-w-3xl mx-auto space-y-6">
+                            <h2 className="text-sm font-black text-blue-400 uppercase tracking-[0.3em]">Prova Real</h2>
+                            <h3 className="text-5xl font-[900] tracking-tighter leading-none text-white">
+                                Desenvolvido com foco na realidade de <span className="text-blue-400">quem faz acontecer.</span>
+                            </h3>
+                            <p className="text-xl text-slate-400 font-medium">
+                                Junte-se a centenas de gestores que transformaram o caos em lucro.
+                            </p>
                         </FadeIn>
+
                         <div className="grid md:grid-cols-3 gap-8">
                             {[
                                 {
-                                    quote: "A transição do Excel para o GestãoFlex foi o marco de crescimento da nossa cooperativa. Inadimplência caiu 40% em 3 meses.",
-                                    name: "Dr. Manuel Antunes",
-                                    role: "Director Financeiro",
-                                    company: "MicroCred Moz",
-                                    initial: "MA",
-                                    stars: 5,
+                                    quote: "O GestãoFlex é robusto mas simples. Reduzi minha inadimplência pela metade e hoje durmo tranquilo sabendo que meus dados estão seguros.",
+                                    name: "João Silva",
+                                    role: "Agente Independente",
+                                    company: "Silva Crédito",
+                                    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
                                 },
                                 {
-                                    quote: "Antes levávamos 2 dias para fechar o relatório mensal. Hoje fazemos em minutos. O sistema é incrivelmente rápido e intuitivo.",
-                                    name: "Fátima Nhantumbo",
-                                    role: "Gestora de Operações",
-                                    company: "Cooperativa Unida",
-                                    initial: "FN",
-                                    stars: 5,
+                                    quote: "Migrar do Excel para cá foi a melhor decisão do ano. Meus clientes recebem lembretes e eu recebo os pagamentos em dia. O sistema se paga sozinho.",
+                                    name: "Maria Santos",
+                                    role: "Gestora",
+                                    company: "Santos Financeira",
+                                    image: "https://images.unsplash.com/photo-1567532939604-b6c5b0adcc80?w=100&h=100&fit=crop",
                                 },
                                 {
-                                    quote: "A segurança e a rastreabilidade que o GestãoFlex oferece dão-nos confiança total para apresentar resultados aos nossos parceiros internacionais.",
-                                    name: "Carlos Machava",
+                                    quote: "Interface rápida e intuitiva. Treinei minha equipe em 30 minutos. Os relatórios são exatamente o que eu precisava para crescer.",
+                                    name: "António Costa",
                                     role: "CEO",
-                                    company: "FinanSol ONG",
-                                    initial: "CM",
-                                    stars: 5,
+                                    company: "Costa & Filhos",
+                                    image: "https://images.unsplash.com/photo-1531384441138-2736e62e0919?w=100&h=100&fit=crop",
                                 },
                             ].map((t, i) => (
                                 <FadeIn key={i} delay={i * 120}>
-                                    <div className="bg-slate-50 rounded-2xl border border-slate-100 p-8 space-y-6 h-full flex flex-col hover:shadow-lg hover:border-blue-200 transition-all">
+                                    <div className="bg-white/5 backdrop-blur-sm border border-white/10 p-10 rounded-[2.5rem] space-y-8 flex flex-col h-full hover:bg-white/10 transition-all">
                                         <div className="flex gap-1">
-                                            {Array.from({ length: t.stars }).map((_, j) => (
-                                                <Star key={j} className="h-4 w-4 fill-emerald-500 text-emerald-500" />
-                                            ))}
+                                            {[1, 2, 3, 4, 5].map(j => <Star key={j} className="h-5 w-5 fill-blue-400 text-blue-400" />)}
                                         </div>
-                                        <p className="text-slate-700 font-medium leading-relaxed italic flex-grow">&quot;{t.quote}&quot;</p>
-                                        <div className="flex items-center gap-4 pt-4 border-t border-slate-200">
-                                            <div className="h-12 w-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                                                {t.initial}
-                                            </div>
+                                        <p className="text-xl text-slate-300 font-medium leading-relaxed italic">&quot;{t.quote}&quot;</p>
+                                        <div className="flex items-center gap-5 pt-8 border-t border-white/10">
+                                            <img src={t.image} alt={t.name} className="h-14 w-14 rounded-full border-2 border-blue-400/30 object-crop" />
                                             <div>
-                                                <p className="font-black text-slate-900 text-sm">{t.name}</p>
-                                                <p className="text-xs font-semibold text-slate-500">{t.role} · {t.company}</p>
+                                                <p className="font-black text-white text-lg leading-tight">{t.name}</p>
+                                                <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">{t.role} · {t.company}</p>
                                             </div>
                                         </div>
                                     </div>
                                 </FadeIn>
                             ))}
                         </div>
-
-                        {/* Trust logos */}
-                        <div className="flex flex-wrap justify-center gap-12 pt-16 opacity-40 grayscale">
-                            {["Segurança Nível Bancário", "Proteção de Dados ISO", "Processamento 24/7", "Auditoria Verificada"].map((label, i) => (
-                                <div key={i} className="flex items-center gap-2 font-black text-xs uppercase tracking-widest">
-                                    <ShieldCheck className="h-5 w-5 text-blue-600" />
-                                    {label}
-                                </div>
-                            ))}
-                        </div>
                     </div>
                 </section>
 
-                {/* 9. PREÇOS */}
-                <section id="precos" className="py-24 bg-slate-900 text-white px-6 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(37,99,235,0.2),transparent_60%)]" />
-                    <div className="max-w-7xl mx-auto relative z-10">
-                        <FadeIn className="text-center space-y-4 mb-16">
-                            <h2 className="text-sm font-black text-blue-400 uppercase tracking-widest">Planos e Preços</h2>
-                            <h3 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight">Plano certo para cada etapa.</h3>
-                            <p className="text-slate-400 font-medium max-w-xl mx-auto">Sem custos ocultos. Sem surpresas. Cancele quando quiser.</p>
+                {/* 7. DEMONSTRAÇÃO */}
+                <section id="demonstracao" className="py-32 bg-white px-6">
+                    <div className="max-w-7xl mx-auto text-center space-y-16">
+                        <FadeIn className="space-y-6">
+                            <h2 className="text-sm font-black text-blue-600 uppercase tracking-widest">Demonstração</h2>
+                            <h3 className="text-5xl font-[900] text-slate-900 tracking-tighter leading-none">Interface simples, rápida e fácil de usar</h3>
                         </FadeIn>
-                        <div className="grid md:grid-cols-3 gap-8 items-start">
-                            {pricingPlans.map((plan, i) => (
-                                <FadeIn key={i} delay={i * 120}>
-                                    <div className={cn(
-                                        "rounded-2xl p-8 border space-y-8 h-full flex flex-col relative",
-                                        plan.highlighted
-                                            ? "bg-blue-600 border-blue-500 shadow-[0_0_80px_rgba(37,99,235,0.3)]"
-                                            : "bg-white/5 border-white/10 backdrop-blur-sm"
-                                    )}>
-                                        {plan.highlighted && (
-                                            <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-emerald-500 text-white text-xs font-black uppercase tracking-widest rounded-full shadow-lg">
-                                                Mais Popular
-                                            </div>
-                                        )}
-                                        <div className="space-y-2">
-                                            <h4 className="text-lg font-black text-white">{plan.name}</h4>
-                                            <p className="text-xs text-blue-200 font-semibold">{plan.desc}</p>
-                                        </div>
-                                        <div>
-                                            <span className="text-4xl font-extrabold text-white">{plan.price}</span>
-                                            {plan.currency && <span className="text-sm text-blue-200 ml-2 font-semibold">{plan.currency}</span>}
-                                        </div>
-                                        <div className="space-y-3 flex-grow">
-                                            {plan.features.map((f, j) => (
-                                                <div key={j} className="flex items-start gap-3">
-                                                    <Check className={cn("h-4 w-4 mt-0.5 flex-shrink-0", plan.highlighted ? "text-white" : "text-emerald-400")} />
-                                                    <span className={cn("text-sm font-medium", plan.highlighted ? "text-blue-100" : "text-slate-300")}>{f}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <Link href="#demonstracao" className="block">
-                                            <Button className={cn(
-                                                "w-full h-12 font-bold rounded-xl",
-                                                plan.highlighted
-                                                    ? "bg-white text-blue-600 hover:bg-blue-50"
-                                                    : "bg-blue-600 hover:bg-blue-700 text-white"
-                                            )}>
-                                                {plan.cta}
+                        
+                        <FadeIn delay={200} className="relative group max-w-5xl mx-auto">
+                            <div className="absolute inset-0 bg-blue-600/10 blur-[100px] rounded-full scale-110 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <div className="relative aspect-video bg-slate-100 rounded-[2.5rem] border-8 border-slate-900 shadow-2xl overflow-hidden">
+                                <img 
+                                    src="/hero-mockup.png" 
+                                    alt="Demonstração do Sistema" 
+                                    className="w-full h-full object-cover"
+                                />
+                                <div className="absolute inset-0 flex items-center justify-center bg-slate-900/20 group-hover:bg-slate-900/40 transition-all cursor-pointer">
+                                    <div className="h-20 w-20 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-2xl group-hover:scale-110 transition-transform">
+                                        <Zap className="h-10 w-10 fill-white" />
+                                    </div>
+                                </div>
+                            </div>
+                        </FadeIn>
+                    </div>
+                </section>
+
+                {/* 8. OFERTA & 9. URGÊNCIA */}
+                <section className="py-32 bg-slate-50 px-6">
+                    <div className="max-w-7xl mx-auto">
+                        <div className="bg-blue-600 rounded-[3.5rem] p-12 lg:p-24 text-white relative overflow-hidden shadow-[0_50px_100px_-20px_rgba(37,99,235,0.4)] text-center">
+                            <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-white/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
+                            <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-emerald-400/10 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2" />
+                            
+                            <div className="relative z-10 max-w-4xl mx-auto space-y-10">
+                                <FadeIn className="space-y-6">
+                                    <h2 className="text-5xl md:text-8xl font-[900] tracking-tighter leading-[0.9]">
+                                        Comece agora <br />sem risco
+                                    </h2>
+                                    <p className="text-xl md:text-2xl text-blue-100 font-medium leading-relaxed max-w-2xl mx-auto">
+                                        Teste gratuitamente e veja como é fácil organizar seu negócio. Pare de perder dinheiro por falta de controle.
+                                    </p>
+                                </FadeIn>
+                                
+                                <FadeIn delay={200} className="space-y-8">
+                                    <p className="text-emerald-300 font-black uppercase tracking-widest text-sm bg-emerald-500/10 inline-block px-4 py-2 rounded-full">
+                                        ⚠️ URGENCIAL: Recupere o controle antes que as perdas aumentem.
+                                    </p>
+                                    <div className="flex flex-col sm:flex-row gap-6 justify-center">
+                                        <Link href="#demonstracao">
+                                            <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50 font-black h-20 px-12 text-xl rounded-2xl shadow-2xl">
+                                                Criar minha conta grátis
                                             </Button>
                                         </Link>
                                     </div>
                                 </FadeIn>
-                            ))}
+                            </div>
                         </div>
                     </div>
                 </section>
 
-                {/* 10. CTA FORTE */}
-                <section id="demonstracao" className="py-24 px-6 relative bg-white">
+                {/* 10. SEGURANÇA */}
+                <section id="seguranca" className="py-32 bg-white px-6">
                     <div className="max-w-7xl mx-auto">
-                        <div className="bg-blue-600 rounded-[3rem] p-12 md:p-20 text-center text-white space-y-10 relative overflow-hidden shadow-[0_40px_100px_-20px_rgba(30,58,138,0.4)]">
-                            <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-                            <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-emerald-400/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
-
-                            <FadeIn className="relative z-10 space-y-4">
-                                <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-none">
-                                    Pronto para ter controlo <br />TOTAL do seu negócio?
-                                </h2>
-                                <p className="text-xl text-blue-100 max-w-2xl mx-auto font-medium leading-relaxed">
-                                    Reserve 15 minutos para uma demonstração gratuita e veja como podemos transformar a sua operação.
+                        <div className="grid lg:grid-cols-2 gap-20 items-center">
+                            <FadeIn className="space-y-8">
+                                <h2 className="text-sm font-black text-blue-600 uppercase tracking-widest">Segurança Máxima</h2>
+                                <h3 className="text-5xl font-[900] text-slate-900 tracking-tighter leading-none">
+                                    Seus dados protegidos por tecnologia de <span className="text-blue-600">nível bancário</span>
+                                </h3>
+                                <p className="text-xl text-slate-500 font-medium leading-relaxed">
+                                    Nós levamos a segurança a sério. Utilizamos criptografia de ponta a ponta e infraestrutura redundante para garantir que sua empresa nunca pare.
                                 </p>
+                                <div className="grid sm:grid-cols-2 gap-8 pt-4">
+                                    {[
+                                        { title: "Criptografia SSL", desc: "Protocolos de segurança máxima." },
+                                        { title: "Backups Diários", desc: "Suas informações sempre salvas." },
+                                        { title: "Isolamento de Dados", desc: "Privacidade total garantida." },
+                                        { title: "Auditoria 24/7", desc: "Monitoramento constante." },
+                                    ].map((s, i) => (
+                                        <div key={i} className="flex gap-4">
+                                            <div className="h-6 w-6 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                                                <Check className="h-4 w-4 text-emerald-600" />
+                                            </div>
+                                            <div>
+                                                <p className="font-black text-slate-900 leading-tight">{s.title}</p>
+                                                <p className="text-sm text-slate-500 font-semibold">{s.desc}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                             </FadeIn>
-
-                            {/* Contact form */}
-                            <FadeIn delay={200} className="relative z-10 max-w-xl mx-auto">
-                                <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 space-y-4">
-                                    <div className="grid sm:grid-cols-2 gap-4">
-                                        <input
-                                            type="text"
-                                            placeholder="O seu nome"
-                                            className="h-12 px-4 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-blue-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-white/40 w-full"
-                                        />
-                                        <input
-                                            type="text"
-                                            placeholder="Nome da instituição"
-                                            className="h-12 px-4 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-blue-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-white/40 w-full"
-                                        />
+                            
+                            <FadeIn delay={200} className="relative">
+                                <div className="absolute inset-0 bg-blue-600/5 rounded-[3rem] -rotate-3" />
+                                <div className="relative bg-slate-900 rounded-[3rem] p-12 text-white space-y-10 overflow-hidden">
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/20 rounded-full blur-3xl opacity-50" />
+                                    <div className="h-16 w-16 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-600/40">
+                                        <ShieldCheck className="h-8 w-8" />
                                     </div>
-                                    <div className="grid sm:grid-cols-2 gap-4">
-                                        <input
-                                            type="email"
-                                            placeholder="O seu email"
-                                            className="h-12 px-4 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-blue-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-white/40 w-full"
-                                        />
-                                        <input
-                                            type="tel"
-                                            placeholder="Telefone / WhatsApp"
-                                            className="h-12 px-4 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-blue-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-white/40 w-full"
-                                        />
+                                    <div className="space-y-6">
+                                        <p className="text-3xl font-black tracking-tight leading-tight italic">
+                                            "Segurança em primeiro lugar. Focamos na tecnologia para que você foque no crescimento."
+                                        </p>
+                                        <div className="flex items-center gap-4 text-sm font-bold text-blue-400 uppercase tracking-widest pt-4 border-t border-white/10">
+                                            <Lock className="h-4 w-4" />
+                                            Certificado ISO / SOC2 Ready
+                                        </div>
                                     </div>
-                                    <Button className="w-full h-12 bg-white text-blue-600 hover:bg-blue-50 font-black text-base rounded-xl shadow-2xl">
-                                        Solicitar Demonstração Gratuita →
-                                    </Button>
-                                    <p className="text-[11px] text-blue-200 text-center">Sem compromisso. Resposta em menos de 24 horas.</p>
                                 </div>
                             </FadeIn>
                         </div>
@@ -739,25 +595,27 @@ export default function LandingPage() {
                 </section>
 
                 {/* 11. FAQ */}
-                <section id="faq" className="py-24 bg-slate-50 px-6">
-                    <div className="max-w-3xl mx-auto space-y-16">
-                        <FadeIn className="text-center space-y-4">
-                            <h2 className="text-sm font-black text-blue-600 uppercase tracking-widest">Dúvidas Frequentes</h2>
-                            <h3 className="text-3xl md:text-4xl font-extrabold text-slate-900">Perguntas comuns</h3>
+                <section id="faq" className="py-32 bg-white px-6">
+                    <div className="max-w-4xl mx-auto space-y-20">
+                        <FadeIn className="text-center space-y-6">
+                            <h2 className="text-sm font-black text-blue-600 uppercase tracking-[0.3em]">Perguntas Frequentes</h2>
+                            <h3 className="text-5xl font-[900] text-slate-900 tracking-tighter leading-none">Tire suas dúvidas</h3>
                         </FadeIn>
-                        <div className="space-y-3">
+                        <div className="grid gap-4">
                             {faqItems.map((item, i) => (
                                 <FadeIn key={i} delay={i * 60}>
-                                    <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+                                    <div className="bg-slate-50 border border-slate-100 rounded-3xl overflow-hidden hover:border-blue-200 transition-all">
                                         <button
                                             onClick={() => setActiveFaq(activeFaq === i ? null : i)}
-                                            className="w-full flex items-center justify-between p-6 text-left hover:bg-slate-50 transition-colors"
+                                            className="w-full flex items-center justify-between p-8 text-left transition-colors"
                                         >
-                                            <span className="font-bold text-slate-900 pr-8">{item.q}</span>
-                                            <ChevronDown className={cn("h-5 w-5 text-slate-400 transition-transform flex-shrink-0", activeFaq === i && "rotate-180")} />
+                                            <span className="text-xl font-black text-slate-900 pr-8">{item.q}</span>
+                                            <div className={cn("h-10 w-10 rounded-full bg-white flex items-center justify-center text-slate-400 transition-transform", activeFaq === i && "rotate-180 bg-blue-600 text-white shadow-lg shadow-blue-600/20")}>
+                                                <ChevronDown className="h-5 w-5" />
+                                            </div>
                                         </button>
-                                        <div className={cn("overflow-hidden transition-all duration-300", activeFaq === i ? "max-h-48" : "max-h-0")}>
-                                            <div className="p-6 pt-0 text-slate-600 font-medium leading-relaxed border-t border-slate-100">
+                                        <div className={cn("overflow-hidden transition-all duration-300", activeFaq === i ? "max-h-60" : "max-h-0")}>
+                                            <div className="p-8 pt-0 text-slate-500 font-semibold text-lg leading-relaxed">
                                                 {item.a}
                                             </div>
                                         </div>
@@ -765,6 +623,28 @@ export default function LandingPage() {
                                 </FadeIn>
                             ))}
                         </div>
+                    </div>
+                </section>
+
+                {/* 12. CTA FINAL */}
+                <section className="py-32 bg-white px-6">
+                    <div className="max-w-4xl mx-auto text-center space-y-12">
+                        <FadeIn className="space-y-6">
+                            <h2 className="text-6xl md:text-8xl font-[900] text-slate-900 tracking-tighter leading-[0.9]">
+                                Comece a controlar seu negócio <span className="text-blue-600 italic">hoje mesmo</span>
+                            </h2>
+                            <p className="text-2xl text-slate-500 font-medium max-w-2xl mx-auto">
+                                Pare de trabalhar no escuro. Tenha controle total do seu dinheiro e escale sua operação.
+                            </p>
+                        </FadeIn>
+                        
+                        <FadeIn delay={200}>
+                            <Link href="#demonstracao">
+                                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white font-[900] h-20 px-12 text-2xl rounded-3xl shadow-[0_40px_80px_-20px_rgba(37,99,235,0.4)] transition-all hover:scale-105 active:scale-95">
+                                    Criar minha conta agora
+                                </Button>
+                            </Link>
+                        </FadeIn>
                     </div>
                 </section>
             </main>
