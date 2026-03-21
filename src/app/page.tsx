@@ -229,7 +229,7 @@ export default function LandingPage() {
                     <div className="absolute bottom-0 left-0 translate-y-1/3 -translate-x-1/4 w-[800px] h-[800px] bg-emerald-50/30 rounded-full blur-[120px] pointer-events-none" />
                     
                     <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
-                        <div className="max-w-5xl mx-auto space-y-10">
+                        <div className="max-w-[1400px] mx-auto space-y-10">
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
@@ -245,10 +245,10 @@ export default function LandingPage() {
                                 transition={{ delay: 0.1, duration: 0.8 }}
                                 className="space-y-8"
                             >
-                                <h1 className="text-6xl md:text-8xl font-[800] text-slate-900 tracking-tight leading-[0.9] lg:px-10">
+                                <h1 className="text-6xl md:text-8xl font-[800] text-slate-900 tracking-tight leading-[0.9]">
                                     Pare de perder dinheiro com <span className="text-blue-600">inadimplência</span>
                                 </h1>
-                                <p className="text-xl md:text-2xl font-medium text-slate-500 tracking-tight max-w-3xl mx-auto leading-normal">
+                                <p className="text-xl md:text-2xl font-medium text-slate-500 tracking-tight max-w-5xl mx-auto leading-normal">
                                     Diga adeus aos cadernos e planilhas confusas. O GestãoFlex automatiza sua cobrança e organiza seus lucros em um sistema profissional e moderno.
                                 </p>
                             </motion.div>
@@ -283,7 +283,7 @@ export default function LandingPage() {
                         >
                             <div className="absolute inset-0 bg-blue-600/5 blur-[120px] rounded-full -z-10 scale-110" />
                             <img
-                                src="/hero-mockup-v2.png"
+                                src="/premium-mockup.png"
                                 alt="GestãoFlex Dashboard"
                                 className="w-full h-auto drop-shadow-[0_32px_64px_rgba(0,0,0,0.12)] rounded-[2rem] border border-white/40 ring-1 ring-slate-200/50"
                             />
@@ -345,7 +345,7 @@ export default function LandingPage() {
                             <div className="relative group max-w-4xl mx-auto">
                                 <div className="absolute inset-0 bg-blue-600/5 blur-[80px] rounded-full opacity-50 group-hover:opacity-100 transition-opacity" />
                                 <img
-                                    src="/mockup-parcelas-v2.png"
+                                    src="/mockup-tablet-evolution.png"
                                     alt="Interface GestãoFlex"
                                     className="w-full h-auto rounded-2xl border border-slate-100 shadow-xl relative z-10 transition-transform group-hover:scale-[1.01]"
                                 />
@@ -478,7 +478,7 @@ export default function LandingPage() {
                                 <div className="absolute -right-20 -top-20 w-[500px] h-[500px] bg-blue-50 rounded-full blur-[120px] -z-10 opacity-60" />
                                 <div className="p-4 bg-slate-100/50 rounded-[2.5rem] border border-slate-200/50 backdrop-blur-sm shadow-2xl">
                                     <img
-                                        src="/mockup-emprestimos-v2.png"
+                                        src="/mockup-laptop-loan.png"
                                         alt="Funcionalidades GestãoFlex"
                                         className="w-full h-auto rounded-[2rem] shadow-sm"
                                     />
@@ -513,19 +513,19 @@ export default function LandingPage() {
                                     quote: "O GestãoFlex é robusto mas simples. Reduzi minha inadimplência pela metade e hoje durmo tranquilo sabendo que meus dados estão seguros.",
                                     name: "João Silva",
                                     role: "Agente de Crédito",
-                                    image: "https://images.unsplash.com/photo-1531384441138-2736e62e0919?w=100&h=100&fit=crop",
+                                    image: "/testimonials/joao.png",
                                 },
                                 {
                                     quote: "Migrar do Excel para cá foi a melhor decisão do ano. Meus clientes recebem lembretes e eu recebo os pagamentos em dia.",
                                     name: "Maria Santos",
                                     role: "Gestora Financeira",
-                                    image: "https://images.unsplash.com/photo-1567532939604-b6c5b0adcc80?w=100&h=100&fit=crop",
+                                    image: "/testimonials/maria.png",
                                 },
                                 {
                                     quote: "Interface rápida e intuitiva. Treinei minha equipe em 20 minutos. Os relatórios são exatamente o que eu precisava.",
                                     name: "António Costa",
                                     role: "Empreendedor",
-                                    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
+                                    image: "/testimonials/antonio.png",
                                 },
                             ].map((t, i) => (
                                 <FadeIn key={i} delay={i * 100}>
@@ -535,7 +535,9 @@ export default function LandingPage() {
                                         </div>
                                         <p className="text-lg text-slate-300 font-medium leading-relaxed italic">&quot;{t.quote}&quot;</p>
                                         <div className="flex items-center gap-4 pt-6 mt-auto border-t border-white/5">
-                                            <img src={t.image} alt={t.name} className="h-12 w-12 rounded-full border border-blue-400/30 object-cover grayscale group-hover:grayscale-0 transition-all" />
+                                            <div className="h-14 w-14 rounded-full border-2 border-blue-400 p-1 flex-shrink-0">
+                                                <img src={t.image} alt={t.name} className="h-full w-full rounded-full object-cover shadow-inner" />
+                                            </div>
                                             <div>
                                                 <p className="font-bold text-white leading-none">{t.name}</p>
                                                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">{t.role}</p>
@@ -561,7 +563,7 @@ export default function LandingPage() {
                             <div className="relative rounded-2xl border border-slate-200 overflow-hidden shadow-2xl bg-slate-50 p-2">
                                 <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
                                     <img 
-                                        src="/hero-mockup-v2.png" 
+                                        src="/mockup-full-dashboard-wide.png" 
                                         alt="Dashboard do Sistema"
                                         className="w-full h-auto"
                                     />
