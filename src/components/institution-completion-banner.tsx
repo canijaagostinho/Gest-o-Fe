@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, usePathname } from "react-router-dom"; // Actually, project uses next/navigation
+import { useRouter, usePathname } from "next/navigation";
 import { AlertCircle, ArrowRight, X, Sparkles, Building2 } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";

@@ -29,7 +29,10 @@ import { depositAction } from "@/app/actions/transaction-actions";
 import { Wallet, Loader2 } from "lucide-react";
 
 const formSchema = z.object({
-  amount: z.coerce.number().min(1, "O valor deve ser superior a zero"),
+  amount: z.preprocess(
+    (val) => (val === "" ? undefined : Number(val)),
+    z.number().min(1, "O valor deve ser superior a zero")
+  ),
   description: z.string().min(3, "A descrição deve ter pelo menos 3 caracteres"),
 });
 
@@ -50,7 +53,7 @@ export const DepositModal: React.FC<DepositModalProps> = ({
   const [loading, setLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(formSchema) as any,
     defaultValues: {
       amount: 0,
       description: "Depósito em conta",

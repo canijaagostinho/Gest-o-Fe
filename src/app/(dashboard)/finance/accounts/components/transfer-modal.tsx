@@ -38,7 +38,10 @@ import { ArrowRightLeft, Loader2 } from "lucide-react";
 
 const formSchema = z.object({
   targetAccountId: z.string().min(1, "Selecione a conta de destino"),
-  amount: z.coerce.number().min(1, "O valor deve ser superior a zero"),
+  amount: z.preprocess(
+    (val) => (val === "" ? undefined : Number(val)),
+    z.number().min(1, "O valor deve ser superior a zero")
+  ),
   description: z.string().min(3, "A descrição deve ter pelo menos 3 caracteres"),
 });
 
@@ -62,7 +65,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
   const [accounts, setAccounts] = useState<any[]>([]);
 
   const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(formSchema) as any,
     defaultValues: {
       targetAccountId: "",
       amount: 0,
