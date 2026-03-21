@@ -101,42 +101,37 @@ const adminGeralRoutes = [
 
 const institutionalRoutes = [
   {
-    label: "Principal",
+    label: "Operar",
     items: [
       {
-        label: "Painel de Controlo",
+        label: "Painel de Controle",
         icon: LayoutDashboard,
         href: "/",
-        color: "text-sky-500",
+        color: "text-blue-500",
       },
       {
-        label: "Clientes",
+        label: "Gestão de Clientes",
         icon: Users,
         href: "/clients",
-        color: "text-violet-500",
+        color: "text-blue-500",
       },
-    ],
-  },
-  {
-    label: "Crédito",
-    items: [
       {
-        label: "Empréstimos",
+        label: "Novos Empréstimos",
         icon: CreditCard,
         href: "/loans",
-        color: "text-pink-700",
+        color: "text-blue-500",
       },
       {
-        label: "Recebimentos",
+        label: "Cobranças e Pagamentos",
         icon: Banknote,
         href: "/payments",
-        color: "text-emerald-500",
+        color: "text-blue-500",
       },
       {
-        label: "Garantias",
+        label: "Garantias (Collateral)",
         icon: ShieldCheck,
         href: "/collateral",
-        color: "text-teal-600",
+        color: "text-blue-500",
       },
     ],
   },
@@ -144,57 +139,57 @@ const institutionalRoutes = [
     label: "Financeiro",
     items: [
       {
-        label: "Caixas e Contas",
+        label: "Carteiras e Contas",
         icon: Wallet,
         href: "/finance/accounts",
-        color: "text-cyan-600",
+        color: "text-blue-500",
       },
       {
-        label: "Despesas",
+        label: "Fluxo de Caixa",
         icon: TrendingDown,
         href: "/finance/expenses",
-        color: "text-red-500",
+        color: "text-blue-500",
+      },
+      {
+        label: "Relatórios de Performance",
+        icon: FileText,
+        href: "/reports",
+        color: "text-blue-500",
       },
     ],
   },
   {
-    label: "Gestão",
+    label: "Administração",
     items: [
       {
-        label: "Agentes",
+        label: "Agentes e Equipe",
         icon: UserCog,
         href: "/agents",
-        color: "text-indigo-500",
+        color: "text-blue-500",
       },
       {
-        label: "Relatórios",
-        icon: FileText,
-        href: "/reports",
-        color: "text-orange-700",
-      },
-      {
-        label: "Notificações",
-        icon: Bell,
-        href: "/notifications",
-        color: "text-orange-600",
-      },
-      {
-        label: "Monitoramento",
+        label: "Monitoramento de Risco",
         icon: Activity,
         href: "/monitoring",
         color: "text-blue-500",
       },
       {
-        label: "Planos e Assinaturas",
+        label: "Notificações",
+        icon: Bell,
+        href: "/notifications",
+        color: "text-blue-500",
+      },
+      {
+        label: "Assinatura do Plano",
         icon: CreditCard,
         href: "/settings/plans",
-        color: "text-emerald-500",
+        color: "text-blue-500",
       },
     ],
   },
 ];
 
-export function Sidebar() {
+export function Sidebar({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname();
 
   // Exclusive Accordion State: Only one group open at a time
@@ -310,8 +305,8 @@ export function Sidebar() {
   const firstLetter = displayName.charAt(0).toUpperCase();
 
   return (
-    <div className="flex flex-col h-full bg-[#0F172A] border-r border-slate-800 relative z-50 shadow-xl">
-      <div className="p-6 relative bg-slate-900/40 border-b border-white/5 backdrop-blur-sm mb-4">
+    <div className="flex flex-col h-full bg-[#111827] border-r border-white/5 relative z-50 shadow-2xl">
+      <div className="p-8 relative bg-[#1F2937]/30 border-b border-white/5 backdrop-blur-xl mb-6">
         <Link
           href="/"
           className="flex items-center gap-4 group relative z-10 transition-transform active:scale-95"
@@ -349,8 +344,8 @@ export function Sidebar() {
         </Link>
       </div>
 
-      <div className="flex-1 px-4 overflow-y-auto min-h-0 no-scrollbar pb-6">
-        <div className="space-y-6">
+      <div className="flex-1 px-4 overflow-y-auto min-h-0 no-scrollbar pb-8">
+        <div className="space-y-8">
           {routeGroups.map((group) => {
             const isOpen = group.label === openGroup;
 
@@ -363,6 +358,7 @@ export function Sidebar() {
                 onToggle={() => {
                   setOpenGroup(isOpen ? null : group.label);
                 }}
+                onClose={onClose}
               />
             );
           })}
@@ -372,11 +368,12 @@ export function Sidebar() {
         <div className="mt-8 pt-4 border-t border-white/5">
           <Link
             href="/settings"
+            onClick={onClose}
             className={cn(
-              "text-sm group flex p-3 w-full justify-start font-extrabold cursor-pointer rounded-xl transition-all duration-300 relative",
+              "text-sm group flex p-4 w-full justify-start font-bold cursor-pointer rounded-2xl transition-all duration-300 relative",
               pathname === "/settings"
-                ? "bg-blue-600 text-white shadow-lg shadow-blue-900/20"
-                : "text-slate-400 hover:text-white border border-transparent hover:bg-white/5 hover:border-white/5",
+                ? "bg-blue-600 text-white shadow-[0_10px_20px_rgba(37,99,235,0.2)]"
+                : "text-slate-400 hover:text-white border border-transparent hover:bg-white/10 hover:border-white/5",
             )}
           >
             <div className="flex items-center flex-1 relative z-10 pl-2">
@@ -400,10 +397,10 @@ export function Sidebar() {
         <div className="px-4 pb-6 mt-auto">
           <Dialog>
             <DialogTrigger asChild>
-              <div className="relative group cursor-pointer mt-4">
-                <div className="relative flex items-center bg-white/5 border border-white/10 rounded-xl p-3 shadow-2xl hover:bg-white/10 hover:border-white/20 transition-all backdrop-blur-md">
-                  <div className="bg-blue-500/10 p-2 rounded-lg group-hover:bg-blue-500/20 transition-colors ring-1 ring-blue-500/20">
-                    <Headphones className="h-4 w-4 text-blue-400 group-hover:text-blue-300" />
+              <div className="relative group cursor-pointer mt-6">
+                <div className="relative flex items-center bg-white/10 border border-white/10 rounded-2xl p-4 shadow-2xl hover:bg-white/15 hover:border-white/20 transition-all backdrop-blur-xl">
+                  <div className="bg-blue-500/20 p-2.5 rounded-xl group-hover:bg-blue-500/30 transition-colors ring-1 ring-blue-500/30">
+                    <Headphones className="h-5 w-5 text-blue-400 group-hover:text-blue-300" />
                   </div>
                   <div className="ml-3">
                     <p className="text-xs font-bold text-white tracking-tight">
@@ -515,23 +512,25 @@ function SidebarGroup({
   pathname,
   isOpen,
   onToggle,
+  onClose,
 }: {
   group: any;
   pathname: string;
   isOpen: boolean;
   onToggle: () => void;
+  onClose?: () => void;
 }) {
   return (
     <div className="space-y-1 relative">
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between px-4 py-3 text-[11px] font-black text-slate-400 uppercase tracking-widest hover:text-white transition-colors group/header"
+        className="w-full flex items-center justify-between px-6 py-4 text-[11px] font-black text-slate-500 uppercase tracking-widest hover:text-white transition-colors group/header"
       >
         <span>{group.label}</span>
         <ChevronRight
           className={cn(
-            "h-3 w-3 transition-transform duration-300 text-slate-500",
-            isOpen && "rotate-90 text-blue-400",
+            "h-4 w-4 transition-transform duration-300 text-slate-600",
+            isOpen && "rotate-90 text-blue-500",
           )}
         />
       </button>
@@ -552,11 +551,12 @@ function SidebarGroup({
                   <Link
                     key={route.href}
                     href={route.href}
+                    onClick={onClose}
                     className={cn(
-                      "text-sm group flex p-3 w-full justify-start font-extrabold cursor-pointer rounded-xl transition-all duration-300 relative",
+                      "text-sm group flex p-4 w-full justify-start font-bold cursor-pointer rounded-2xl transition-all duration-300 relative",
                       isActive
-                        ? "bg-blue-600 text-white shadow-lg shadow-blue-900/20"
-                        : "text-slate-400 hover:text-white border border-transparent hover:bg-white/5 hover:border-white/5",
+                        ? "bg-blue-600 text-white shadow-[0_10px_20px_rgba(37,99,235,0.2)]"
+                        : "text-slate-400 hover:text-white border border-transparent hover:bg-white/10 hover:border-white/5 shadow-none",
                     )}
                   >
                     {/* Active Indicator */}

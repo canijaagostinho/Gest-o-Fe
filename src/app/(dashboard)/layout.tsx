@@ -9,6 +9,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 
 export default function DashboardLayout({
   children,
@@ -21,6 +22,7 @@ export default function DashboardLayout({
   const [authorized, setAuthorized] = useState(false);
   const [role, setRole] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -208,15 +210,23 @@ export default function DashboardLayout({
 
   return (
     <div className="h-full relative bg-[#F8FAFC]">
-      <div className="hidden h-full md:flex md:w-72 md:flex-col md:fixed md:inset-y-0 z-40">
+      {/* Desktop Sidebar */}
+      <div className="hidden h-full md:flex md:w-72 md:flex-col md:fixed md:inset-y-0 z-40 shadow-2xl">
         <Sidebar />
       </div>
 
+      {/* Mobile Sidebar (Sheet) */}
+      <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+        <SheetContent side="left" className="p-0 bg-[#111827] border-none w-72">
+          <Sidebar onClose={() => setIsSidebarOpen(false)} />
+        </SheetContent>
+      </Sheet>
+
       <main className="md:pl-72 flex flex-col min-h-screen">
-        <Header onMenuClick={() => { }} role={role} />
+        <Header onMenuClick={() => setIsSidebarOpen(true)} role={role} />
         <SubscriptionCountdownBanner role={role} />
         <InstitutionCompletionBanner role={role} />
-        <div className="flex-1 p-6 md:p-8 pt-6 max-w-7xl mx-auto w-full">
+        <div className="flex-1 p-4 md:p-8 pt-6 max-w-7xl mx-auto w-full overflow-hidden">
           {children}
         </div>
       </main>

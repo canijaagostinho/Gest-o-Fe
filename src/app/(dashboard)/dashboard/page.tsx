@@ -28,8 +28,17 @@ import {
     Users,
     FileText,
     Building2,
-    Plus,
     Settings,
+    TrendingDown,
+    Activity,
+    ShieldCheck,
+    Lock,
+    PlusCircle,
+    ArrowRightLeft,
+    CheckCircle2,
+    Info,
+    ExternalLink,
+    Banknote,
 } from "lucide-react";
 import { formatCurrency, cn } from "@/lib/utils";
 import Link from "next/link";
@@ -52,8 +61,28 @@ export default function DashboardPage() {
         overdueCount: 0,
         overdueAmount: 0,
         pendingApprovals: 0,
+        totalBalance: 0,
         chartData: [] as any[],
     });
+
+    const [privacyMode, setPrivacyMode] = useState(false);
+
+    // Load privacy mode from localStorage
+    useEffect(() => {
+        const saved = localStorage.getItem("dashboard_privacy_mode");
+        if (saved === "true") setPrivacyMode(true);
+    }, []);
+
+    const togglePrivacyMode = () => {
+        const newVal = !privacyMode;
+        setPrivacyMode(newVal);
+        localStorage.setItem("dashboard_privacy_mode", String(newVal));
+    };
+
+    const maskValue = (value: React.ReactNode) => {
+        if (privacyMode) return "MZN ••••••";
+        return value;
+    };
 
     const isGlobalAdmin = (user?.role as any)?.name === "admin_geral";
     const isOperador = (user?.role as any)?.name === "operador";
@@ -106,12 +135,16 @@ export default function DashboardPage() {
                             .from("installments")
                             .select("amount, status, due_date")
                             .eq("institution_id", profile.institution_id);
-
                         const { count: pendingClientsCount } = await supabase
                             .from("clients")
                             .select("*", { count: "exact", head: true })
                             .eq("institution_id", profile.institution_id)
                             .eq("status", "pending");
+
+                        const { data: accounts } = await supabase
+                            .from("accounts")
+                            .select("balance")
+                            .eq("institution_id", profile.institution_id);
 
                         // --- Calculations ---
 
@@ -288,27 +321,26 @@ export default function DashboardPage() {
                                 0,
                             ) || 0;
 
+                        // 6. Total Balance
+                        const totalBalance = accounts?.reduce((acc: number, a: any) => acc + Number(a.balance), 0) || 0;
+
                         setKpiData({
-                            totalLent: activePortfolio,
+                            totalLent: allLoans?.reduce((acc: number, l: any) => acc + Number(l.loan_amount), 0) || 0,
                             totalReceived: totalPaid,
                             receivables: receivables30D,
                             delinquencyRate: delinquency,
                             growthRate: growth,
                             efficiencyRate: efficiency,
-                            overdueCount,
-                            overdueAmount,
+                            overdueCount: overdueCount,
+                            overdueAmount: overdueAmount,
                             pendingApprovals: pendingClientsCount || 0,
-                            chartData,
+                            totalBalance: totalBalance,
+                            chartData: chartData as any[],
                         });
                     }
                 }
-            } catch (error: any) {
-                console.error("CRITICAL ERROR in Dashboard fetch:", error);
-                if (error.name === "AbortError") {
-                    console.warn(
-                        "Fetch aborted - common in development with React Strict Mode.",
-                    );
-                }
+            } catch (error) {
+                console.error("Dashboard metric fetch error:", error);
             } finally {
                 setLoading(false);
             }
@@ -362,290 +394,221 @@ export default function DashboardPage() {
     };
 
     return (
-        <div className="flex-1 space-y-6 p-4 md:p-8 pt-2 max-w-7xl mx-auto">
-            {/* Block 1: Welcome Banner (Hero) - Premium Navy */}
-            <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5 }}
-                className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-6 md:p-8 text-white shadow-2xl shadow-blue-900/20 border border-white/10"
-            >
-                {/* Decorative Shapes - Premium Subtle */}
-                <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[150%] bg-blue-500/20 blur-[100px] rounded-full" />
-                <div className="absolute bottom-[-20%] left-[-10%] w-[40%] h-[100%] bg-indigo-500/20 blur-[80px] rounded-full" />
-                <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay" />
-
-                <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                    <div className="space-y-4 flex-1">
-                        <div className="flex flex-wrap items-center gap-3">
-                            <div className="flex items-center space-x-2 bg-white/10 w-fit px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest backdrop-blur-md border border-white/5">
-                                <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
-                                {user?.institutions?.name || "Gestão Flex"}
-                            </div>
-
-                            {/* Profile Completion Alert - Compact Pill */}
-                            {user?.role?.name === "gestor" &&
-                                (!user?.institution_details?.nuit ||
-                                    !user?.institution_details?.address_line ||
-                                    !user?.institution_details?.phone ||
-                                    !user?.institution_details?.email) && (
-                                    <Link href="/settings" className="group/alert">
-                                        <div className="flex items-center space-x-2 bg-amber-500/20 hover:bg-amber-500/30 w-fit px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest backdrop-blur-md border border-amber-500/30 transition-all">
-                                            <AlertCircle className="h-3.5 w-3.5 text-amber-400 group-hover/alert:scale-110 transition-transform" />
-                                            <span className="text-amber-400">Perfil Incompleto</span>
-                                            <ChevronRight className="h-3 w-3 text-amber-500" />
-                                        </div>
-                                    </Link>
-                                )}
-                        </div>
-
-                        <h2 className="text-3xl md:text-4xl font-black tracking-tight leading-tight">
-                            Olá, <span className="text-blue-400">{userName}</span>
-                        </h2>
-                        <p className="text-slate-300 text-sm md:text-base leading-relaxed max-w-2xl font-medium">
-                            Bem-vindo ao seu painel de controle. Aqui está o resumo atualizado
-                            da sua carteira e as próximas ações recomendadas.
-                        </p>
-
-                        <div className="flex flex-wrap gap-3 pt-4">
-                            <Button
-                                className="bg-blue-600 text-white hover:bg-blue-500 rounded-full px-8 py-6 text-sm font-bold shadow-lg shadow-blue-900/50 hover:shadow-blue-600/50 transition-all hover:-translate-y-0.5"
-                                asChild
-                            >
-                                <Link href="/settings/plans">
-                                    <CreditCard className="h-5 w-5 mr-2" />
-                                    Planos e Assinaturas
-                                </Link>
-                            </Button>
-                            <Button
-                                variant="outline"
-                                className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white rounded-full px-8 py-6 text-sm font-bold backdrop-blur-sm transition-all"
-                                asChild
-                            >
-                                <Link href="/reports">Ver Relatórios</Link>
-                            </Button>
-                        </div>
-                    </div>
-
-                    {/* Stats Summary in Hero - Compact Row */}
-                    <div className="flex gap-3 w-full md:w-auto shrink-0 border-t md:border-t-0 md:border-l border-white/10 pt-3 md:pt-0 md:pl-6 mt-2 md:mt-0 justify-center md:justify-end">
-                        <div className="text-center md:text-right">
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                                Crescimento
-                            </p>
-                            <p className="text-2xl md:text-3xl font-black text-white">
-                                {kpiData.growthRate > 0 ? "+" : ""}
-                                {kpiData.growthRate.toFixed(1)}%
-                            </p>
-                        </div>
-                        <div className="w-px bg-white/10 h-10 self-center mx-4 hidden md:block" />
-                        <div className="text-center md:text-right">
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                                Eficiência
-                            </p>
-                            <p className="text-2xl md:text-3xl font-black text-white">
-                                {kpiData.efficiencyRate.toFixed(1)}%
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </motion.div>
-
-            {/* Block 2: Main KPIs (CoinDepo Style - Vertical Stack) */}
-            {!isOperador && (
-            <motion.div
-                variants={container}
-                initial="hidden"
-                animate="show"
-                className="grid gap-8 md:grid-cols-2 lg:grid-cols-4"
-            >
-                {/* KPI 1: Active Portfolio */}
-                <motion.div variants={item}>
-                    <Card className="relative overflow-hidden group border-none bg-gradient-to-br from-slate-900 to-slate-800 text-white shadow-lg shadow-slate-900/10">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-xl transition-all group-hover:bg-white/10" />
-                        <div className="absolute inset-0 bg-dot-pattern opacity-[0.05]" />
-                        <div className="relative space-y-4 px-6">
-                            <div className="flex items-center justify-between">
-                                <div className="p-3 bg-white/10 rounded-2xl text-white group-hover:scale-110 transition-transform">
-                                    <Briefcase className="h-6 w-6" />
-                                </div>
-                            </div>
-                            <div>
-                                <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.15em] mb-1">
-                                    Carteira Ativa
-                                </p>
-                                <h3
-                                    className="text-xl md:text-2xl font-black text-white tracking-tight leading-tight"
-                                    title={formatCurrency(kpiData.totalLent)}
-                                >
-                                    {formatCurrency(kpiData.totalLent)}
-                                </h3>
-                                <div
-                                    className={`flex items-center mt-3 text-[10px] font-black w-fit px-2.5 py-1 rounded-full ${kpiData.growthRate >= 0 ? "text-emerald-100 bg-emerald-500/20 border border-emerald-500/30" : "text-rose-100 bg-rose-500/20 border border-rose-500/30"}`}
-                                >
-                                    {kpiData.growthRate >= 0 ? (
-                                        <ArrowUpRight className="h-3 w-3 mr-1" />
-                                    ) : (
-                                        <ArrowDownRight className="h-3 w-3 mr-1" />
-                                    )}
-                                    {kpiData.growthRate > 0 ? "+" : ""}
-                                    {kpiData.growthRate.toFixed(1)}% mês
-                                </div>
-                            </div>
-                        </div>
-                    </Card>
-                </motion.div>
-
-                {/* KPI 2: Received */}
-                <motion.div variants={item}>
-                    <Card className="relative overflow-hidden group border-none bg-gradient-to-br from-teal-600 to-teal-500 text-white shadow-lg shadow-teal-600/20">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-xl transition-all group-hover:bg-white/20" />
-                        <div className="absolute inset-0 bg-dot-pattern opacity-[0.1]" />
-                        <div className="relative space-y-4 px-6">
-                            <div className="flex items-center justify-between">
-                                <div className="p-3 bg-white/20 rounded-2xl text-white group-hover:scale-110 transition-transform">
+        <div className="flex-1 space-y-8 md:space-y-10 p-4 md:p-10 pt-6 max-w-7xl mx-auto overflow-hidden">
+            {/* Block 0: Strategic Header & Balance Queen */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* PRIMARY CARD: Saldo Total */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="lg:col-span-2 relative overflow-hidden rounded-3xl md:rounded-[2.5rem] bg-white border-2 border-blue-50 p-6 md:p-10 shadow-xl group"
+                >
+                    <div className="relative z-10 flex flex-col justify-between h-full">
+                        <div className="flex items-center justify-between mb-8">
+                            <div className="flex items-center gap-3">
+                                <div className="p-3 bg-blue-50 rounded-2xl text-blue-600">
                                     <Wallet className="h-6 w-6" />
                                 </div>
+                                <span className="text-xs font-black text-slate-400 uppercase tracking-[0.15em]">Saldo Consolidado</span>
                             </div>
-                            <div>
-                                <p className="text-[10px] font-black text-teal-100 uppercase tracking-[0.15em] mb-1">
-                                    Total Recebido
-                                </p>
-                                <h3
-                                    className="text-xl md:text-2xl font-black text-white tracking-tight leading-tight"
-                                    title={formatCurrency(kpiData.totalReceived)}
+                            <div className="flex items-center gap-3">
+                                <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    onClick={togglePrivacyMode}
+                                    className="h-10 w-10 rounded-2xl hover:bg-slate-100 text-slate-400"
+                                    title={privacyMode ? "Mostrar Valores" : "Ocultar Valores"}
                                 >
-                                    {formatCurrency(kpiData.totalReceived)}
-                                </h3>
-                                <div className="flex items-center mt-3 text-[10px] font-black text-teal-100 bg-black/10 border border-black/5 w-fit px-2.5 py-1 rounded-full">
-                                    <ArrowUpRight className="h-3 w-3 mr-1" /> Recebido
-                                </div>
-                            </div>
-                        </div>
-                    </Card>
-                </motion.div>
-
-                {/* KPI 3: Receivables */}
-                <motion.div variants={item}>
-                    <Card className="relative overflow-hidden group border-none bg-gradient-to-br from-amber-500 to-amber-400 text-white shadow-lg shadow-amber-500/20">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-xl transition-all group-hover:bg-white/20" />
-                        <div className="absolute inset-0 bg-dot-pattern opacity-[0.1]" />
-                        <div className="relative space-y-4 px-6">
-                            <div className="flex items-center justify-between">
-                                <div className="p-3 bg-white/20 rounded-2xl text-white group-hover:scale-110 transition-transform">
-                                    <Clock className="h-6 w-6" />
-                                </div>
-                            </div>
-                            <div>
-                                <p className="text-[10px] font-black text-amber-100 uppercase tracking-[0.15em] mb-1">
-                                    A Receber (30D)
-                                </p>
-                                <h3
-                                    className="text-xl md:text-2xl font-black text-white tracking-tight leading-tight"
-                                    title={formatCurrency(kpiData.receivables)}
-                                >
-                                    {formatCurrency(kpiData.receivables)}
-                                </h3>
-                                <div className="flex items-center mt-3 text-[10px] font-black text-amber-100 bg-black/10 border border-black/5 w-fit px-2.5 py-1 rounded-full">
-                                    Fluxo Previsto
-                                </div>
-                            </div>
-                        </div>
-                    </Card>
-                </motion.div>
-
-                {/* KPI 4: Risk */}
-                <motion.div variants={item}>
-                    <Card className="relative overflow-hidden group border-none bg-gradient-to-br from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-600/20">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-xl transition-all group-hover:bg-white/20" />
-                        <div className="absolute inset-0 bg-dot-pattern opacity-[0.1]" />
-                        <div className="relative space-y-4 px-6">
-                            <div className="flex items-center justify-between">
-                                <div className="p-3 bg-white/20 rounded-2xl text-white group-hover:scale-110 transition-transform">
-                                    <AlertTriangle className="h-5 w-5" strokeWidth={1.5} />
-                                </div>
-                            </div>
-                            <div>
-                                <p className="text-[10px] font-black text-blue-100 uppercase tracking-[0.15em] mb-1">
-                                    Risco da Carteira
-                                </p>
-                                <h3 className="text-xl md:text-2xl font-black text-white tracking-tight leading-tight whitespace-nowrap">
-                                    {kpiData.delinquencyRate.toFixed(1)}%
-                                </h3>
-                                <div
-                                    className={`flex items-center mt-3 text-[10px] font-black w-fit px-2.5 py-1 rounded-full ${kpiData.delinquencyRate < 5 ? "text-blue-100 bg-black/10 border border-black/5" : "text-rose-100 bg-rose-500/60 border border-rose-500/80 shadow-md shadow-rose-900/20"}`}
-                                >
-                                    {kpiData.delinquencyRate < 5 ? (
-                                        <ArrowDownRight className="h-3 w-3 mr-1" />
+                                    {privacyMode ? (
+                                        <Lock className="w-5 h-5 text-amber-500" />
                                     ) : (
-                                        <ArrowUpRight className="h-3 w-3 mr-1" />
+                                        <ShieldCheck className="w-5 h-5 text-emerald-500" />
                                     )}
-                                    {kpiData.delinquencyRate < 3
-                                        ? "Excelente"
-                                        : kpiData.delinquencyRate < 10
-                                            ? "Atenção"
-                                            : "Crítico"}
-                                </div>
+                                </Button>
+                                <Badge className="bg-emerald-50 text-emerald-600 border-emerald-100 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                                    Protegido
+                                </Badge>
                             </div>
                         </div>
-                    </Card>
-                </motion.div>
-            </motion.div>
-            )}
+                        
+                        <div className="space-y-2">
+                            <h1 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tighter transition-all group-hover:tracking-tight truncate pb-2">
+                                {maskValue(formatCurrency(kpiData.totalBalance))}
+                            </h1>
+                            <p className="text-sm font-bold text-slate-400 flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                                Atualizado agora mesmo • Todas as contas
+                            </p>
+                        </div>
 
-            {/* Block 3: Charts */}
-            {!isOperador && (
-            <motion.div
-                initial={{ opacity: 0, y: 0 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="grid gap-8 md:grid-cols-2 lg:grid-cols-3"
-            >
-                {/* Main Scale Chart */}
-                <Card className="col-span-2 border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white rounded-[2.5rem] p-8">
-                    <CardHeader className="p-0 mb-8">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <CardTitle className="text-2xl font-black text-slate-900 tracking-tight">
-                                    Evolução da Carteira
-                                </CardTitle>
-                                <CardDescription className="text-sm font-medium mt-1">
-                                    Crescimento do volume emprestado vs. recebido.
-                                </CardDescription>
+                        <div className="mt-10 pt-8 border-t border-slate-50 flex items-center justify-between">
+                            <div className="flex gap-10">
+                                <div>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Entradas (Mês)</p>
+                                    <p className="text-xl font-black text-slate-900">{maskValue(formatCurrency(kpiData.totalReceived))}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Taxa de Crescimento</p>
+                                    <p className="flex items-center text-xl font-black text-emerald-600">
+                                        <ArrowUpRight className="w-4 h-4 mr-1" />
+                                        {kpiData.growthRate.toFixed(1)}%
+                                    </p>
+                                </div>
                             </div>
-                            <span className="text-[10px] font-black text-slate-400 bg-slate-50 border border-slate-100 px-3 py-1.5 rounded-full uppercase tracking-widest">
-                                Semestral
-                            </span>
+                            <Button variant="ghost" size="sm" className="rounded-xl text-blue-600 font-bold hover:bg-blue-50 shrink-0" asChild>
+                                <Link href="/finance/accounts">
+                                    <span className="hidden sm:inline">Ver Detalhes</span> 
+                                    <span className="sm:hidden text-xs">Ver Tudo</span>
+                                    <ChevronRight className="w-4 h-4 ml-1" />
+                                </Link>
+                            </Button>
+                        </div>
+                    </div>
+                    {/* Decorative Background Element */}
+                    <div className="absolute -right-20 -top-20 w-80 h-80 bg-blue-500/5 rounded-full blur-3xl group-hover:bg-blue-500/10 transition-all duration-700" />
+                </motion.div>
+
+                {/* Secondary Cards Column */}
+                <div className="space-y-6">
+                    {/* Active Portfolio */}
+                    <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="p-8 rounded-[2rem] bg-slate-900 text-white shadow-xl relative overflow-hidden group"
+                    >
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Carteira Ativa</p>
+                        <h3 className="text-3xl font-black tracking-tight mb-4">{maskValue(formatCurrency(kpiData.totalLent))}</h3>
+                        <div className="flex items-center gap-2 text-xs font-bold text-slate-400">
+                            <Briefcase className="w-4 h-4 text-blue-400" />
+                            Total em circulação
+                        </div>
+                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <ShieldCheck className="w-12 h-12" />
+                        </div>
+                    </motion.div>
+
+                    {/* Quick Insight: Receivables */}
+                    <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="p-8 rounded-[2rem] bg-white border border-slate-100 shadow-sm transition-all hover:shadow-md"
+                    >
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2 bg-indigo-50 rounded-xl text-indigo-600">
+                                <Clock className="h-5 w-5" />
+                            </div>
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">A Receber (30d)</span>
+                        </div>
+                        <h3 className="text-3xl font-black text-slate-900 tracking-tight">{maskValue(formatCurrency(kpiData.receivables))}</h3>
+                        <p className="text-xs font-bold text-indigo-600 mt-2 flex items-center gap-1">
+                            <Info className="w-3 h-3" /> Projeção de fluxo
+                        </p>
+                    </motion.div>
+                </div>
+            </div>
+
+            {/* Block 1: Centro de Comando (Quick Actions) */}
+            <section className="space-y-6">
+                <div className="flex items-center justify-between px-2">
+                    <h3 className="text-xl font-black text-slate-900 tracking-tight uppercase tracking-[0.1em]">Centro de Operações</h3>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                        <Lock className="w-3 h-3" /> Ações Seguras
+                    </span>
+                </div>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                    {[
+                        { label: "Novo Empréstimo", icon: CreditCard, color: "text-blue-600", bg: "bg-blue-500", href: "/loans/new", badge: kpiData.pendingApprovals > 0 ? kpiData.pendingApprovals : null, badgeColor: "bg-blue-600" },
+                        { label: "Registrar Pagamento", icon: Banknote, color: "text-emerald-600", bg: "bg-emerald-500", href: "/payments", badge: kpiData.overdueCount > 0 ? kpiData.overdueCount : null, badgeColor: "bg-rose-600" },
+                        { label: "Transferir Valores", icon: ArrowRightLeft, color: "text-indigo-600", bg: "bg-indigo-500", href: "/finance/accounts" },
+                        { label: "Adicionar Cliente", icon: PlusCircle, color: "text-slate-800", bg: "bg-slate-900", href: "/clients" },
+                    ].map((action, i) => (
+                        <Link key={i} href={action.href}>
+                            <motion.div
+                                whileHover={{ y: -5 }}
+                                className="p-6 rounded-[2rem] bg-white border border-slate-100 shadow-sm hover:shadow-xl hover:border-blue-100 transition-all flex flex-col items-center text-center gap-4 group relative"
+                            >
+                                {action.badge && (
+                                    <div className={cn("absolute top-4 right-4 h-6 min-w-[1.5rem] px-1.5 flex items-center justify-center rounded-full text-[10px] font-black text-white shadow-lg z-20 animate-bounce-slow", action.badgeColor)}>
+                                        {action.badge}
+                                    </div>
+                                )}
+                                <div className={cn("p-5 rounded-2xl text-white shadow-lg transition-transform group-hover:scale-110", action.bg)}>
+                                    <action.icon className="w-6 h-6" />
+                                </div>
+                                <span className="text-sm font-black text-slate-900 tracking-tight">{action.label}</span>
+                            </motion.div>
+                        </Link>
+                    ))}
+                </div>
+            </section>
+
+            {/* Block 2: Insights Inteligentes & Alertas */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Insights List */}
+                <div className="lg:col-span-1 space-y-6">
+                    <h3 className="text-xl font-black text-slate-900 px-2 uppercase tracking-[0.1em]">Insights</h3>
+                    <div className="space-y-4">
+                        <div className="p-5 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-start gap-4 hover:border-blue-200 transition-all cursor-pointer">
+                            <div className="p-2 bg-blue-50 rounded-lg text-blue-600 shrink-0">
+                                <Info className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <p className="text-sm font-black text-slate-900">Saúde Financeira Boa</p>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">Seu saldo aumentou {(kpiData.growthRate / 2).toFixed(1)}% esta semana.</p>
+                            </div>
+                        </div>
+                        <div className="p-5 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-start gap-4 hover:border-emerald-200 transition-all cursor-pointer">
+                            <div className="p-2 bg-emerald-50 rounded-lg text-emerald-600 shrink-0">
+                                <CheckCircle2 className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <p className="text-sm font-black text-slate-900">Eficiência Operacional</p>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">{kpiData.efficiencyRate.toFixed(1)}% das cobranças foram recebidas em dia.</p>
+                            </div>
+                        </div>
+                        {kpiData.overdueCount > 0 && (
+                            <div className="p-5 rounded-2xl bg-rose-50 border border-rose-100 shadow-sm flex items-start gap-4 hover:bg-rose-100 transition-all cursor-pointer group">
+                                <div className="p-2 bg-white rounded-lg text-rose-600 shrink-0 shadow-sm group-hover:scale-110 transition-transform">
+                                    <AlertTriangle className="w-5 h-5" />
+                                </div>
+                                <div className="flex-1">
+                                    <p className="text-sm font-black text-rose-900 flex items-center justify-between">
+                                        Ação Necessária
+                                        <ExternalLink className="w-3 h-3 opacity-50" />
+                                    </p>
+                                    <p className="text-[10px] font-bold text-rose-600 uppercase tracking-wider mt-1">{kpiData.overdueCount} contratos em atraso agora.</p>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Performance Chart (Existing but Refined) */}
+                <Card className="lg:col-span-2 border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white rounded-3xl md:rounded-[2.5rem] p-6 md:p-10 overflow-hidden">
+                    <CardHeader className="p-0 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <CardTitle className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">Evolução da Operação</CardTitle>
+                            <CardDescription className="text-xs md:text-sm font-medium mt-1">Comparativo de Empréstimos vs. Recebimentos</CardDescription>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2">
+                                <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Emprestado</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Recebido</span>
+                            </div>
                         </div>
                     </CardHeader>
                     <CardContent className="p-0">
-                        <div className="h-[350px] w-full">
+                        <div className="h-[300px] w-full">
                             <OverviewChart data={kpiData.chartData} />
                         </div>
                     </CardContent>
                 </Card>
-
-                {/* Risk Distribution Chart - Pie Chart + Progress Bars */}
-                <Card className="col-span-1 border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white rounded-[2.5rem] p-8">
-                    <CardHeader className="p-0 mb-6">
-                        <CardTitle className="text-2xl font-black text-slate-900 tracking-tight">
-                            Status de Risco
-                        </CardTitle>
-                        <CardDescription className="text-sm font-medium mt-1">
-                            Distribuição de contratos por atraso.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="p-0">
-                        {/* Pie Chart */}
-                        <div className="h-[220px] flex items-center justify-center mb-10">
-                            <RiskChart />
-                        </div>
-
-                        {/* Progress Bars Section - Now Dynamic */}
-                        <RiskIndicators />
-                    </CardContent>
-                </Card>
-            </motion.div>
-            )}
+            </div>
 
             {/* Block 4: Functionality Grid */}
             <motion.div
@@ -677,27 +640,24 @@ export default function DashboardPage() {
                         {
                             label: "Clientes",
                             icon: Users,
-                            color: "from-indigo-600 to-indigo-500 shadow-indigo-500/30",
-                            text: "text-indigo-50",
-                            textDesc: "text-indigo-200",
+                            color: "bg-indigo-50 border border-indigo-100",
+                            iconColor: "text-indigo-600 bg-white",
                             href: "/clients",
                             desc: "Base e CRM",
                         },
                         {
                             label: "Pagamentos",
                             icon: Wallet,
-                            color: "from-emerald-600 to-emerald-500 shadow-emerald-500/30",
-                            text: "text-emerald-50",
-                            textDesc: "text-emerald-200",
+                            color: "bg-emerald-50 border border-emerald-100",
+                            iconColor: "text-emerald-600 bg-white",
                             href: "/payments",
                             desc: "Registrar Baixa",
                         },
                         {
                             label: "Planos",
                             icon: CreditCard,
-                            color: "from-orange-500 to-amber-500 shadow-orange-500/30",
-                            text: "text-orange-50",
-                            textDesc: "text-orange-200",
+                            color: "bg-orange-50 border border-orange-100",
+                            iconColor: "text-orange-600 bg-white",
                             href: "/settings/plans",
                             desc: "Assinaturas",
                             adminOnly: true,
@@ -705,9 +665,8 @@ export default function DashboardPage() {
                         {
                             label: "Configurações",
                             icon: Settings,
-                            color: "from-slate-800 to-slate-700 shadow-slate-800/30",
-                            text: "text-slate-50",
-                            textDesc: "text-slate-300",
+                            color: "bg-slate-50 border border-slate-200",
+                            iconColor: "text-slate-600 bg-white",
                             href: "/settings",
                             desc: "Sistema",
                             adminOnly: true,
@@ -716,40 +675,26 @@ export default function DashboardPage() {
                         <Link key={idx} href={action.href} className="group outline-none">
                             <Card
                                 className={cn(
-                                    "border-none shadow-lg hover:shadow-2xl hover:-translate-y-1.5 bg-gradient-to-br rounded-[2rem] transition-all duration-300 overflow-hidden relative cursor-pointer ring-offset-2 focus-visible:ring-2 focus-visible:ring-blue-500",
+                                    "border-none shadow-sm hover:shadow-2xl hover:-translate-y-1.5 rounded-[2rem] transition-all duration-500 overflow-hidden relative cursor-pointer ring-offset-2 focus-visible:ring-2 focus-visible:ring-blue-500 bg-white",
                                     action.color,
                                 )}
                             >
-                                {/* Shine effect */}
-                                <div
-                                    className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 group-hover:translate-x-full duration-1000 transition-all z-0"
-                                    style={{ transform: "translateX(-100%)" }}
-                                />
-                                {/* Background blur drops */}
-                                <div className="absolute -right-6 -top-6 bg-white/20 w-24 h-24 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700 z-0" />
-                                <div className="absolute -left-6 -bottom-6 bg-black/10 w-24 h-24 rounded-full blur-xl z-0" />
-
-                                <CardContent className="p-6 md:p-8 flex flex-col items-center text-center space-y-4 relative z-10 text-white min-h-[160px] justify-center">
-                                    <div className="p-4 rounded-[1.25rem] bg-white/20 backdrop-blur-md shadow-inner transform group-hover:scale-110 group-hover:-rotate-3 transition-all duration-500 text-white border border-white/10">
+                                <CardContent className="p-8 flex flex-col items-center text-center space-y-6 relative z-10 min-h-[180px] justify-center text-slate-900">
+                                    <div className={cn("p-4 rounded-[1.25rem] shadow-sm transform group-hover:scale-110 group-hover:-rotate-3 transition-all duration-500 border border-slate-100", action.iconColor)}>
                                         <action.icon className="h-8 w-8" />
                                     </div>
                                     <div>
-                                        <p className="text-[16px] md:text-lg font-black leading-tight text-white drop-shadow-sm">
+                                        <p className="text-lg font-black leading-tight">
                                             {action.label}
                                         </p>
-                                        <p
-                                            className={cn(
-                                                "text-[10px] md:text-[11px] font-bold mt-1.5 uppercase tracking-widest",
-                                                action.textDesc,
-                                            )}
-                                        >
+                                        <p className="text-[10px] font-black text-slate-400 mt-1 uppercase tracking-widest">
                                             {action.desc}
                                         </p>
                                     </div>
                                     {action.adminOnly && (
                                         <Badge
                                             variant="outline"
-                                            className="text-[9px] bg-black/20 border-white/10 text-white uppercase tracking-widest font-black absolute top-4 right-4 backdrop-blur-sm"
+                                            className="text-[9px] bg-slate-900 text-white uppercase tracking-widest font-black absolute top-4 right-4"
                                         >
                                             Admin
                                         </Badge>
@@ -796,35 +741,30 @@ export default function DashboardPage() {
                                 href="/loans?status=delinquent"
                                 className="block focus:outline-none focus:ring-4 focus:ring-amber-500/20 rounded-[2rem]"
                             >
-                                <div className="flex flex-col md:flex-row md:items-center justify-between p-6 bg-gradient-to-r from-white to-slate-50/80 rounded-[2rem] border border-slate-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:shadow-[0_10px_30px_rgba(245,158,11,0.1)] hover:border-amber-200 transition-all duration-300 cursor-pointer group">
-                                    <div className="flex items-center space-x-6">
-                                        <div className="h-16 w-16 rounded-[1.25rem] bg-gradient-to-br from-amber-100 to-amber-50 flex items-center justify-center text-amber-600 text-2xl font-black shrink-0 shadow-inner group-hover:scale-105 transition-transform duration-300 border border-amber-200/50">
+                                <div className="flex flex-col md:flex-row md:items-center justify-between p-6 md:p-10 bg-white rounded-3xl md:rounded-[2.5rem] border border-slate-100 hover:border-amber-400 hover:shadow-2xl transition-all duration-500 cursor-pointer group">
+                                    <div className="flex flex-col sm:flex-row items-center sm:space-x-8 text-center sm:text-left gap-4">
+                                        <div className="h-20 w-20 md:h-24 md:w-24 rounded-2xl md:rounded-[2rem] bg-amber-50 flex items-center justify-center text-3xl md:text-4xl font-black shrink-0 border border-amber-100 group-hover:scale-110 transition-transform duration-500">
                                             {kpiData.overdueCount || 0}
                                         </div>
                                         <div>
-                                            <p className="text-lg font-black text-slate-900 group-hover:text-amber-700 transition-colors">
+                                            <p className="text-2xl font-black text-slate-900">
                                                 Parcelas Vencidas
                                             </p>
-                                            <p className="text-sm text-slate-500 mt-1">
-                                                Acompanhamento necessário para recuperar{" "}
-                                                <span className="font-extrabold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md">
+                                            <p className="text-base text-slate-500 mt-2">
+                                                Recupere aproximandamente{" "}
+                                                <span className="font-black text-amber-600 underline underline-offset-4 decoration-amber-200">
                                                     {formatCurrency(kpiData.overdueAmount || 0)}
                                                 </span>
-                                                .
+                                                {" "}hoje com ações de cobrança.
                                             </p>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-4 mt-4 md:mt-0">
+                                    <div className="flex items-center gap-6 mt-6 md:mt-0">
                                         <Button
-                                            size="sm"
-                                            variant="ghost"
-                                            className="text-amber-700 hover:text-amber-800 hover:bg-amber-100/50 font-bold rounded-xl pointer-events-none px-4"
+                                            className="bg-amber-100 text-amber-700 hover:bg-amber-600 hover:text-white font-black rounded-full px-8 py-6 transition-all"
                                         >
-                                            Analisar Impacto
+                                            Cobrar Agora
                                         </Button>
-                                        <div className="h-10 w-10 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center group-hover:border-amber-200 group-hover:bg-amber-50 transition-colors">
-                                            <ChevronRight className="h-5 w-5 text-slate-400 group-hover:text-amber-600 group-hover:translate-x-0.5 transition-all" />
-                                        </div>
                                     </div>
                                 </div>
                             </Link>
@@ -834,31 +774,26 @@ export default function DashboardPage() {
                                 href="/clients?status=pending"
                                 className="block focus:outline-none focus:ring-4 focus:ring-blue-500/20 rounded-[2rem]"
                             >
-                                <div className="flex flex-col md:flex-row md:items-center justify-between p-6 bg-gradient-to-r from-white to-slate-50/80 rounded-[2rem] border border-slate-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:shadow-[0_10px_30px_rgba(59,130,246,0.1)] hover:border-blue-200 transition-all duration-300 cursor-pointer group">
-                                    <div className="flex items-center space-x-6">
-                                        <div className="h-16 w-16 rounded-[1.25rem] bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center text-blue-600 text-2xl font-black shrink-0 shadow-inner group-hover:scale-105 transition-transform duration-300 border border-blue-200/50">
+                                <div className="flex flex-col md:flex-row md:items-center justify-between p-6 md:p-10 bg-white rounded-3xl md:rounded-[2.5rem] border border-slate-100 hover:border-blue-400 hover:shadow-2xl transition-all duration-500 cursor-pointer group">
+                                    <div className="flex flex-col sm:flex-row items-center sm:space-x-8 text-center sm:text-left gap-4">
+                                        <div className="h-20 w-20 md:h-24 md:w-24 rounded-2xl md:rounded-[2rem] bg-blue-50 flex items-center justify-center text-3xl md:text-4xl font-black shrink-0 border border-blue-100 group-hover:scale-110 transition-transform duration-500">
                                             {kpiData.pendingApprovals || 0}
                                         </div>
                                         <div>
-                                            <p className="text-lg font-black text-slate-900 group-hover:text-blue-700 transition-colors">
+                                            <p className="text-2xl font-black text-slate-900">
                                                 Aprovações Pendentes
                                             </p>
-                                            <p className="text-sm text-slate-500 mt-1">
-                                                Novos clientes aguardando revisão de documentos ou KYC.
+                                            <p className="text-base text-slate-500 mt-2">
+                                                Novos clientes aguardando revisão de documentos ou KYC para liberação de crédito.
                                             </p>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-4 mt-4 md:mt-0">
+                                    <div className="flex items-center gap-6 mt-6 md:mt-0">
                                         <Button
-                                            size="sm"
-                                            variant="ghost"
-                                            className="text-blue-700 hover:text-blue-800 hover:bg-blue-100/50 font-bold rounded-xl pointer-events-none px-4"
+                                            className="bg-blue-100 text-blue-700 hover:bg-blue-600 hover:text-white font-black rounded-full px-8 py-6 transition-all"
                                         >
                                             Revisar Agora
                                         </Button>
-                                        <div className="h-10 w-10 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center group-hover:border-blue-200 group-hover:bg-blue-50 transition-colors">
-                                            <ChevronRight className="h-5 w-5 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all" />
-                                        </div>
                                     </div>
                                 </div>
                             </Link>

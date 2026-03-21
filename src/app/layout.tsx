@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { Inter, Sora } from "next/font/google"; // Import Sora
+import { Inter, Plus_Jakarta_Sans, Sora } from "next/font/google"; // Import Sora
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta" });
 const sora = Sora({ subsets: ["latin"], variable: "--font-sora" }); // Configure Sora
 
 export const metadata: Metadata = {
@@ -21,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${sora.variable} font-sans antialiased bg-neutral-50 dark:bg-neutral-900`}
+        className={`${inter.variable} ${jakarta.variable} ${sora.variable} font-jakarta antialiased bg-neutral-50 dark:bg-neutral-900`}
       >
         <ThemeProvider
           attribute="class"
