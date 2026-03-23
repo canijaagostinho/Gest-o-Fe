@@ -79,6 +79,10 @@ export default function NewPaymentPage() {
   const watchLoanId = form.watch("loan_id");
   const watchInstallmentId = form.watch("installment_id");
 
+  const { searchParams: queryParams } = { searchParams: new URLSearchParams(typeof window !== "undefined" ? window.location.search : "") };
+  const loanIdParam = queryParams.get("loanId");
+  const installmentIdParam = queryParams.get("installmentId");
+
   // Fetch Loans and Accounts
   useEffect(() => {
     async function loadInitialData() {
@@ -88,6 +92,11 @@ export default function NewPaymentPage() {
         .select("*, clients(full_name)")
         .eq("status", "active");
       if (loansData) setLoans(loansData);
+
+      // Pre-select via URL if exists
+      if (loanIdParam) {
+          form.setValue("loan_id", loanIdParam);
+      }
 
       // Accounts
       const res = await getAccountsAction();
@@ -101,7 +110,14 @@ export default function NewPaymentPage() {
       }
     }
     loadInitialData();
-  }, [supabase, form]);
+  }, [supabase, form, loanIdParam]);
+
+  // Set installment from param once installments list is loaded
+  useEffect(() => {
+      if (installmentIdParam && installments.length > 0) {
+          form.setValue("installment_id", installmentIdParam);
+      }
+  }, [installmentIdParam, installments, form]);
 
   useEffect(() => {
     async function fetchInstallments() {

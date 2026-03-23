@@ -11,38 +11,11 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { createClient } from "@/utils/supabase/server";
+import { AutoScalingAmount } from "@/components/ui/auto-scaling-amount";
+import { getColorConfig } from "@/lib/colors-config";
 import { AccountDetailContent } from "./detail-content";
 
-function BalanceDisplay({ amount }: { amount: number }) {
-  const formatted = formatCurrency(amount);
-  const currencyMatch = formatted.match(/^[^\d]*/);
-  const currencySymbol = currencyMatch ? currencyMatch[0].trim() : "";
-  const numericPart = formatted.replace(currencySymbol, "").trim();
-
-  const parts = numericPart.split(",");
-  const integerPart = parts[0];
-  const decimalPart = parts[1] || "00";
-
-  let fontSize = "text-4xl";
-  if (integerPart.length > 12) fontSize = "text-2xl";
-  else if (integerPart.length > 9) fontSize = "text-3xl";
-
-  return (
-    <div className="flex flex-col">
-      <span className="text-[10px] font-bold text-white/50 uppercase tracking-widest mb-1">
-        {currencySymbol} - MOEDA NACIONAL
-      </span>
-      <div className="flex items-baseline font-black tracking-tighter">
-        <span className={`${fontSize} transition-all duration-300`}>
-          {integerPart}
-        </span>
-        <span className="text-lg opacity-60 ml-1 font-bold">
-          ,{decimalPart}
-        </span>
-      </div>
-    </div>
-  );
-}
+// Remove custom BalanceDisplay as we'll use AutoScalingAmount
 
 export default async function AccountDetailPage({
   params,
@@ -99,32 +72,46 @@ export default async function AccountDetailPage({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="md:col-span-1 border-none shadow-2xl bg-blue-600 text-white relative overflow-hidden group min-h-[180px] flex flex-col justify-center">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#0052D4] via-[#4364F7] to-[#6FB1FC] z-0" />
-          <div className="absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-all duration-700 z-10" />
-          <div className="absolute bottom-0 left-0 -mb-12 -ml-12 w-48 h-48 bg-blue-400/20 rounded-full blur-[80px] z-10" />
+        {/* Account Balance Card with Premium Colors */}
+        {(() => {
+          const provider = (account as any).bank_provider?.toLowerCase() || "outro";
+          const colors = getColorConfig(provider);
+          
+          return (
+            <Card className={cn(
+              "md:col-span-1 border-none shadow-2xl relative overflow-hidden group min-h-[200px] flex flex-col justify-center rounded-[2.5rem] transition-all duration-500 bg-gradient-to-br",
+              colors.gradient
+            )}>
+              <div className="absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-all duration-700 z-10" />
+              <div className="absolute bottom-0 left-0 -mb-12 -ml-12 w-48 h-48 bg-white/5 rounded-full blur-[80px] z-10" />
 
-          <CardHeader className="relative z-20 pb-0 flex flex-row items-center justify-between">
-            <CardTitle className="text-[10px] font-black text-blue-50 uppercase tracking-[0.3em] opacity-80">
-              Saldo da Carteira
-            </CardTitle>
-            <div className="p-2 bg-white/10 rounded-lg backdrop-blur-md">
-              <Wallet className="h-4 w-4 text-white" />
-            </div>
-          </CardHeader>
+              <CardHeader className="relative z-20 pb-0 flex flex-row items-center justify-between">
+                <CardTitle className="text-[10px] font-black text-white uppercase tracking-[0.3em] opacity-80">
+                  Saldo Disponível
+                </CardTitle>
+                <div className="p-2.5 bg-white/20 rounded-xl backdrop-blur-md border border-white/20 shadow-lg">
+                  <Wallet className="h-4 w-4 text-white" />
+                </div>
+              </CardHeader>
 
-          <CardContent className="relative z-20 pt-4 pb-6 mt-auto">
-            <div className="flex flex-col">
-              <BalanceDisplay amount={account.balance} />
-              <div className="flex items-center mt-6 space-x-2 bg-white/10 w-fit px-3 py-1 rounded-full backdrop-blur-sm border border-white/10">
-                <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
-                <p className="text-[9px] text-white font-bold uppercase tracking-wider">
-                  Conta em Tempo Real
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+              <CardContent className="relative z-20 pt-8 pb-6 mt-auto">
+                <div className="flex flex-col space-y-4">
+                  <AutoScalingAmount 
+                    amount={account.balance} 
+                    baseSize="5xl" 
+                    className="text-white"
+                  />
+                  <div className="flex items-center space-x-2 bg-white/20 w-fit px-4 py-1.5 rounded-full backdrop-blur-md border border-white/20 shadow-sm">
+                    <div className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_12px_rgba(52,211,153,1)]" />
+                    <p className="text-[10px] text-white font-black uppercase tracking-widest">
+                      Monitoramento Ativo
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })()}
 
         <Card className="md:col-span-2 border-none shadow-sm bg-white">
           <CardHeader>

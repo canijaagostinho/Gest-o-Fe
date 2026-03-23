@@ -129,7 +129,7 @@ export function LoanCellAction({ data, userRole }: LoanCellActionProps) {
 
           <DropdownMenuItem asChild>
             <LinkNext
-              href="/payments/new"
+              href={`/payments/new?loanId=${data.id}`}
               className="rounded-xl flex items-center font-bold text-slate-700 cursor-pointer hover:bg-slate-50 group"
             >
               <CreditCard className="mr-2 h-4 w-4 text-emerald-500 group-hover:rotate-12 transition-transform" />{" "}

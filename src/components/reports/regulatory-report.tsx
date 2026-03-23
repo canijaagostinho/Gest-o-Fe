@@ -41,6 +41,7 @@ import { createClient } from "@/utils/supabase/client";
 import { formatCurrency } from "@/lib/utils";
 import { MonthlyPortfolioTable } from "./monthly-portfolio-table";
 import { DateRange } from "react-day-picker";
+import { AutoScalingAmount } from "@/components/ui/auto-scaling-amount";
 
 export function RegulatoryReport({
   onlyRegulatory,
@@ -136,14 +137,16 @@ export function RegulatoryReport({
               <h2 className="text-2xl font-bold tracking-tight text-slate-900">
                 Relatório Trimestral (XdM)
               </h2>
-              <p className="text-slate-500 text-sm">
-                Modelo Oficial Banco de Moçambique - Requisitos de Capital e
-                Solvabilidade
+              <p className="text-blue-700 text-lg font-black tracking-tight uppercase">
+                Modelo Oficial Banco de Moçambique
+              </p>
+              <p className="text-slate-500 text-sm font-bold">
+                Requisitos de Capital e Solvabilidade
               </p>
             </div>
           </div>
 
-          <Card className="border-none shadow-sm bg-white border border-slate-100">
+          <Card className="border-none shadow-sm bg-blue-50/10 border border-blue-100/20">
             <CardHeader className="pb-2">
               <CardTitle className="text-base text-slate-800">
                 Processamento do Relatório XdM
@@ -165,7 +168,7 @@ export function RegulatoryReport({
                   ) : (
                     <FileText className="mr-2 h-5 w-5" />
                   )}
-                  Gerar Quarterly Report
+                  Gerar Relatórios
                 </Button>
               </div>
             </CardContent>
@@ -192,21 +195,18 @@ export function RegulatoryReport({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card className="border-none shadow-sm bg-blue-50/50 rounded-2xl">
+                <Card className="border-none shadow-md bg-white rounded-2xl ring-1 ring-slate-100">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em]">
                       Carteira Bruta
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div
-                      className="text-lg md:text-xl font-black text-blue-900 break-all leading-tight"
-                      title={formatCurrency(
-                        reportData.portfolio.gross_portfolio,
-                      )}
-                    >
-                      {formatCurrency(reportData.portfolio.gross_portfolio)}
-                    </div>
+                    <AutoScalingAmount 
+                      amount={reportData.portfolio.gross_portfolio} 
+                      baseSize="3xl"
+                      className="text-blue-900"
+                    />
                     <p className="text-[10px] font-bold text-blue-600/80 mt-1 uppercase tracking-wider">
                       {reportData.portfolio.active_clients} clientes ativos
                     </p>
@@ -219,12 +219,11 @@ export function RegulatoryReport({
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div
-                      className="text-lg md:text-xl font-black text-emerald-900 break-all leading-tight"
-                      title={formatCurrency(reportData.financials.recovered)}
-                    >
-                      {formatCurrency(reportData.financials.recovered)}
-                    </div>
+                    <AutoScalingAmount 
+                      amount={reportData.financials.recovered} 
+                      baseSize="3xl"
+                      className="text-emerald-900"
+                    />
                     <p className="text-[10px] font-bold text-emerald-600/80 mt-1 uppercase tracking-wider">
                       Neste trimestre
                     </p>
@@ -376,7 +375,7 @@ function MonthlyReportSection({
           </div>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col lg:flex-row gap-4 items-end bg-slate-50 p-6 rounded-2xl border border-slate-100">
+          <div className="flex flex-col lg:flex-row gap-4 items-end bg-white/50 backdrop-blur-sm p-6 rounded-2xl border border-slate-100">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-slate-400 p-1 uppercase tracking-widest leading-none">

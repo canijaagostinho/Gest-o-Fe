@@ -4,11 +4,14 @@ import { createClient } from "@/utils/supabase/client";
 import { DataTable } from "@/components/ui/data-table";
 import { getColumns } from "./columns";
 import { Button } from "@/components/ui/button";
-import { Plus, Calendar as CalendarIcon } from "lucide-react";
+import { Plus, Calendar as CalendarIcon, TrendingUp, AlertTriangle, Wallet } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { LoanExportActions } from "@/components/loans/loan-export-actions";
-import { useState, useEffect } from "react";
+import { formatCurrency, cn } from "@/lib/utils";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { AutoScalingAmount } from "@/components/ui/auto-scaling-amount";
 import {
   format,
   subDays,
@@ -22,7 +25,7 @@ import {
 } from "date-fns";
 import { useSearchParams } from "next/navigation";
 import { ptBR } from "date-fns/locale";
-import { cn } from "@/lib/utils";
+import { useState, useEffect } from "react";
 
 import { DateRange } from "react-day-picker";
 import {
@@ -163,10 +166,30 @@ export default function LoansPage() {
     },
   ];
 
+  // Calculate Portfolio KPIs
+  const todayStr = new Date().toISOString().split("T")[0];
+  const activeLoans = loans.filter((l) => l.status === "active");
+  const activePortfolio = activeLoans.reduce(
+    (acc, curr) => acc + (Number(curr.loan_amount) || 0),
+    0,
+  );
+  const delinquentLoans = loans.filter((l) =>
+    l.installments?.some(
+      (inst: any) => inst.status === "pending" && inst.due_date < todayStr,
+    ),
+  );
+  const creditRisk =
+    loans.length > 0 ? (delinquentLoans.length / loans.length) * 100 : 0;
+  const averageTicket =
+    activeLoans.length > 0 ? activePortfolio / activeLoans.length : 0;
+
   if (loading) {
     return (
-      <div className="p-8 text-center text-slate-500">
-        Carregando empréstimos...
+      <div className="p-8 text-center text-slate-500 min-h-screen flex items-center justify-center bg-slate-50/50">
+        <div className="space-y-4">
+           <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto" />
+           <p className="font-black text-[10px] uppercase tracking-widest text-slate-400">Sincronizando Carteira...</p>
+        </div>
       </div>
     );
   }
@@ -176,23 +199,96 @@ export default function LoansPage() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="flex-1 space-y-6 p-8 pt-6"
+      className="flex-1 space-y-10 p-8 pt-6 pb-20"
     >
       {/* Header: Title & Main Action */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight text-slate-900">
-            Empréstimos
+      <div className="flex items-center justify-between px-2">
+        <div className="space-y-1">
+          <h2 className="text-3xl font-black tracking-tight text-slate-900">
+            Carteira de Crédito
           </h2>
-          <p className="text-slate-500">
-            Acompanhe e gira todos os contratos de microcrédito.
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">
+            Gestão Estratégica de Contratos & Ativos
           </p>
         </div>
         <Link href="/loans/new">
-          <Button className="bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-200/50 hover:shadow-blue-500/30 transition-all hover:scale-105 active:scale-95 rounded-xl h-11 px-6 font-bold">
-            <Plus className="mr-2 h-4 w-4" /> Novo Empréstimo
+          <Button className="bg-slate-900 hover:bg-slate-800 shadow-xl shadow-slate-200 transition-all hover:scale-105 active:scale-95 rounded-2xl h-12 px-8 font-black text-xs uppercase tracking-widest">
+            <Plus className="mr-2 h-5 w-5" /> Novo Empréstimo
           </Button>
         </Link>
+      </div>
+
+      {/* Portfolio Performance Header */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+         {/* KPI 1: Active Portfolio */}
+         <Card className="bg-blue-600 border-none rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl shadow-blue-200 group">
+            <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-white/20 transition-all duration-700" />
+            <div className="relative z-10 space-y-4">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-white/10 rounded-xl ring-1 ring-white/20">
+                        <TrendingUp className="h-5 w-5 text-white" />
+                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-100">Carteira Ativa</span>
+                </div>
+                <div>
+                    <AutoScalingAmount 
+                        amount={activePortfolio} 
+                        baseSize="4xl" 
+                        className="text-white"
+                        decimalSize="sm"
+                    />
+                    <p className="text-[10px] font-bold text-blue-100 mt-2 uppercase tracking-wider flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                      {activeLoans.length} contratos em operação
+                   </p>
+                </div>
+            </div>
+         </Card>
+
+         {/* KPI 2: Credit Risk */}
+         <Card className="bg-white border-2 border-slate-50 rounded-[2.5rem] p-8 shadow-sm relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 rounded-full blur-3xl group-hover:bg-rose-500/10 transition-all duration-700" />
+            <div className="relative z-10 space-y-4">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-rose-50 rounded-xl text-rose-600 ring-1 ring-rose-100">
+                        <AlertTriangle className="h-5 w-5" />
+                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Risco de Crédito</span>
+                </div>
+                <div>
+                   <h3 className="text-4xl font-black tracking-tighter text-slate-900 truncate">
+                      {creditRisk.toFixed(1)}%
+                   </h3>
+                   <p className="text-[10px] font-bold text-rose-600 mt-2 uppercase tracking-wider">
+                      {delinquentLoans.length} contratos com atraso alto
+                   </p>
+                </div>
+            </div>
+         </Card>
+
+         {/* KPI 3: Average Ticket */}
+         <Card className="bg-white border-2 border-slate-50 rounded-[2.5rem] p-8 shadow-sm relative overflow-hidden group">
+            <div className="absolute bottom-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-3xl group-hover:bg-indigo-500/10 transition-all duration-700" />
+            <div className="relative z-10 space-y-4">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-indigo-50 rounded-xl text-indigo-600 ring-1 ring-indigo-100">
+                        <Wallet className="h-5 w-5" />
+                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Ticket Médio</span>
+                </div>
+                <div>
+                    <AutoScalingAmount 
+                        amount={averageTicket} 
+                        baseSize="4xl" 
+                        className="text-slate-900"
+                        decimalSize="sm"
+                    />
+                    <p className="text-[10px] font-bold text-indigo-600 mt-2 uppercase tracking-wider">
+                      Valor médio por operação
+                   </p>
+                </div>
+            </div>
+         </Card>
       </div>
 
       {/* Toolbar: Filters & Exports */}

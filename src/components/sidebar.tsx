@@ -306,38 +306,37 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
 
   return (
     <div className="flex flex-col h-full bg-[#111827] border-r border-white/5 relative z-50 shadow-2xl">
-      <div className="p-8 relative bg-[#1F2937]/30 border-b border-white/5 backdrop-blur-xl mb-6">
+      <div className="p-6 relative bg-[#1F2937]/30 border-b border-white/5 backdrop-blur-xl mb-4">
         <Link
           href="/"
           className="flex items-center gap-4 group relative z-10 transition-transform active:scale-95"
         >
           {displayLogo ? (
             <div className="relative">
-              <div className="relative h-12 w-12 rounded-[1.25rem] flex items-center justify-center overflow-hidden shadow-2xl group-hover:shadow-blue-500/30 transition-all duration-300 ring-1 ring-white/20 bg-white">
+              <div className="relative h-10 w-10 rounded-xl flex items-center justify-center overflow-hidden shadow-2xl group-hover:shadow-blue-500/30 transition-all duration-300 ring-1 ring-white/20 bg-white">
                 <img
                   src={displayLogo}
                   alt={displayName}
-                  className="h-full w-full object-contain p-2"
+                  className="h-full w-full object-contain p-1.5"
                 />
               </div>
-              <div className="absolute -bottom-1 -right-1 h-4 w-4 bg-emerald-500 rounded-full border-2 border-[#0F172A] shadow-lg shadow-emerald-500/20" />
+              <div className="absolute -bottom-1 -right-1 h-3.5 w-3.5 bg-emerald-500 rounded-full border-2 border-[#0F172A] shadow-lg shadow-emerald-500/20" />
             </div>
           ) : (
-            <div className="h-12 w-12 rounded-[1.25rem] bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white font-black text-xl shadow-lg group-hover:from-blue-500 group-hover:to-indigo-600 transition-all duration-300 ring-1 ring-white/20 relative">
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white font-black text-xl shadow-lg group-hover:from-blue-500 group-hover:to-indigo-600 transition-all duration-300 ring-1 ring-white/20 relative">
               {firstLetter}
-              <div className="absolute -bottom-1 -right-1 h-4 w-4 bg-emerald-500 rounded-full border-2 border-[#0F172A] shadow-lg shadow-emerald-500/20" />
+              <div className="absolute -bottom-1 -right-1 h-3.5 w-3.5 bg-emerald-500 rounded-full border-2 border-[#0F172A] shadow-lg shadow-emerald-500/20" />
             </div>
           )}
           <div className="flex flex-col justify-center">
-            <span className="text-xl font-black text-white tracking-tight font-heading group-hover:text-blue-400 transition-colors truncate max-w-[170px]">
+            <span className="text-lg font-black text-white tracking-tight font-heading group-hover:text-blue-400 transition-colors truncate max-w-[150px]">
               {displayName}
             </span>
             {displaySubtitle && (
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="text-[10px] font-bold text-blue-500/80 uppercase tracking-[0.2em] leading-none group-hover:text-blue-400 transition-colors">
+              <div className="flex items-center gap-1.5 ">
+                <span className="text-[9px] font-bold text-blue-500/80 uppercase tracking-[0.2em] leading-none group-hover:text-blue-400 transition-colors">
                   {displaySubtitle}
                 </span>
-                <div className="h-1 w-1 rounded-full bg-slate-700" />
               </div>
             )}
           </div>

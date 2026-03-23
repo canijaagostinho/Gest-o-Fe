@@ -8,29 +8,23 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { 
-  MoreHorizontal, 
-  Edit, 
-  Trash, 
-  Eye, 
-  Wallet, 
-  Zap, 
-  TrendingUp, 
-  TrendingDown 
-} from "lucide-react";
+import { MoreHorizontal, Edit, Trash, Eye, Wallet, Zap } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { AccountColumn } from "./columns"; // Import type from columns
-import { formatCurrency } from "@/lib/utils";
+import { AccountColumn } from "./columns";
+import { formatCurrency, cn } from "@/lib/utils";
 import { AlertModal } from "@/components/modals/alert-modal";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { deleteAccountAction } from "@/app/actions/account-actions";
+import { motion } from "framer-motion";
+import { AutoScalingAmount } from "@/components/ui/auto-scaling-amount";
+import { getColorConfig } from "@/lib/colors-config";
 
 interface WalletCardProps {
   data: AccountColumn;
@@ -47,11 +41,7 @@ export const WalletCard: React.FC<WalletCardProps> = ({ data, userRole, totalBal
     try {
       setLoading(true);
       const result = await deleteAccountAction(data.id);
-
-      if (!result.success) {
-        throw new Error(result.error);
-      }
-
+      if (!result.success) throw new Error(result.error);
       toast.success("Carteira removida com sucesso.");
       router.refresh();
     } catch (error: any) {
@@ -62,194 +52,187 @@ export const WalletCard: React.FC<WalletCardProps> = ({ data, userRole, totalBal
     }
   };
 
-  const participation = totalBalance > 0 ? (Number(data.balance) / totalBalance) * 100 : 0;
-  const isHighLiquidity = ["mpesa", "emola", "mkesh", "conta_movel", "cash"].includes((data as any).bank_provider?.toLowerCase());
+  const balanceNum = Number(data.balance);
+  const participation = totalBalance > 0 ? (balanceNum / totalBalance) * 100 : 0;
+  
+  // Intelligent provider detection
+  const rawProvider = (data as any).bank_provider?.toLowerCase() || "outro";
+  const nameLower = data.name.toLowerCase();
+  let provider = rawProvider;
+  
+  if (provider === "outro") {
+    if (nameLower.includes("mpesa")) provider = "mpesa";
+    else if (nameLower.includes("emola")) provider = "emola";
+    else if (nameLower.includes("mkesh")) provider = "mkesh";
+    else if (nameLower.includes("bci")) provider = "bci";
+    else if (nameLower.includes("bim") || nameLower.includes("bcp")) provider = "bim";
+    else if (nameLower.includes("moza")) provider = "moza";
+    else if (nameLower.includes("standard")) provider = "standard";
+    else if (nameLower.includes("caixa") || nameLower.includes("cash") || nameLower.includes("tesouraria")) provider = "cash";
+  }
 
-  // Simple Sparkline generator (Visual representation)
-  const generatePath = () => {
-    // Generate semi-random deterministic points based on ID for visual variety
-    const seed = data.id.charCodeAt(0) + data.id.charCodeAt(1);
-    const points = [
-        30 + (seed % 20), 
-        25 + (seed % 15), 
-        35 + (seed % 25), 
-        20 + (seed % 10), 
-        45 + (seed % 30), 
-        38 + (seed % 20), 
-        42 + (seed % 25)
-    ];
-    const width = 100;
-    const height = 40;
-    const step = width / (points.length - 1);
-    return points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${i * step} ${height - p}`).join(' ');
-  };
+  const isMobileMoney = ["mpesa", "emola", "mkesh", "conta_movel"].includes(provider);
+  const isCash = provider === "cash" || provider === "outro";
+  const colors = getColorConfig(provider);
 
   return (
     <>
-      <AlertModal
-        isOpen={open}
-        onClose={() => setOpen(false)}
-        onConfirm={onConfirm}
-        loading={loading}
-      />
-      <Card className="flex flex-col justify-between overflow-hidden border border-slate-200 rounded-[2rem] hover:shadow-xl transition-all duration-500 group bg-white shadow-sm relative">
-        {/* Animated Background Pulse for High Liquidity */}
-        {isHighLiquidity && (
-            <div className="absolute -top-10 -left-10 w-24 h-24 bg-emerald-400/5 rounded-full blur-2xl group-hover:bg-emerald-400/10 transition-all duration-700 pointer-events-none" />
-        )}
+      <AlertModal isOpen={open} onClose={() => setOpen(false)} onConfirm={onConfirm} loading={loading} />
+      <motion.div
+        whileHover={{ y: -5 }}
+        transition={{ type: "spring", stiffness: 300 }}
+      >
+        <Card className={cn(
+            "flex flex-col justify-between overflow-hidden border-2 rounded-[2.5rem] transition-all duration-500 group bg-white shadow-xl relative bg-gradient-to-br ring-4",
+            colors.borderThick,
+            colors.ring,
+            colors.shadow,
+            colors.bg,
+            data.is_default && "ring-blue-500/10 border-blue-500/50 shadow-blue-500/10"
+        )}>
+          {/* Top Info Bar */}
+          <div className="px-6 pt-6 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+                <div className={cn(
+                    "w-2.5 h-2.5 rounded-full ring-4 ring-offset-2",
+                    balanceNum > 0 ? "bg-emerald-500 ring-emerald-50" : "bg-rose-500 ring-rose-50"
+                )} />
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                    {balanceNum > 0 ? "Disponível" : "Sem Saldo"}
+                </span>
+            </div>
+            {data.is_default && (
+                <Badge className="bg-blue-600 text-white border-none font-black text-[9px] px-3 py-1.5 rounded-full uppercase tracking-tighter shadow-lg shadow-blue-500/20">
+                    <Zap className="w-2.5 h-2.5 mr-1 fill-white" /> Principal
+                </Badge>
+            )}
+          </div>
 
-        <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2 pt-6 px-6">
-          <CardTitle className="text-sm font-bold text-slate-900 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-slate-50 flex items-center justify-center overflow-hidden shrink-0 border border-slate-100 shadow-sm transition-transform group-hover:scale-110">
-              {(data as any).bank_provider &&
-              (data as any).bank_provider !== "outro" ? (
+          <CardHeader className="flex flex-row items-center gap-4 pb-2 pt-4 px-6">
+            <div className={cn(
+                "w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 border-2 shadow-sm transition-transform group-hover:scale-110",
+                colors.badge,
+                data.is_default ? "bg-white" : ""
+            )}>
+              {provider !== "outro" && provider !== "cash" ? (
                 <img
-                  src={`/logos/providers/${(data as any).bank_provider}.png`}
-                  alt={(data as any).bank_provider}
-                  className="w-full h-full object-contain p-1.5"
+                  src={`/logos/providers/${provider}.png`}
+                  alt={provider}
+                  className="w-full h-full object-contain p-2"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = "none";
-                    (
-                      e.target as HTMLImageElement
-                    ).nextElementSibling?.classList.remove("hidden");
+                    e.currentTarget.style.display = "none";
+                    e.currentTarget.nextElementSibling?.classList.remove("hidden");
                   }}
                 />
               ) : null}
-              <div
-                className={
-                  (data as any).bank_provider &&
-                  (data as any).bank_provider !== "outro"
-                    ? "hidden"
-                    : "block"
-                }
-              >
-                <Wallet className="w-5 h-5 text-slate-400" />
+              <div className={cn(provider !== "outro" && provider !== "cash" ? "hidden" : "block")}>
+                <Wallet className="w-6 h-6 opacity-40 text-slate-900" />
               </div>
             </div>
-            <div className="flex flex-col">
-              <span className="tracking-tight">{data.name}</span>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                    {(data as any).bank_provider || "Carteira"}
-                </span>
-                <span className="text-[9px] text-slate-300">•</span>
-                <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-1 rounded">
-                    {participation.toFixed(1)}%
-                </span>
-              </div>
-            </div>
-          </CardTitle>
-          <div className="flex flex-col items-end gap-2">
-            {data.is_default ? (
-                <Badge className="bg-slate-900 border-none hover:bg-slate-800 font-black px-3 py-1 rounded-full text-[9px] uppercase tracking-widest shadow-lg shadow-amber-900/10 flex items-center gap-1.5">
-                    <Zap className="w-2.5 h-2.5 fill-amber-400 text-amber-400" /> 
-                    <span className="text-amber-400">Principal</span>
-                </Badge>
-            ) : (
-                <Badge className="bg-slate-50 text-slate-500 border-slate-100 hover:bg-slate-100 font-bold px-3 rounded-full text-[9px] uppercase tracking-wider">Secundária</Badge>
-            )}
             
-            <div className="flex items-center gap-1">
-                {isHighLiquidity ? (
-                    <Badge variant="outline" className="text-[8px] font-black uppercase tracking-tighter border-emerald-100 text-emerald-600 bg-emerald-50/50 px-1.5 py-0">Alta Liquidez</Badge>
-                ) : (
-                    <Badge variant="outline" className="text-[8px] font-black uppercase tracking-tighter border-slate-100 text-slate-400 px-1.5 py-0">Banco</Badge>
-                )}
+            <div className="flex flex-col min-w-0">
+              <h3 className="text-xl font-black text-slate-900 leading-[1.1] tracking-tight">
+                {data.name}
+              </h3>
+              <div className="flex items-center gap-2 mt-1">
+                <span className={cn("text-[10px] font-black uppercase tracking-widest bg-white/50 px-2 py-0.5 rounded-lg border", colors.text, colors.border)}>
+                    {provider}
+                </span>
+                <div className="w-1 h-1 bg-slate-200 rounded-full" />
+                <span className={cn("text-[11px] font-black px-2 py-0.5 rounded-lg border bg-white/50", colors.text, colors.border)}>
+                    {participation.toFixed(1)}% da carteira
+                </span>
+              </div>
             </div>
-          </div>
-        </CardHeader>
+          </CardHeader>
 
-        <CardContent className="px-6 py-2">
-          <div className="flex items-end justify-between gap-4">
-            <div className="flex flex-col gap-0.5">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                Saldo em Conta
-                </span>
-                <span
-                className="text-3xl font-black tracking-tighter text-slate-900 truncate"
-                title={formatCurrency(Number(data.balance))}
-                >
-                {formatCurrency(Number(data.balance))}
-                </span>
+          <CardContent className="px-6 py-6">
+            <div className="space-y-1">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Saldo em Meticais</p>
+                <AutoScalingAmount 
+                  amount={balanceNum} 
+                  baseSize="5xl"
+                  className="text-slate-900"
+                />
             </div>
             
-            {/* Sparkline Visualization */}
-            <div className="h-10 w-24 shrink-0 opacity-40 group-hover:opacity-100 transition-opacity">
-                <svg viewBox="0 0 100 40" className="w-full h-full">
-                    <path
-                        d={generatePath()}
-                        fill="none"
-                        stroke={Number(data.balance) > 0 ? "#10b981" : "#ef4444"}
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
+            {/* Liquidness Bar */}
+            <div className="mt-6 space-y-2">
+                <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
+                    <span className="text-slate-400">Tipo de Liquidez</span>
+                    <span className={cn(
+                        "px-2 rounded bg-slate-50",
+                        isMobileMoney ? "text-rose-600" : isCash ? "text-slate-600" : "text-blue-600"
+                    )}>
+                        {isMobileMoney ? "Móvel" : isCash ? "Papel Moeda" : "Bancária"}
+                    </span>
+                </div>
+                <div className="h-2 w-full bg-white/50 rounded-full overflow-hidden border border-slate-100">
+                    <motion.div 
+                        initial={{ width: 0 }}
+                        animate={{ width: `${Math.min(participation * 5, 100)}%` }}
+                        className={cn(
+                            "h-full rounded-full transition-all",
+                            isMobileMoney ? "bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.3)]" : isCash ? "bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]" : "bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.3)]"
+                        )}
                     />
-                </svg>
+                </div>
             </div>
-          </div>
-        </CardContent>
+          </CardContent>
 
-        <div className="px-6 pb-6 pt-2">
+          <div className="px-6 pb-6 space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <Button
                 variant="outline"
-                size="sm"
-                className="rounded-xl border-slate-200 font-bold text-xs h-10 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-100 transition-all"
-                onClick={(e) => {
-                  router.push(`/finance/accounts/${data.id}?action=transfer`);
-                }}
+                className="rounded-2xl border-slate-100 font-black text-[10px] uppercase h-11 tracking-wider hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                onClick={() => router.push(`/finance/accounts/${data.id}?action=transfer`)}
               >
                 Transferir
               </Button>
               <Button
                 variant="outline"
-                size="sm"
-                className="rounded-xl border-slate-200 font-bold text-xs h-10 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-100 transition-all"
-                onClick={(e) => {
-                  router.push(`/finance/accounts/${data.id}?action=deposit`);
-                }}
+                className="rounded-2xl bg-blue-50 border-none text-blue-600 font-black text-[10px] uppercase h-11 tracking-wider hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                onClick={() => router.push(`/finance/accounts/${data.id}?action=deposit`)}
               >
                 Adicionar
               </Button>
             </div>
             
-            <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100">
+            <div className="flex items-center justify-between pt-2">
                 <Button
                     variant="ghost"
                     size="sm"
-                    className="text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900"
+                    className="h-8 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 px-2"
                     onClick={() => router.push(`/finance/accounts/${data.id}`)}
                 >
                     <Eye className="w-3.5 h-3.5 mr-2" />
-                    Ver Detalhes
+                    Gerenciar
                 </Button>
 
                 {userRole !== "operador" && (
-                    <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-900">
-                        <MoreHorizontal className="h-4 w-4" />
+                    <div className="flex items-center gap-1">
+                         <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8 text-slate-300 hover:text-blue-600 rounded-xl"
+                            onClick={() => router.push(`/finance/accounts/${data.id}/edit`)}
+                        >
+                            <Edit className="h-3.5 w-3.5" />
                         </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="rounded-xl border-slate-200">
-                        <DropdownMenuItem
-                        onClick={() => router.push(`/finance/accounts/${data.id}/edit`)}
-                        className="font-bold text-xs"
+                        <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8 text-slate-300 hover:text-rose-600 rounded-xl"
+                            onClick={() => setOpen(true)}
                         >
-                        <Edit className="mr-2 h-3.5 w-3.5" /> Editar
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                        onClick={() => setOpen(true)}
-                        className="text-red-600 focus:text-red-600 font-bold text-xs"
-                        >
-                        <Trash className="mr-2 h-3.5 w-3.5" /> Excluir
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                    </DropdownMenu>
+                            <Trash className="h-3.5 w-3.5" />
+                        </Button>
+                    </div>
                 )}
             </div>
-        </div>
-      </Card>
+          </div>
+        </Card>
+      </motion.div>
     </>
   );
 };
