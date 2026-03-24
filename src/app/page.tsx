@@ -27,7 +27,7 @@ import {
     Bell,
     Calculator,
     UserCheck,
-    Check,
+    Play,
     Phone,
     Mail,
     MessageSquare,
@@ -113,7 +113,7 @@ export default function LandingPage() {
                 "Até 50 clientes ativos",
                 "Gestão de empréstimos",
                 "Relatórios automáticos",
-                "Suporte prioritário",
+                "Suporte prioritário via WhatsApp",
             ],
             cta: "Começar Grátis",
             highlighted: false,
@@ -125,11 +125,12 @@ export default function LandingPage() {
             desc: "Para quem quer escala e controle",
             features: [
                 "Clientes ilimitados",
-                "Cálculos avançados",
-                "Alertas de cobrança",
+                "Cálculos avançados de juros",
+                "Alertas de cobrança SMS/Zap",
                 "Exportação Excel/PDF",
+                "Gestão de Fiadores",
             ],
-            cta: "Escolher Plano",
+            cta: "Escolher Profissional",
             highlighted: true,
         },
         {
@@ -138,12 +139,13 @@ export default function LandingPage() {
             currency: "",
             desc: "Para redes e instituições",
             features: [
-                "Multi-filiais",
-                "API de integração",
-                "Gestor de conta",
-                "Personalização total",
+                "Múltiplas filiais/agentes",
+                "API de integração total",
+                "Gestor de conta dedicado",
+                "Personalização da marca",
+                "Backup em tempo real",
             ],
-            cta: "Contactar Vendas",
+            cta: "Contactar Consultor",
             highlighted: false,
         },
     ];
@@ -175,45 +177,46 @@ export default function LandingPage() {
             </motion.div>
 
             {/* Navigation */}
-            <header className={cn(
-                "fixed top-0 w-full z-50 transition-all duration-300",
-                scrolled ? "bg-white/95 backdrop-blur-md border-b border-slate-200 py-3 shadow-sm" : "bg-transparent py-6"
-            )}>
-                <nav className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <div className="h-10 w-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-600/20">
-                            <Building2 className="h-6 w-6" />
-                        </div>
-                        <span className="text-2xl font-black tracking-tight text-slate-900">
-                            Gestão<span className="text-blue-600">Flex</span>
-                        </span>
+            {/* 0. HEADER (Premium Glassmorphism) */}
+            <header className="fixed top-0 left-0 right-0 z-[100] px-6 py-4 flex justify-center pointer-events-none">
+                <nav className="max-w-7xl w-full flex items-center justify-between px-6 py-3 bg-white/70 backdrop-blur-xl border border-slate-200/40 rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.03)] pointer-events-auto">
+                    <div className="flex items-center gap-4">
+                        <Link href="/" className="flex items-center gap-3 group">
+                            <div className="h-10 w-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-600/20 group-hover:scale-105 transition-transform">
+                                <Zap className="h-6 w-6 fill-white" />
+                            </div>
+                            <span className="text-xl font-black text-slate-900 tracking-tight font-sora">
+                                Gestão<span className="text-blue-600">Flex</span>
+                            </span>
+                        </Link>
                     </div>
 
                     <div className="hidden lg:flex items-center gap-10">
                         {[
                             { label: "O Problema", href: "#problema" },
-                            { label: "Solução", href: "#solucao" },
-                            { label: "Benefícios", href: "#beneficios" },
+                            { label: "A Solução", href: "#solucao" },
+                            { label: "Funcionalidades", href: "#funcionalidades" },
                             { label: "Segurança", href: "#seguranca" },
                         ].map((item) => (
                             <Link
                                 key={item.label}
                                 href={item.href}
-                                className="text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors uppercase tracking-widest"
+                                className="text-[11px] font-bold text-slate-500 hover:text-blue-600 transition-all uppercase tracking-[0.2em] relative group py-2"
                             >
                                 {item.label}
+                                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all group-hover:w-full" />
                             </Link>
                         ))}
                     </div>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3">
                         <Link href="/auth/login">
-                            <Button variant="ghost" className="text-sm font-bold text-slate-600 hover:bg-slate-100 px-4 h-11 rounded-xl">
+                            <Button variant="ghost" className="text-xs font-bold text-slate-500 hover:text-slate-900 px-4 h-10 rounded-xl transition-colors">
                                 Entrar
                             </Button>
                         </Link>
                         <Link href="/auth/signup">
-                            <Button className="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl px-6 h-11 shadow-lg shadow-blue-600/20 transition-all">
+                            <Button className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl px-5 h-10 shadow-lg shadow-blue-600/20 transition-all active:scale-95">
                                 Criar Conta Grátis
                             </Button>
                         </Link>
@@ -222,104 +225,244 @@ export default function LandingPage() {
             </header>
 
             <main className="flex-grow">
-                {/* 1. HERO SECTION */}
+                {/* 1. HERO SECTION (Fintech Premium) */}
                 <section className="relative min-h-[90vh] lg:min-h-screen flex items-center pt-32 pb-24 lg:pt-40 lg:pb-32 overflow-hidden bg-white">
-                    {/* Professional Radial Gradients */}
-                    <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-[1000px] h-[1000px] bg-blue-50/50 rounded-full blur-[140px] pointer-events-none" />
-                    <div className="absolute bottom-0 left-0 translate-y-1/3 -translate-x-1/4 w-[800px] h-[800px] bg-emerald-50/30 rounded-full blur-[120px] pointer-events-none" />
+                    {/* Deep Premium Gradients */}
+                    <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-[1200px] h-[1200px] bg-blue-50/60 rounded-full blur-[160px] pointer-events-none opacity-50" />
+                    <div className="absolute top-[20%] left-0 -translate-x-1/3 w-[800px] h-[800px] bg-emerald-50/40 rounded-full blur-[140px] pointer-events-none opacity-40" />
                     
                     <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
-                        <div className="max-w-[1400px] mx-auto space-y-10">
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                className="inline-flex items-center gap-3 px-5 py-2 bg-slate-50 border border-slate-200/60 rounded-full text-[12px] font-bold text-blue-600 uppercase tracking-[0.2em] shadow-sm"
+                        <div className="max-w-[1400px] mx-auto space-y-12">
+                            <FadeIn
+                                className="inline-flex items-center gap-3 px-6 py-2 bg-blue-50/50 border border-blue-100 rounded-full shadow-sm mx-auto"
                             >
                                 <span className="flex h-2 w-2 rounded-full bg-blue-600 animate-pulse" />
-                                Sistema Premium para Microcrédito
-                            </motion.div>
+                                <span className="text-[11px] font-black text-blue-700 uppercase tracking-[0.2em] font-sora">
+                                    Trusted by +50 Financial Institutions
+                                </span>
+                            </FadeIn>
 
                             <motion.div
-                                initial={{ opacity: 0, y: 20 }}
+                                initial={{ opacity: 0, y: 30 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.1, duration: 0.8 }}
-                                className="space-y-8"
+                                transition={{ delay: 0.1, duration: 1, ease: [0.16, 1, 0.3, 1] }}
+                                className="space-y-10"
                             >
-                                <h1 className="text-6xl md:text-8xl font-[800] text-slate-900 tracking-tight leading-[0.9]">
-                                    Pare de perder dinheiro com <span className="text-blue-600">inadimplência</span>
+                                <h1 className="text-6xl md:text-8xl lg:text-9xl font-[1000] text-slate-950 tracking-[-0.04em] leading-[0.95] md:leading-[1] font-sora">
+                                    Domine o seu<br />
+                                    <span className="text-blue-600">microcrédito.</span>
                                 </h1>
-                                <p className="text-xl md:text-2xl font-medium text-slate-500 tracking-tight max-w-5xl mx-auto leading-normal">
-                                    Diga adeus aos cadernos e planilhas confusas. O GestãoFlex automatiza sua cobrança e organiza seus lucros em um sistema profissional e moderno.
+                                <p className="text-xl md:text-2xl font-medium text-slate-500 max-w-4xl mx-auto leading-relaxed font-inter">
+                                    Diga adeus aos cadernos e planilhas confusas. O <span className="text-slate-950 font-black">GestãoFlex</span> automatiza sua cobrança e organiza seus lucros em um sistema profissional, moderno e **feito para a realidade de Moçambique.**
                                 </p>
                             </motion.div>
 
                             <motion.div
-                                initial={{ opacity: 0, y: 20 }}
+                                initial={{ opacity: 0, y: 30 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.2 }}
-                                className="flex flex-col sm:flex-row gap-4 justify-center"
+                                transition={{ delay: 0.2, duration: 1, ease: [0.16, 1, 0.3, 1] }}
+                                className="flex flex-col sm:flex-row gap-6 justify-center"
                             >
                                 <Link href="/auth/signup">
-                                    <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white font-bold h-16 px-10 text-lg rounded-xl shadow-xl shadow-orange-500/20 transition-all hover:scale-[1.02] active:scale-95 group w-full sm:w-auto">
+                                    <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white font-[1000] h-20 px-12 text-xl rounded-2xl shadow-[0_20px_40px_-12px_rgba(249,115,22,0.4)] transition-all hover:scale-[1.03] active:scale-95 group w-full sm:w-auto font-sora tracking-tight">
                                         Começar grátis agora
-                                        <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                                        <ArrowRight className="ml-2 h-7 w-7 transition-transform group-hover:translate-x-2" />
                                     </Button>
                                 </Link>
                                 <Link href="#demonstracao">
-                                    <Button size="lg" variant="outline" className="bg-white border-slate-200 text-slate-700 hover:bg-slate-50 font-bold h-16 px-10 text-lg rounded-xl shadow-sm transition-all w-full sm:w-auto">
+                                    <Button size="lg" variant="outline" className="bg-white border-slate-200 text-slate-900 font-[1000] h-20 px-12 text-xl rounded-2xl shadow-sm hover:bg-slate-50 transition-all w-full sm:w-auto font-sora tracking-tight border-2">
                                         Ver como funciona
                                     </Button>
                                 </Link>
                             </motion.div>
                         </div>
 
-                        {/* Hero Mockup with improved depth */}
+                        {/* Ultra-High Fidelity Hybrid Multi-Device Mockup */}
                         <motion.div
                             initial={{ opacity: 0, y: 40 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 1, ease: "easeOut", delay: 0.3 }}
-                            className="mt-24 relative max-w-6xl mx-auto"
+                            className="mt-20 relative max-w-[1400px] mx-auto px-4 perspective-[2000px]"
                         >
-                            <div className="absolute inset-0 bg-blue-600/5 blur-[120px] rounded-full -z-10 scale-110" />
-                            <img
-                                src="/premium-mockup.png"
-                                alt="GestãoFlex Dashboard"
-                                className="w-full h-auto drop-shadow-[0_32px_64px_rgba(0,0,0,0.12)] rounded-[2rem] border border-white/40 ring-1 ring-slate-200/50"
-                            />
+                            <div className="relative flex items-center justify-center min-h-[500px] lg:min-h-[750px] pt-12 select-none pointer-events-none">
+                                
+                                {/* 1. iMac Studio Display (The Foundation - Center) */}
+                                <div className="relative z-10 w-full lg:w-[85%] mx-auto transform-gpu transition-all duration-700">
+                                    <div className="relative rounded-[2.5rem] p-2.5 bg-gradient-to-br from-slate-200 to-slate-400 border border-slate-500/20 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)]">
+                                        {/* Monitor Bezel */}
+                                        <div className="rounded-[2.1rem] overflow-hidden border-[12px] border-slate-900 bg-black shadow-inner relative">
+                                            {/* Screen/Screenshot Interior */}
+                                            <div className="aspect-[16/9] w-full overflow-hidden relative">
+                                                <img
+                                                    src="/mockups/dashboard-sharp.png"
+                                                    alt="GestãoFlex Desktop Dashboard Sharp"
+                                                    className="w-full h-full object-cover"
+                                                />
+                                                {/* Realistic Screen Glare */}
+                                                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.03] to-white/[0.08]" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {/* iMac Stand */}
+                                    <div className="absolute bottom-[-45px] left-1/2 -translate-x-1/2 w-[22%] h-[40px] bg-gradient-to-b from-slate-400 to-slate-500 rounded-b-xl border-x border-b border-slate-500/30 -z-10" />
+                                    <div className="absolute bottom-[-55px] left-1/2 -translate-x-1/2 w-[60%] h-8 bg-black/30 blur-3xl -z-20" />
+                                </div>
+
+                                {/* 2. iPad Pro Mockup (Floating Right-Bottom) */}
+                                <motion.div 
+                                    initial={{ x: 100, opacity: 0, rotateY: -10 }}
+                                    whileInView={{ x: 0, opacity: 1, rotateY: -6 }}
+                                    transition={{ delay: 0.6, duration: 0.8 }}
+                                    className="absolute -right-4 lg:right-[-2%] bottom-[12%] z-20 w-[42%] lg:w-[35%] hidden md:block"
+                                >
+                                    <div className="relative rounded-[2.2rem] p-1.5 bg-slate-900 border-[8px] border-slate-800 shadow-[20px_40px_80px_rgba(0,0,0,0.5)] aspect-[4/3] transform-gpu">
+                                        <div className="w-full h-full rounded-[1.6rem] overflow-hidden bg-slate-950 border border-white/5 relative">
+                                            {/* Camera Module */}
+                                            <div className="absolute left-1/2 -top-1 -translate-x-1/2 w-16 h-1.5 bg-black rounded-b-full z-10" />
+                                            <img
+                                                src="/mockups/tablet-sharp.png"
+                                                alt="GestãoFlex Tablet View"
+                                                className="w-full h-full object-cover"
+                                            />
+                                            {/* Top Polish Gloss */}
+                                            <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/[0.08] to-transparent" />
+                                        </div>
+                                    </div>
+                                </motion.div>
+
+                                {/* 3. iPhone 15 Pro (Top Layer - Far Right) */}
+                                <motion.div 
+                                    initial={{ x: 150, opacity: 0, rotateY: -15 }}
+                                    whileInView={{ x: 0, opacity: 1, rotateY: -10 }}
+                                    transition={{ delay: 0.8, duration: 0.8 }}
+                                    className="absolute right-[-20px] lg:right-[-6%] bottom-[-10%] z-30 w-[22%] lg:w-[17%] hidden lg:block"
+                                >
+                                    <div className="relative rounded-[3.2rem] p-2 bg-slate-800 border-[8px] border-slate-700 shadow-[30px_60px_100px_rgba(0,0,0,0.7)] aspect-[9/19.5] transform-gpu">
+                                        {/* Physical Buttons */}
+                                        <div className="absolute left-[-11px] top-24 w-[3.5px] h-10 bg-slate-700 rounded-l-md" />
+                                        <div className="absolute left-[-11px] top-40 w-[3.5px] h-14 bg-slate-700 rounded-l-md" />
+                                        <div className="absolute left-[-11px] top-56 w-[3.5px] h-14 bg-slate-700 rounded-l-md" />
+                                        <div className="absolute right-[-11px] top-44 w-[4px] h-20 bg-slate-700 rounded-r-md" />
+
+                                        <div className="w-full h-full rounded-[2.5rem] overflow-hidden bg-slate-50 border border-slate-200 relative">
+                                            {/* Dynamic Island */}
+                                            <div className="absolute top-4 left-1/2 -translate-x-1/2 w-[38%] h-7 bg-black rounded-full z-[100] flex items-center justify-center">
+                                                <div className="h-1 w-1 bg-blue-500/30 rounded-full blur-[0.5px] ml-auto mr-4" />
+                                            </div>
+
+                                            {/* LIVE DASHBOARD SIMULATION (100% Crisp Level) */}
+                                            <div className="w-full h-full flex flex-col pt-8 px-4 gap-4 bg-white overflow-hidden pointer-events-none">
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <div className="h-6 w-6 rounded-lg bg-blue-600 flex items-center justify-center text-[10px] text-white font-black">G</div>
+                                                        <span className="text-[12px] font-black text-slate-800">Gestão<span className="text-blue-600">Flex</span></span>
+                                                    </div>
+                                                    <div className="h-2.5 w-8 bg-slate-100 rounded-full" />
+                                                </div>
+
+                                                <div className="space-y-0.5 mt-2">
+                                                    <h3 className="text-sm font-black text-slate-800">Bem-vindo, litos 👋</h3>
+                                                    <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Controle Financeiro</p>
+                                                </div>
+
+                                                <div className="grid grid-cols-1 gap-3">
+                                                    <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100 space-y-2">
+                                                        <div className="h-8 w-8 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center">
+                                                            <TrendingUp className="h-4 w-4" />
+                                                        </div>
+                                                        <div className="space-y-0.5">
+                                                            <p className="text-[7px] font-black text-slate-400 uppercase">Receita Total</p>
+                                                            <p className="text-base font-black text-slate-900 leading-none">MZN 1.1M</p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100 space-y-2">
+                                                        <div className="h-8 w-8 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center">
+                                                            <ShieldAlert className="h-4 w-4" />
+                                                        </div>
+                                                        <div className="space-y-0.5">
+                                                            <p className="text-[7px] font-black text-slate-400 uppercase">Inadimplência</p>
+                                                            <p className="text-base font-black text-slate-900 leading-none">05.2%</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="mt-auto pb-10">
+                                                    <div className="bg-blue-600 w-full py-4 rounded-2xl shadow-lg shadow-blue-600/30 text-center">
+                                                        <span className="text-white text-[10px] font-black uppercase tracking-widest">Baixar Relatórios</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            {/* Top Polish Reflection */}
+                                            <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/10" />
+                                        </div>
+                                    </div>
+                                </motion.div>
+
+                                {/* Floating Premium Trust Badge */}
+                                <div className="absolute -top-12 -left-8 bg-white/95 backdrop-blur-2xl p-8 rounded-[3rem] shadow-[0_48px_96px_rgba(0,0,0,0.2)] border border-slate-100/50 hidden xl:block z-40 transform -rotate-2 hover:rotate-0 transition-all duration-700 cursor-default">
+                                    <div className="flex items-center gap-6">
+                                        <div className="h-16 w-16 rounded-[2rem] bg-gradient-to-br from-emerald-400 to-emerald-600 text-white flex items-center justify-center shadow-xl shadow-emerald-500/20">
+                                            <ShieldCheck className="h-10 w-10 stroke-[1.5]" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <p className="text-[12px] font-black text-slate-400 uppercase tracking-widest">Segurança Total</p>
+                                            <p className="text-3xl font-[1000] text-slate-900 tracking-tighter">BANCÁRIA</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </motion.div>
                     </div>
                 </section>
 
-                {/* 2. PROBLEMA */}
-                <section id="problema" className="py-24 bg-slate-50/50 px-6 relative overflow-hidden">
-                    <div className="max-w-7xl mx-auto">
-                        <div className="grid lg:grid-cols-2 gap-16 items-center">
-                            <FadeIn className="space-y-6">
-                                <div className="h-1 w-12 bg-rose-500 rounded-full" />
-                                <h2 className="text-4xl md:text-5xl font-[800] text-slate-900 tracking-tight leading-tight">
-                                    Crescer sem controle <br />
-                                    <span className="text-rose-600">é o caminho para o prejuízo.</span>
+                {/* 2. PROBLEMA (Narrative Overhaul) */}
+                <section id="problema" className="py-32 bg-slate-950 px-6 relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_50%,rgba(59,130,246,0.1),transparent_50%)]" />
+                    <div className="max-w-7xl mx-auto relative z-10">
+                        <div className="grid lg:grid-cols-2 gap-20 items-center">
+                            <FadeIn className="space-y-8">
+                                <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-rose-500/10 border border-rose-500/20 rounded-full text-[10px] font-black text-rose-500 uppercase tracking-[0.3em]">
+                                    Cuidado com a sua Margem
+                                </div>
+                                <h2 className="text-5xl md:text-7xl font-[1000] text-white tracking-[-0.03em] leading-[1] font-sora">
+                                    VOCÊ ESTÁ PERDENDO<br />
+                                    <span className="text-slate-500">DINHEIRO AGORA.</span>
                                 </h2>
-                                <p className="text-xl text-slate-500 font-medium leading-relaxed italic border-l-4 border-slate-200 pl-6">
-                                    "No final do mês você sente que trabalhou muito, mas o lucro parece ter sumido entre folhas e anotações."
+                                <p className="text-xl text-slate-400 font-medium leading-relaxed max-w-xl font-inter">
+                                    Se você trabalha com crédito e ainda usa cadernos ou planilhas, a sua operação está em risco constante.
                                 </p>
+                                <div className="space-y-4 pt-4">
+                                    {[
+                                        "Inadimplência que você nem percebe",
+                                        "Horas perdidas com cálculos manuais",
+                                        "Erros humanos que custam caro",
+                                    ].map((text, i) => (
+                                        <div key={i} className="flex items-center gap-4 text-slate-300 font-bold">
+                                            <div className="h-2 w-2 rounded-full bg-rose-500" />
+                                            {text}
+                                        </div>
+                                    ))}
+                                </div>
                             </FadeIn>
-                            
-                            <div className="grid sm:grid-cols-2 gap-4">
+
+                            <div className="grid gap-4">
                                 {[
-                                    { title: "Inadimplência Oculta", desc: "Você demora dias para perceber que alguém não pagou.", icon: Clock },
-                                    { title: "ERROS DE CÁLCULO", desc: "Centavos e juros que você perde por falhas manuais.", icon: Calculator },
-                                    { title: "REGISTROS FRÁGEIS", desc: "Papéis perdem-se, planilhas corrompem-se e você fica cego.", icon: FileText },
-                                    { title: "ZERO ESCALA", desc: "O seu tempo é consumido por tarefas burocráticas.", icon: ShieldAlert },
+                                    { title: "Inadimplência Oculta", desc: "A cada dia que você não cobra, o risco de nunca receber sobe 15%.", icon: TriangleAlert, color: "bg-rose-500/10 text-rose-500" },
+                                    { title: "Cálculos Frágeis", desc: "Planilhas corrompem. Papeis somem. Seus lucros não deveriam ser tão voláteis.", icon: Calculator, color: "bg-blue-500/10 text-blue-500" },
+                                    { title: "Zero Escala", desc: "Você gasta 80% do tempo administrando e apenas 20% crescendo seu negócio.", icon: Zap, color: "bg-emerald-500/10 text-emerald-500" },
                                 ].map((pain, i) => (
                                     <FadeIn key={i} delay={i * 100}>
-                                        <div className="bg-white p-6 rounded-2xl border border-slate-200/60 space-y-3 shadow-sm hover:shadow-md transition-all group">
-                                            <div className="h-10 w-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-rose-50 group-hover:text-rose-600 transition-all">
-                                                <pain.icon className="h-5 w-5" />
+                                        <div className="bg-white/5 backdrop-blur-sm p-8 rounded-[2.5rem] border border-white/5 flex items-start gap-6 group hover:bg-white/10 transition-all">
+                                            <div className={cn("h-14 w-14 rounded-2xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110", pain.color)}>
+                                                <pain.icon className="h-8 w-8" />
                                             </div>
-                                            <h4 className="text-base font-bold text-slate-900 uppercase tracking-tight">{pain.title}</h4>
-                                            <p className="text-slate-500 text-xs font-semibold leading-relaxed">{pain.desc}</p>
+                                            <div className="space-y-1">
+                                                <h4 className="text-xl font-bold text-white tracking-tight">{pain.title}</h4>
+                                                <p className="text-slate-400 font-medium leading-relaxed text-sm">{pain.desc}</p>
+                                            </div>
                                         </div>
                                     </FadeIn>
                                 ))}
@@ -328,186 +471,195 @@ export default function LandingPage() {
                     </div>
                 </section>
 
-                {/* 3. SOLUÇÃO */}
-                <section id="solucao" className="py-24 bg-white px-6">
-                    <div className="max-w-5xl mx-auto text-center space-y-10">
-                        <FadeIn className="space-y-4">
-                            <h2 className="text-xs font-bold text-blue-600 uppercase tracking-[0.3em]">Gestão Sem Stress</h2>
-                            <h3 className="text-4xl md:text-6xl font-[800] text-slate-900 tracking-tight leading-[1.1]">
-                                Deixe o sistema <span className="text-blue-600">fazer o trabalho duro.</span>
+                {/* 3. SOLUÇÃO (Premium Split Layout) */}
+                <section id="solucao" className="py-32 bg-white px-6">
+                    <div className="max-w-7xl mx-auto space-y-24">
+                        <FadeIn className="text-center space-y-6 max-w-4xl mx-auto">
+                            <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-[10px] font-black text-emerald-600 uppercase tracking-[0.4em] mb-4">
+                                A Solução Definitiva
+                            </div>
+                            <h3 className="text-5xl md:text-7xl font-[1000] text-slate-950 tracking-[-0.03em] leading-[1] font-sora">
+                                Deixe o sistema <br />
+                                <span className="text-blue-600">fazer o trabalho duro.</span>
                             </h3>
-                            <p className="text-lg md:text-xl text-slate-500 font-medium max-w-2xl mx-auto">
-                                O GestãoFlex automatiza toda a burocracia do seu microcrédito para que você foque apenas no que importa: <span className="text-slate-900 font-bold">fazer seu negócio crescer.</span>
+                            <p className="text-xl md:text-2xl text-slate-500 font-medium max-w-3xl mx-auto leading-relaxed font-inter">
+                                O GestãoFlex automatiza sua operação para que você foque apenas no que importa: <span className="text-slate-950 font-black italic">fazer seu lucro crescer.</span>
                             </p>
                         </FadeIn>
                         
-                        <FadeIn delay={200}>
-                            <div className="relative group max-w-4xl mx-auto">
-                                <div className="absolute inset-0 bg-blue-600/5 blur-[80px] rounded-full opacity-50 group-hover:opacity-100 transition-opacity" />
-                                <img
-                                    src="/mockup-tablet-evolution.png"
-                                    alt="Interface GestãoFlex"
-                                    className="w-full h-auto rounded-2xl border border-slate-100 shadow-xl relative z-10 transition-transform group-hover:scale-[1.01]"
-                                />
-                            </div>
-                        </FadeIn>
-                    </div>
-                </section>
-
-                {/* 4. BENEFÍCIOS (Bento Box Layout) */}
-                <section id="beneficios" className="py-24 bg-slate-50/50 relative overflow-hidden px-6">
-                    <div className="max-w-7xl mx-auto">
-                        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
-                            <FadeIn className="space-y-4 max-w-2xl">
-                                <div className="h-1 w-12 bg-emerald-500 rounded-full" />
-                                <h2 className="text-4xl md:text-5xl font-[800] text-slate-900 tracking-tight leading-none">
-                                    Resultados que você vê <br />
-                                    <span className="text-emerald-600">no seu saldo bancário.</span>
-                                </h2>
-                            </FadeIn>
-                            <FadeIn delay={100}>
-                                <p className="text-lg text-slate-500 font-medium max-w-xs">
-                                    Menos tempo cobrando, mais tempo lucrando.
-                                </p>
-                            </FadeIn>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 auto-rows-[250px]">
-                            {/* Feature 1: Large Bento Card */}
-                            <FadeIn className="md:col-span-2 md:row-span-2">
-                                <div className="h-full bg-white p-10 rounded-[2rem] border border-slate-200/60 shadow-sm hover:shadow-xl transition-all group overflow-hidden relative">
-                                    <div className="relative z-10 flex flex-col h-full justify-between">
-                                        <div className="space-y-4">
-                                            <div className="h-14 w-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                                                <TrendingUp className="h-7 w-7" />
-                                            </div>
-                                            <h4 className="text-3xl font-[800] text-slate-900 tracking-tight">Cobrança Automática</h4>
-                                            <p className="text-lg text-slate-500 font-medium max-w-md">
-                                                O sistema envia lembretes por WhatsApp sem que você precise mover um dedo. Reduza a inadimplência em até 40% já no primeiro mês.
-                                            </p>
+                        <div className="grid lg:grid-cols-2 gap-24 items-center">
+                            <FadeIn delay={200} className="relative group overflow-visible">
+                                <div className="absolute -inset-10 bg-blue-600/5 blur-[100px] rounded-full opacity-50 group-hover:opacity-100 transition-opacity -z-10" />
+                                <div className="p-4 bg-slate-950 rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.4)] transform group-hover:scale-[1.02] transition-transform duration-700 border-8 border-slate-900 relative">
+                                    <img
+                                        src="/mockups/tablet-sharp.png"
+                                        alt="Interface de Empréstimos GestãoFlex Real"
+                                        className="w-full h-auto rounded-[2.2rem] shadow-2xl"
+                                    />
+                                    {/* Glass Reflection Overlay */}
+                                    <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
+                                </div>
+                                {/* Floating Metric Card */}
+                                <motion.div 
+                                    animate={{ y: [0, -10, 0] }}
+                                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                                    className="absolute -bottom-10 -right-10 bg-white p-6 rounded-[2.5rem] shadow-2xl border border-slate-100 hidden sm:block z-20"
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className="h-12 w-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                                            <TrendingUp className="h-6 w-6" />
                                         </div>
-                                        <div className="flex items-center gap-4 pt-6">
-                                            <span className="px-4 py-2 bg-emerald-100 text-emerald-700 rounded-lg text-xs font-bold uppercase tracking-wider">Aumente o Lucro</span>
-                                            <span className="px-4 py-2 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold uppercase tracking-wider">Zero Esforço</span>
+                                        <div>
+                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Inadimplência</p>
+                                            <p className="text-2xl font-black text-slate-950">-42.5%</p>
                                         </div>
                                     </div>
-                                    <div className="absolute top-10 -right-20 w-80 h-80 bg-emerald-50 rounded-full blur-[80px] -z-10 group-hover:bg-emerald-100/50 transition-all" />
-                                </div>
+                                </motion.div>
                             </FadeIn>
 
-                            {/* Feature 2: Square Bento Card */}
-                            <FadeIn delay={100} className="md:col-span-1 md:row-span-1">
-                                <div className="h-full bg-slate-900 p-8 rounded-[2rem] shadow-2xl shadow-blue-900/10 flex flex-col justify-between group">
-                                    <div className="h-12 w-12 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center">
-                                        <ShieldCheck className="h-6 w-6" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <h4 className="text-xl font-bold text-white">100% Seguro</h4>
-                                        <p className="text-slate-400 text-sm font-medium">Dados criptografados e backup automático diário.</p>
-                                    </div>
-                                </div>
-                            </FadeIn>
-
-                            {/* Feature 3: Square Bento Card */}
-                            <FadeIn delay={200} className="md:col-span-1 md:row-span-1">
-                                <div className="h-full bg-white p-8 rounded-[2rem] border border-slate-200/60 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
-                                    <div className="h-12 w-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                                        <Smartphone className="h-6 w-6" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <h4 className="text-xl font-bold text-slate-900">Na palma da mão</h4>
-                                        <p className="text-slate-500 text-sm font-medium">Acesse tudo pelo celular de onde estiver. Sem aplicativos pesados.</p>
-                                    </div>
-                                </div>
-                            </FadeIn>
-
-                            {/* Feature 4: Wide Bento Card */}
-                            <FadeIn delay={300} className="md:col-span-3 md:row-span-1">
-                                <div className="h-full bg-white p-8 rounded-[2rem] border border-slate-200/60 shadow-sm hover:shadow-xl transition-all flex flex-col md:flex-row items-center gap-10">
-                                    <div className="h-20 w-20 flex-shrink-0 rounded-2xl bg-orange-50 text-orange-500 flex items-center justify-center">
-                                        <Users className="h-10 w-10" />
-                                    </div>
-                                    <div className="space-y-2 text-center md:text-left flex-grow">
-                                        <h4 className="text-2xl font-[800] text-slate-900 tracking-tight leading-none">Saiba exatamente quem deve e quanto deve</h4>
-                                        <p className="text-slate-500 font-medium">Histórico completo de cada cliente em segundos. Chega de perguntar "quanto falta mesmo?".</p>
-                                    </div>
-                                    <div className="flex-shrink-0">
-                                        <Button className="bg-slate-900 text-white rounded-xl px-8 h-12 font-bold transition-all hover:bg-slate-800">
-                                            Ver Clientes
-                                        </Button>
-                                    </div>
-                                </div>
-                            </FadeIn>
-                        </div>
-                    </div>
-                </section>
-
-                {/* 5. FUNCIONALIDADES (Refined Grid) */}
-                <section className="py-24 bg-white px-6 overflow-hidden">
-                    <div className="max-w-7xl mx-auto">
-                        <div className="grid lg:grid-cols-2 gap-20 items-center">
-                            <div className="space-y-12">
-                                <FadeIn className="space-y-4">
-                                    <h2 className="text-xs font-bold text-blue-600 uppercase tracking-widest">Funcionalidades</h2>
-                                    <h3 className="text-4xl md:text-5xl font-[800] text-slate-900 tracking-tight leading-tight">Simplicidade <span className="text-blue-600">que gera escala.</span></h3>
-                                    <p className="text-lg text-slate-500 font-medium max-w-lg">
-                                        Tudo o que você precisa para gerenciar sua carteira de crédito sem complicações técnicas.
-                                    </p>
-                                </FadeIn>
-
-                                <div className="grid sm:grid-cols-1 gap-6">
+                            <FadeIn delay={100} className="space-y-10">
+                                <h4 className="text-2xl font-black text-slate-950 tracking-tight font-sora">Controle total, esforço zero.</h4>
+                                <div className="space-y-8">
                                     {[
-                                        { title: "Gestão de Contratos", desc: "Criação rápida com taxas e juros personalizados.", icon: FileText },
-                                        { title: "Acompanhamento em Tempo Real", desc: "Dashboard com indicadores de saúde financeira.", icon: LineChart },
-                                        { title: "Relatórios de Performance", desc: "Saiba quanto lucrou e quanto tem a receber em um clique.", icon: BarChart3 },
+                                        { title: "Registrar empréstimos em segundos", desc: "Criação rápida com taxas e juros personalizados.", icon: FileText, color: "bg-blue-500/10 text-blue-600" },
+                                        { title: "Acompanhar todos os pagamentos", desc: "Baixa automática de parcelas e alertas de vencimento.", icon: RefreshCw, color: "bg-emerald-500/10 text-emerald-600" },
+                                        { title: "Ver quem está em atraso", desc: "Histórico completo para evitar maus pagadores.", icon: Users, color: "bg-rose-500/10 text-rose-600" },
+                                        { title: "Alertas de vencimentos", desc: "Lembretes por WhatsApp sem que você precise mover um dedo.", icon: Zap, color: "bg-orange-500/10 text-orange-600" },
                                     ].map((feat, i) => (
-                                        <FadeIn key={i} delay={i * 100} className="group flex items-start gap-6 p-6 rounded-2xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100">
-                                            <div className="h-12 w-12 rounded-xl bg-blue-50 text-blue-600 flex flex-shrink-0 items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all">
-                                                <feat.icon className="h-6 w-6" />
+                                        <div key={i} className="flex gap-6 group">
+                                            <div className={cn("h-14 w-14 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-110 transition-transform", feat.color)}>
+                                                <feat.icon className="h-7 w-7" />
                                             </div>
-                                            <div className="space-y-1">
-                                                <h4 className="text-lg font-bold text-slate-900">{feat.title}</h4>
-                                                <p className="text-slate-500 text-sm font-medium">{feat.desc}</p>
+                                            <div className="space-y-1 pt-1">
+                                                <h5 className="text-xl font-bold text-slate-950 tracking-tight font-sora">{feat.title}</h5>
+                                                <p className="text-slate-500 font-medium text-lg leading-snug">{feat.desc}</p>
                                             </div>
-                                        </FadeIn>
+                                        </div>
                                     ))}
                                 </div>
-                            </div>
+                            </FadeIn>
+                        </div>
+                    </div>
+                </section>
 
-                            <FadeIn delay={200} className="relative">
-                                <div className="absolute -right-20 -top-20 w-[500px] h-[500px] bg-blue-50 rounded-full blur-[120px] -z-10 opacity-60" />
-                                <div className="p-4 bg-slate-100/50 rounded-[2.5rem] border border-slate-200/50 backdrop-blur-sm shadow-2xl">
-                                    <img
-                                        src="/mockup-laptop-loan.png"
-                                        alt="Funcionalidades GestãoFlex"
-                                        className="w-full h-auto rounded-[2rem] shadow-sm"
-                                    />
+                {/* 4. FUNCIONALIDADES (Master Bento Grid) */}
+                <section id="funcionalidades" className="py-32 bg-slate-50/50 px-6 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-blue-500/5 rounded-full blur-[120px] -z-10 translate-x-1/2 -translate-y-1/2" />
+                    
+                    <div className="max-w-7xl mx-auto space-y-20">
+                        <FadeIn className="text-center space-y-6 max-w-4xl mx-auto">
+                            <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-[10px] font-black text-blue-600 uppercase tracking-[0.4em] mb-4">
+                                Poder Sem Complexidade
+                            </div>
+                            <h3 className="text-5xl md:text-7xl font-[1000] text-slate-950 tracking-[-0.03em] leading-[1] font-sora">
+                                Simplicidade que <br />
+                                <span className="text-blue-600">gera escala real.</span>
+                            </h3>
+                            <p className="text-xl text-slate-500 font-medium max-w-3xl mx-auto leading-relaxed font-inter">
+                                Tudo o que você precisa para gerenciar sua carteira de crédito sem complicações técnicas ou dashboards confusos.
+                            </p>
+                        </FadeIn>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 auto-rows-[300px]">
+                            {/* Card 1: WhatsApp (Large 2x2) */}
+                            <FadeIn className="md:col-span-2 md:row-span-2">
+                                <div className="h-full bg-slate-950 p-12 rounded-[3.5rem] shadow-2xl group overflow-hidden relative flex flex-col justify-between border border-white/5">
+                                    <div className="relative z-10 space-y-6">
+                                        <div className="h-16 w-16 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/30">
+                                            <TrendingUp className="h-8 w-8" />
+                                        </div>
+                                        <h4 className="text-4xl font-black text-white tracking-tight leading-tight font-sora">
+                                            Cobrança Automática <br />
+                                            via <span className="text-emerald-500">WhatsApp.</span>
+                                        </h4>
+                                        <p className="text-xl text-slate-400 font-medium max-w-md leading-relaxed font-inter">
+                                            O sistema envia lembretes inteligentes sem que você mova um dedo. Reduza a inadimplência em até 42.5%.
+                                        </p>
+                                    </div>
+                                    <div className="absolute -bottom-20 -right-20 w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] group-hover:bg-emerald-500/15 transition-all" />
+                                    <div className="relative z-10 flex items-center gap-4 pt-10">
+                                        <span className="px-6 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-emerald-400">ROI Imediato</span>
+                                        <span className="px-6 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-emerald-400">Zero Esforço</span>
+                                    </div>
+                                </div>
+                            </FadeIn>
+
+                            {/* Card 2: Security (Tall 1x2) */}
+                            <FadeIn delay={100} className="md:col-span-1 md:row-span-2">
+                                <div className="h-full bg-white p-10 rounded-[3.5rem] border border-slate-200/60 shadow-sm flex flex-col justify-between group hover:border-blue-500/30 transition-all">
+                                    <div className="space-y-6">
+                                        <div className="h-14 w-14 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-600/20">
+                                            <ShieldCheck className="h-7 w-7" />
+                                        </div>
+                                        <h4 className="text-2xl font-black text-slate-950 tracking-tight font-sora">Segurança <br />Bancária.</h4>
+                                        <p className="text-slate-500 font-medium leading-relaxed font-inter">
+                                            Dados criptografados, backup automático e servidores de alta disponibilidade. Seus lucros estão seguros.
+                                        </p>
+                                    </div>
+                                    <div className="pt-10 border-t border-slate-100 space-y-4">
+                                        <div className="flex items-center gap-3 text-slate-400 font-bold text-xs uppercase tracking-widest">
+                                            <Zap className="h-4 w-4 text-blue-600" />
+                                            Cloud Real-time
+                                        </div>
+                                        <div className="flex items-center gap-3 text-slate-400 font-bold text-xs uppercase tracking-widest">
+                                            <Zap className="h-4 w-4 text-blue-600" />
+                                            SSL 256-bit
+                                        </div>
+                                    </div>
+                                </div>
+                            </FadeIn>
+
+                            {/* Card 3: Analytics (Wide 1x1 on Large) */}
+                            <FadeIn delay={200} className="md:col-span-1 md:row-span-1">
+                                <div className="h-full bg-blue-600 p-8 rounded-[3.5rem] shadow-2xl flex flex-col justify-between group">
+                                    <div className="h-12 w-12 rounded-xl bg-white/20 text-white flex items-center justify-center">
+                                        <LineChart className="h-6 w-6" />
+                                    </div>
+                                    <h4 className="text-xl font-black text-white tracking-tight font-sora leading-tight">Insight em Tempo Real.</h4>
+                                </div>
+                            </FadeIn>
+
+                            {/* Card 4: Reports (Large 1x2 on right or custom) */}
+                            <FadeIn delay={300} className="lg:col-span-2 lg:row-span-1">
+                                <div className="h-full bg-white p-8 rounded-[3.5rem] border border-slate-200/60 shadow-sm flex items-center gap-10 group overflow-hidden">
+                                    <div className="h-20 w-20 flex-shrink-0 rounded-[2rem] bg-slate-950 text-white flex items-center justify-center group-hover:scale-105 transition-transform duration-500">
+                                        <BarChart3 className="h-10 w-10" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <h4 className="text-2xl font-black text-slate-950 tracking-tight font-sora">Relatórios Prontos.</h4>
+                                        <p className="text-slate-500 font-medium font-inter">Saiba quanto lucrou com apenas um clique.</p>
+                                    </div>
+                                </div>
+                            </FadeIn>
+
+                            {/* Card 5: Mobile (Wide bottom) */}
+                            <FadeIn delay={400} className="md:col-span-3 lg:col-span-1 lg:row-span-1">
+                                <div className="h-full bg-orange-500 p-10 rounded-[3.5rem] shadow-2xl shadow-orange-500/20 flex flex-col justify-center items-center text-center group">
+                                    <Smartphone className="h-12 w-12 text-white mb-4 transform group-hover:-rotate-12 transition-transform" />
+                                    <h4 className="text-2xl font-black text-white tracking-tight font-sora">Na Palma da Mão.</h4>
                                 </div>
                             </FadeIn>
                         </div>
                     </div>
                 </section>
 
-                {/* 6. PROVA / AUTORIDADE (Premium Widgets) */}
-                <section className="py-24 bg-slate-900 text-white px-6 overflow-hidden relative">
-                    <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_0%,rgba(59,130,246,0.1),transparent_50%)]" />
-                    <div className="max-w-7xl mx-auto space-y-20 relative z-10">
-                        <FadeIn className="text-center max-w-2xl mx-auto space-y-4">
-                            <h2 className="text-xs font-bold text-blue-400 uppercase tracking-[0.3em]">Confiança & Resultados</h2>
-                            <h3 className="text-4xl md:text-5xl font-[800] tracking-tight leading-tight">
-                                Desenvolvido para a realidade do <span className="text-blue-400">mercado local.</span>
-                            </h3>
-                            <div className="flex flex-wrap justify-center gap-4 pt-4">
-                                <div className="bg-white/5 border border-white/10 px-4 py-2 rounded-lg text-xs font-bold text-blue-300">
-                                    +50 empréstimos simulados
-                                </div>
-                                <div className="bg-white/5 border border-white/10 px-4 py-2 rounded-lg text-xs font-bold text-blue-300">
-                                    Suporte local dedicado
-                                </div>
+                {/* 5. DEPOIMENTOS (Wall of Love) */}
+                <section id="beneficios" className="py-32 bg-white px-6 relative overflow-hidden">
+                    <div className="max-w-7xl mx-auto space-y-24 relative z-10">
+                        <FadeIn className="text-center max-w-3xl mx-auto space-y-6">
+                            <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-[10px] font-black text-blue-600 uppercase tracking-[0.4em] mb-4">
+                                Feedback Real
                             </div>
+                            <h3 className="text-5xl md:text-7xl font-[1000] text-slate-950 tracking-[-0.03em] font-sora leading-[1]">
+                                O mercado já <br />
+                                <span className="text-blue-600">está mudando.</span>
+                            </h3>
+                            <p className="text-xl text-slate-500 font-medium font-inter">
+                                Junte-se a dezenas de empreendedores que profissionalizaram sua gestão.
+                            </p>
                         </FadeIn>
 
-                        <div className="grid md:grid-cols-3 gap-6">
+                        <div className="grid md:grid-cols-3 gap-8">
                             {[
                                 {
                                     quote: "O GestãoFlex é robusto mas simples. Reduzi minha inadimplência pela metade e hoje durmo tranquilo sabendo que meus dados estão seguros.",
@@ -529,18 +681,18 @@ export default function LandingPage() {
                                 },
                             ].map((t, i) => (
                                 <FadeIn key={i} delay={i * 100}>
-                                    <div className="bg-white/5 border border-white/10 p-8 rounded-3xl space-y-6 flex flex-col h-full hover:bg-white/10 transition-all group">
-                                        <div className="flex gap-1">
-                                            {[1, 2, 3, 4, 5].map(j => <Star key={j} className="h-4 w-4 fill-blue-400 text-blue-400" />)}
+                                    <div className="bg-slate-50 p-10 rounded-[3rem] space-y-8 flex flex-col h-full hover:shadow-2xl hover:shadow-blue-900/5 transition-all group border border-slate-100">
+                                        <div className="flex gap-1.5">
+                                            {[1, 2, 3, 4, 5].map(j => <Star key={j} className="h-5 w-5 fill-orange-400 text-orange-400" />)}
                                         </div>
-                                        <p className="text-lg text-slate-300 font-medium leading-relaxed italic">&quot;{t.quote}&quot;</p>
-                                        <div className="flex items-center gap-4 pt-6 mt-auto border-t border-white/5">
-                                            <div className="h-14 w-14 rounded-full border-2 border-blue-400 p-1 flex-shrink-0">
-                                                <img src={t.image} alt={t.name} className="h-full w-full rounded-full object-cover shadow-inner" />
+                                        <p className="text-xl text-slate-600 font-medium leading-relaxed italic font-inter">&quot;{t.quote}&quot;</p>
+                                        <div className="flex items-center gap-5 pt-8 mt-auto border-t border-slate-200/60">
+                                            <div className="h-16 w-16 rounded-3xl border-2 border-white overflow-hidden shadow-lg flex-shrink-0">
+                                                <img src={t.image} alt={t.name} className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500" />
                                             </div>
                                             <div>
-                                                <p className="font-bold text-white leading-none">{t.name}</p>
-                                                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">{t.role}</p>
+                                                <p className="font-black text-slate-950 text-lg leading-none font-sora tracking-tight">{t.name}</p>
+                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">{t.role}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -550,138 +702,191 @@ export default function LandingPage() {
                     </div>
                 </section>
 
-                {/* 7. DEMONSTRAÇÃO (Browser Mockup Refined) */}
-                <section id="demonstracao" className="py-24 bg-white px-6">
-                    <div className="max-w-7xl mx-auto text-center space-y-12">
-                        <FadeIn className="space-y-4">
-                            <h2 className="text-xs font-bold text-blue-600 uppercase tracking-widest">Interface</h2>
-                            <h3 className="text-4xl md:text-5xl font-[800] text-slate-900 tracking-tight leading-tight">Simples como deve ser.</h3>
+                {/* 6. DEMONSTRAÇÃO (Studio Aesthetic) */}
+                <section id="demonstracao" className="py-32 bg-slate-950 px-6 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1),transparent_70%)] opacity-50" />
+                    <div className="max-w-7xl mx-auto space-y-24 relative z-10">
+                        <FadeIn className="text-center space-y-6 max-w-4xl mx-auto">
+                            <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-[10px] font-black text-blue-500 uppercase tracking-[0.4em] mb-4">
+                                Demo Interativa
+                            </div>
+                            <h3 className="text-5xl md:text-7xl font-[1000] text-white tracking-[-0.03em] font-sora leading-[1]">
+                                Veja o sistema <br />
+                                <span className="text-slate-500">em ação real.</span>
+                            </h3>
+                            <p className="text-xl text-slate-400 font-medium font-inter">Interface simples, rápida e fácil de usar. (Clique para assistir)</p>
                         </FadeIn>
                         
-                        <FadeIn delay={200} className="relative group max-w-5xl mx-auto">
-                            <div className="absolute inset-0 bg-blue-600/5 blur-[100px] rounded-full scale-110 opacity-50 group-hover:opacity-100 transition-opacity" />
-                            <div className="relative rounded-2xl border border-slate-200 overflow-hidden shadow-2xl bg-slate-50 p-2">
-                                <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
-                                    <img 
-                                        src="/mockup-full-dashboard-wide.png" 
-                                        alt="Dashboard do Sistema"
-                                        className="w-full h-auto"
-                                    />
+                        <FadeIn delay={200} className="relative group max-w-6xl mx-auto lg:perspective-[2000px]">
+                            <div className="absolute -inset-10 bg-blue-600/10 blur-[120px] rounded-full scale-110 opacity-30 group-hover:opacity-60 transition-opacity" />
+                            <div className="relative rounded-[3rem] border-x-[12px] border-t-[12px] border-b-[40px] border-slate-900 overflow-hidden shadow-[0_60px_100px_-20px_rgba(0,0,0,0.8)] bg-slate-950 aspect-video flex items-center justify-center cursor-pointer transform group-hover:rotate-x-2 transition-transform duration-1000">
+                                {/* Video Placeholder Content */}
+                                <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 to-black/80 group-hover:scale-105 transition-transform duration-1000" />
+                                <img
+                                    src="/mockups/video-poster.png"
+                                    alt="Demonstração GestãoFlex"
+                                    className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-90 transition-opacity duration-700"
+                                />
+                                <div className="relative z-10 flex flex-col items-center gap-8 text-center px-6">
+                                    <div className="h-28 w-28 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(37,99,235,0.6)] transform group-hover:scale-125 transition-transform duration-500">
+                                        <Play className="h-12 w-12 fill-current ml-2" />
+                                    </div>
+                                    <p className="text-white font-black uppercase tracking-[0.4em] text-sm bg-black/60 px-8 py-3 rounded-2xl backdrop-blur-md border border-white/10 group-hover:bg-blue-600 transition-colors">
+                                        Assistir Demonstração
+                                    </p>
                                 </div>
+                                {/* Hardware Detail */}
+                                <div className="absolute bottom-[-32px] left-1/2 -translate-x-1/2 w-32 h-2 bg-slate-800 rounded-full opacity-50" />
                             </div>
                         </FadeIn>
+
+                        <div className="grid md:grid-cols-3 gap-12 max-w-6xl mx-auto pt-16">
+                            {[
+                                { title: "Interface Intuitiva", desc: "Desenvolvida para ser simples, mesmo para quem não entende de tecnologia.", icon: MonitorSmartphone, color: "bg-blue-500/10 text-blue-500" },
+                                { title: "Multi-Dispositivo", desc: "Acesse pelo telemóvel, tablet ou computador, de onde estiver.", icon: Smartphone, color: "bg-emerald-500/10 text-emerald-500" },
+                                { title: "Exportação Pro", desc: "PDFs prontos para imprimir ou enviar aos seus clientes em um clique.", icon: FileText, color: "bg-orange-500/10 text-orange-500" },
+                            ].map((item, i) => (
+                                <FadeIn key={i} delay={i * 100}>
+                                    <div className="space-y-6 text-center md:text-left group">
+                                        <div className={cn("h-16 w-16 mx-auto md:mx-0 rounded-[1.5rem] flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform", item.color)}>
+                                            <item.icon className="h-8 w-8" />
+                                        </div>
+                                        <h4 className="text-2xl font-black text-white tracking-tight font-sora">{item.title}</h4>
+                                        <p className="text-slate-400 font-medium leading-relaxed font-inter">{item.desc}</p>
+                                    </div>
+                                </FadeIn>
+                            ))}
+                        </div>
                     </div>
                 </section>
 
-                {/* 8. OFERTA & 9. URGÊNCIA */}
-                {/* 8. OFERTA & 9. URGÊNCIA (High-Impact Card) */}
-                <section id="oferta" className="py-24 bg-slate-50/50 px-6">
+                {/* 7. OFERTA (Stripe-Grade Pricing) */}
+                <section id="oferta" className="py-32 bg-slate-50/50 px-6">
                     <div className="max-w-7xl mx-auto">
-                        <div className="bg-slate-900 rounded-[3.5rem] p-10 lg:p-20 text-white relative overflow-hidden shadow-2xl border border-white/5">
-                            <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-500/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
-                            <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2" />
+                        <div className="bg-slate-950 rounded-[4rem] p-10 lg:p-24 text-white relative overflow-hidden shadow-2xl border border-white/5">
+                            <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-blue-600/10 rounded-full blur-[160px] -translate-y-1/2 translate-x-1/2" />
+                            <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-[140px] translate-y-1/2 -translate-x-1/2" />
                             
-                            <div className="relative z-10 grid lg:grid-cols-2 gap-16 items-center">
-                                <div className="space-y-8 text-left">
-                                    <FadeIn className="space-y-4">
-                                        <div className="inline-block px-4 py-1.5 bg-blue-500/20 border border-blue-500/30 rounded-full text-[10px] font-bold uppercase tracking-widest text-blue-300">
-                                            Oferta de Lançamento
+                            <div className="relative z-10 grid lg:grid-cols-2 gap-20 items-center">
+                                <div className="space-y-10 text-left">
+                                    <FadeIn className="space-y-6">
+                                        <div className="inline-flex items-center gap-3 px-4 py-2 bg-blue-500/20 border border-blue-500/30 rounded-2xl text-[10px] font-black uppercase tracking-widest text-blue-400 font-inter">
+                                            Acesso Imediato
                                         </div>
-                                        <h2 className="text-4xl md:text-6xl font-[800] tracking-tight leading-tight">
-                                            Teste grátis por <span className="text-blue-400">45 dias.</span>
+                                        <h2 className="text-5xl md:text-8xl font-[1000] tracking-[-0.04em] leading-[1] font-sora">
+                                            Recupere o <br />
+                                            <span className="text-blue-500">seu controle.</span>
                                         </h2>
-                                        <p className="text-lg text-slate-400 font-medium">
-                                            Sem compromisso, sem cartão de crédito. <br />
-                                            Cancele quando quiser se não estiver satisfeito.
+                                        <p className="text-xl md:text-2xl text-slate-400 font-medium leading-relaxed font-inter">
+                                            Comece hoje sem riscos. Teste todas as funcionalidades por <span className="text-white font-black underline decoration-blue-500 underline-offset-8">45 dias totalmente grátis.</span>
                                         </p>
                                     </FadeIn>
-                                    <ul className="space-y-4">
+                                    <div className="space-y-6 pt-4">
                                         {[
                                             "Acesso total a todas as funcionalidades",
                                             "Suporte prioritário via WhatsApp",
                                             "Treinamento personalizado grátis",
                                         ].map((item, i) => (
-                                            <li key={i} className="flex items-center gap-3 text-slate-300 font-medium">
-                                                <div className="h-5 w-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0">
-                                                    <CheckCircle2 className="h-3 w-3" />
+                                            <div key={i} className="flex items-center gap-5 text-slate-300 font-bold font-inter group">
+                                                <div className="h-6 w-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0 group-hover:scale-125 transition-transform">
+                                                    <CheckCircle2 className="h-4 w-4" />
                                                 </div>
                                                 {item}
-                                            </li>
+                                            </div>
                                         ))}
-                                    </ul>
+                                    </div>
                                 </div>
-                                <div className="bg-white/5 border border-white/10 p-10 rounded-3xl space-y-8 backdrop-blur-md">
-                                    <div className="space-y-2">
-                                        <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Plano Mensal</p>
-                                        <div className="flex items-baseline gap-2">
-                                            <span className="text-5xl font-[800]">Grátis</span>
-                                            <span className="text-slate-500 font-bold uppercase text-[10px] tracking-widest">por 45 dias</span>
+
+                                <FadeIn delay={200} className="bg-white p-12 rounded-[3.5rem] space-y-10 shadow-3xl transform lg:rotate-2 hover:rotate-0 transition-transform duration-700">
+                                    <div className="space-y-6">
+                                        <div className="inline-flex items-center gap-3 px-6 py-3 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl">
+                                            <div className="h-3 w-3 rounded-full bg-emerald-500 animate-pulse" />
+                                            <span className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.3em] font-inter">Promoção Ativa</span>
                                         </div>
-                                        <p className="text-rose-400 text-xs font-bold pt-2 uppercase tracking-wide flex items-center gap-2">
-                                            <TriangleAlert className="h-3 w-3" />
-                                            Cada dia sem controle é dinheiro perdido.
+                                        <div className="space-y-1">
+                                            <p className="text-slate-400 font-black uppercase tracking-widest text-[10px] font-inter">Acesso Vitalício + Free Trial</p>
+                                            <div className="flex items-baseline gap-4 pt-2">
+                                                <span className="text-9xl font-[1000] text-slate-950 tracking-tighter leading-none font-sora">ZERO</span>
+                                                <span className="text-slate-400 font-black uppercase text-xl tracking-widest bg-slate-100 px-5 py-2 rounded-2xl font-inter">MT</span>
+                                            </div>
+                                        </div>
+                                        <p className="text-rose-500 text-sm font-black pt-4 uppercase tracking-[0.2em] flex items-center gap-3 bg-rose-500/5 p-5 rounded-[2rem] border border-rose-500/10 font-sora">
+                                            <TriangleAlert className="h-5 w-5" />
+                                            Vagas limitadas para lançamento.
                                         </p>
                                     </div>
                                     <Link href="/auth/signup">
-                                        <Button className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold h-14 rounded-xl shadow-lg shadow-blue-500/20 text-lg transition-all active:scale-95">
-                                            Criar minha conta agora
+                                        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black h-24 rounded-[2rem] shadow-[0_20px_40px_-12px_rgba(37,99,235,0.4)] text-2xl transition-all active:scale-95 font-sora tracking-tight">
+                                            Criar Conta Grátis
+                                            <ArrowRight className="ml-3 h-8 w-8" />
                                         </Button>
                                     </Link>
-                                    <p className="text-center text-[10px] text-slate-500 font-bold uppercase tracking-widest">
-                                        Não requer cartão de crédito
+                                    <p className="text-center text-slate-400 text-[10px] font-black font-inter tracking-widest uppercase">
+                                        Sem cartão necessário • Cancele quando quiser
                                     </p>
-                                </div>
+                                </FadeIn>
                             </div>
                         </div>
                     </div>
                 </section>
 
-                {/* 10. SEGURANÇA (Refined Widgets) */}
-                <section id="seguranca" className="py-24 bg-white px-6">
+                {/* 8. SEGURANÇA (Industrial Trust) */}
+                <section id="seguranca" className="py-32 bg-white px-6 relative overflow-hidden">
                     <div className="max-w-7xl mx-auto">
-                        <div className="grid lg:grid-cols-2 gap-16 items-center">
-                            <FadeIn className="space-y-8">
-                                <div className="h-1 w-12 bg-blue-600 rounded-full" />
-                                <h2 className="text-4xl md:text-5xl font-[800] text-slate-900 tracking-tight leading-tight">
-                                    Segurança de <span className="text-blue-600">nível bancário.</span>
-                                </h2>
-                                <p className="text-lg text-slate-500 font-medium leading-relaxed max-w-lg">
-                                    Sua empresa não pode parar. Por isso, protegemos seus dados com a tecnologia mais avançada do mercado.
-                                </p>
-                                <div className="grid sm:grid-cols-2 gap-6 pt-4">
+                        <div className="grid lg:grid-cols-2 gap-24 items-center">
+                            <FadeIn className="space-y-10">
+                                <div className="space-y-6">
+                                    <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-[10px] font-black text-blue-600 uppercase tracking-[0.4em] mb-4 font-inter">
+                                        Industrial Strength
+                                    </div>
+                                    <h2 className="text-5xl md:text-7xl font-[1000] text-slate-950 tracking-[-0.03em] font-sora leading-[1]">
+                                        Segurança de <br />
+                                        <span className="text-blue-600">nível bancário.</span>
+                                    </h2>
+                                    <p className="text-xl text-slate-500 font-medium leading-relaxed max-w-lg font-inter">
+                                        Sua empresa não pode parar. Protegemos seus lucros com os mesmos padrões de segurança das maiores fintechs globais.
+                                    </p>
+                                </div>
+                                <div className="grid sm:grid-cols-2 gap-8 pt-4">
                                     {[
                                         { title: "Criptografia SSL", desc: "Segurança ponta a ponta.", icon: ShieldCheck },
-                                        { title: "Backups Automáticos", desc: "Seus dados sempre salvos.", icon: Cloud },
-                                        { title: "Redundância Total", desc: "Sistema sempre online.", icon: RefreshCw },
-                                        { title: "Privacidade Garantida", desc: "Isolamento total de dados.", icon: Lock },
+                                        { title: "Backups 24/7", desc: "Seus dados sempre salvos.", icon: Cloud },
+                                        { title: "Redundância", desc: "Sistema sempre online.", icon: RefreshCw },
+                                        { title: "Privacidade", desc: "Isolamento total de dados.", icon: Lock },
                                     ].map((s, i) => (
-                                        <div key={i} className="group flex items-start gap-4 p-4 rounded-xl border border-slate-100 hover:bg-slate-50 transition-all">
-                                            <div className="h-10 w-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-all">
-                                                <s.icon className="h-5 w-5" />
+                                        <div key={i} className="group flex items-start gap-5">
+                                            <div className="h-12 w-12 rounded-2xl bg-slate-50 text-slate-400 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-all duration-500 shadow-sm">
+                                                <s.icon className="h-6 w-6" />
                                             </div>
-                                            <div>
-                                                <p className="font-bold text-slate-900 leading-tight">{s.title}</p>
-                                                <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest mt-1">{s.desc}</p>
+                                            <div className="space-y-1">
+                                                <p className="font-black text-slate-950 leading-tight font-sora tracking-tight uppercase text-sm">{s.title}</p>
+                                                <p className="text-xs font-bold text-slate-400 tracking-wide font-inter">{s.desc}</p>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             </FadeIn>
                             
-                            <FadeIn delay={200} className="relative">
-                                <div className="absolute -inset-4 bg-slate-900 rounded-[2.5rem] rotate-2" />
-                                <div className="relative bg-slate-900 rounded-[2.5rem] p-10 lg:p-16 text-white space-y-8 overflow-hidden border border-white/5">
-                                    <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/20 rounded-full blur-3xl" />
-                                    <div className="h-14 w-14 bg-blue-500 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/40">
-                                        <ShieldCheck className="h-7 w-7" />
+                            <FadeIn delay={200} className="relative group">
+                                <div className="absolute -inset-6 bg-slate-950 rounded-[4rem] group-hover:rotate-1 transition-transform duration-1000" />
+                                <div className="relative bg-slate-950 rounded-[3.5rem] p-12 lg:p-20 text-white space-y-10 overflow-hidden border border-white/5 shadow-3xl">
+                                    <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-[100px]" />
+                                    <div className="h-20 w-20 bg-blue-600 text-white rounded-3xl flex items-center justify-center shadow-[0_20px_40px_-10px_rgba(37,99,235,0.4)] transform group-hover:scale-110 transition-transform">
+                                        <ShieldCheck className="h-10 w-10" />
                                     </div>
-                                    <div className="space-y-6">
-                                        <p className="text-2xl md:text-3xl font-[800] tracking-tight leading-tight">
+                                    <div className="space-y-8">
+                                        <p className="text-3xl md:text-4xl font-[1000] tracking-tight leading-tight font-sora italic">
                                             "Segurança não é opcional. Aplicamos padrões globais para que você foque apenas no seu lucro."
                                         </p>
-                                        <div className="flex items-center gap-3 text-[10px] font-bold text-blue-400 uppercase tracking-[0.2em] pt-6 border-t border-white/10">
-                                            <Lock className="h-3 w-3" />
-                                            ISO 27001 Compliant Infrastructure
+                                        <div className="flex flex-wrap items-center gap-6 pt-10 border-t border-white/10">
+                                            <div className="flex items-center gap-3 text-[10px] font-black text-blue-400 uppercase tracking-[0.3em] font-inter">
+                                                <Lock className="h-4 w-4" />
+                                                Cloud Infrastructure
+                                            </div>
+                                            <div className="flex items-center gap-3 text-[10px] font-black text-emerald-400 uppercase tracking-[0.3em] font-inter">
+                                                <CheckCircle2 className="h-4 w-4" />
+                                                Verified Daily
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -690,28 +895,33 @@ export default function LandingPage() {
                     </div>
                 </section>
 
-                {/* 11. FAQ (Modern Accordion Widgets) */}
-                <section id="faq" className="py-24 bg-white px-6">
-                    <div className="max-w-4xl mx-auto space-y-16">
-                        <FadeIn className="text-center space-y-4">
-                            <h2 className="text-xs font-bold text-blue-600 uppercase tracking-[0.3em]">Perguntas Frequentes</h2>
-                            <h3 className="text-4xl md:text-5xl font-[800] text-slate-900 tracking-tight">Tire suas dúvidas.</h3>
+                {/* 9. FAQ (Senior UI Accordion) */}
+                <section id="faq" className="py-32 bg-slate-50 px-6">
+                    <div className="max-w-4xl mx-auto space-y-20">
+                        <FadeIn className="text-center space-y-6">
+                            <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-[10px] font-black text-blue-600 uppercase tracking-[0.4em] mb-4 font-inter">
+                                FAQ
+                            </div>
+                            <h3 className="text-5xl md:text-7xl font-[1000] text-slate-950 tracking-[-0.03em] font-sora leading-[1]">
+                                Tire suas <br />
+                                <span className="text-blue-600">dúvidas.</span>
+                            </h3>
                         </FadeIn>
-                        <div className="grid gap-3">
+                        <div className="grid gap-4">
                             {faqItems.map((item, i) => (
                                 <FadeIn key={i} delay={i * 50}>
-                                    <div className={cn("rounded-2xl border transition-all duration-300", activeFaq === i ? "bg-slate-50 border-slate-200 shadow-sm" : "bg-white border-slate-100 hover:border-slate-200")}>
+                                    <div className={cn("rounded-[2rem] border transition-all duration-500", activeFaq === i ? "bg-white border-blue-500/20 shadow-2xl shadow-blue-900/5" : "bg-white/50 border-slate-200/60 hover:border-blue-500/30")}>
                                         <button
                                             onClick={() => setActiveFaq(activeFaq === i ? null : i)}
-                                            className="w-full flex items-center justify-between p-6 text-left"
+                                            className="w-full flex items-center justify-between p-8 text-left"
                                         >
-                                            <span className="text-lg font-bold text-slate-900 pr-8">{item.q}</span>
-                                            <div className={cn("h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 transition-all", activeFaq === i && "rotate-180 bg-blue-600 text-white shadow-md shadow-blue-600/20")}>
-                                                <ChevronDown className="h-4 w-4" />
+                                            <span className="text-xl font-black text-slate-950 pr-8 font-sora tracking-tight">{item.q}</span>
+                                            <div className={cn("h-10 w-10 flex-shrink-0 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 transition-all duration-500", activeFaq === i && "rotate-180 bg-blue-600 text-white shadow-lg shadow-blue-600/20")}>
+                                                <ChevronDown className="h-5 w-5" />
                                             </div>
                                         </button>
-                                        <div className={cn("overflow-hidden transition-all duration-300", activeFaq === i ? "max-h-60 opacity-100" : "max-h-0 opacity-0")}>
-                                            <div className="p-6 pt-0 text-slate-500 font-medium text-base leading-relaxed">
+                                        <div className={cn("overflow-hidden transition-all duration-500 ease-in-out", activeFaq === i ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0")}>
+                                            <div className="p-8 pt-0 text-slate-500 font-medium text-lg leading-relaxed font-inter border-t border-slate-50 mt-4">
                                                 {item.a}
                                             </div>
                                         </div>
@@ -722,29 +932,31 @@ export default function LandingPage() {
                     </div>
                 </section>
 
-                {/* 12. CTA FINAL (High Impact) */}
-                <section className="py-24 bg-white px-6 relative overflow-hidden">
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.05),transparent_70%)]" />
-                    <div className="max-w-4xl mx-auto text-center space-y-10 relative z-10">
-                        <FadeIn className="space-y-4">
-                            <h2 className="text-5xl md:text-7xl font-[800] text-slate-900 tracking-tight leading-[1.1]">
+                {/* 10. CTA FINAL (Senior Aesthetic) */}
+                <section className="py-40 bg-white px-6 relative overflow-hidden">
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.08),transparent_70%)]" />
+                    <div className="max-w-5xl mx-auto text-center space-y-12 relative z-10">
+                        <FadeIn className="space-y-6">
+                            <h2 className="text-6xl md:text-8xl font-[1000] text-slate-950 tracking-[-0.04em] leading-[1] font-sora">
                                 Recupere seu tempo. <br />
                                 <span className="text-blue-600">Multiplique seu lucro.</span>
                             </h2>
-                            <p className="text-xl text-slate-500 font-medium max-w-2xl mx-auto italic">
-                                "O melhor momento para organizar seu negócio era ontem. O segundo melhor é agora."
+                            <p className="text-2xl text-slate-500 font-medium max-w-3xl mx-auto italic font-inter leading-relaxed">
+                                "O melhor momento para organizar seu negócio era ontem. <br /> O segundo melhor é agora."
                             </p>
                         </FadeIn>
                         
-                        <FadeIn delay={200} className="flex flex-col items-center gap-6">
+                        <FadeIn delay={200} className="flex flex-col items-center gap-10">
                             <Link href="/auth/signup">
-                                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white font-bold h-16 px-10 text-xl rounded-2xl shadow-xl shadow-blue-600/20 transition-all hover:scale-105 active:scale-95">
+                                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white font-black h-24 px-16 text-2xl rounded-[2rem] shadow-[0_30px_60px_-15px_rgba(37,99,235,0.4)] transition-all hover:scale-105 active:scale-95 font-sora tracking-tight uppercase">
                                     Começar agora gratuitamente
                                 </Button>
                             </Link>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em]">
-                                Junte-se a dezenas de gestores de sucesso
-                            </p>
+                            <div className="flex items-center gap-6">
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] font-inter">
+                                    Trusted by 50+ lenders nationwide
+                                </p>
+                            </div>
                         </FadeIn>
                     </div>
                 </section>
@@ -760,7 +972,7 @@ export default function LandingPage() {
                                 <div className="h-10 w-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-600/20">
                                     <Zap className="h-6 w-6 fill-white" />
                                 </div>
-                                <span className="text-xl font-[800] tracking-tight">Gestão <span className="text-blue-500">Flex</span></span>
+                                <span className="text-xl font-[800] tracking-tight">Gestão<span className="text-blue-500">Flex</span></span>
                             </div>
                             <p className="text-slate-500 font-medium max-w-sm text-sm">
                                 Transformando a gestão de microcrédito com tecnologia acessível, segura e focada em resultados reais.

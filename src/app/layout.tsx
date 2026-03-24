@@ -8,8 +8,25 @@ const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakart
 const sora = Sora({ subsets: ["latin"], variable: "--font-sora" }); // Configure Sora
 
 export const metadata: Metadata = {
-  title: "Gestão Flex",
-  description: "Sistema Integrado de Gestão",
+  metadataBase: new URL("https://gestaoflex.com"),
+  title: {
+    default: "Gestão Flex | Sistema de Microcrédito Profissional",
+    template: "%s | Gestão Flex"
+  },
+  description: "A plataforma mais completa para gestão de microcrédito. Automatize seus processos e cresça com segurança.",
+  keywords: ["microcrédito", "gestão financeira", "empréstimos", "SaaS", "Gestão Flex"],
+  authors: [{ name: "Gestão Flex" }],
+  openGraph: {
+    type: "website",
+    locale: "pt_BR",
+    url: "https://gestaoflex.com",
+    title: "Gestão Flex | Sistema de Microcrédito Profissional",
+    description: "A plataforma mais completa para gestão de microcrédito.",
+    siteName: "Gestão Flex",
+  },
+  verification: {
+    google: "PLACEHOLDER_FOR_GOOGLE_VERIFICATION_CODE",
+  },
 };
 
 import { ThemeProvider } from "@/components/theme-provider";

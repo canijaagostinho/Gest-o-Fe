@@ -25,13 +25,18 @@ export default function NewInstitutionPage() {
 
   return (
     <div className="flex-1 space-y-10 p-4 md:p-8 pt-6 max-w-3xl mx-auto">
-      <div className="space-y-1">
-        <h2 className="text-3xl font-black text-slate-900 tracking-tight">
-          Cadastrar Instituição
-        </h2>
-        <p className="text-slate-500 font-medium">
-          Configure uma nova entidade parceira no ecossistema.
-        </p>
+      <div className="flex items-center gap-4">
+        <div className="h-16 w-16 bg-white rounded-2xl flex items-center justify-center overflow-hidden shadow-xl border border-slate-100 shadow-slate-200/50">
+          <img src="/logo.png" alt="Gestão Flex" className="h-full w-full object-cover" />
+        </div>
+        <div className="space-y-1">
+          <h2 className="text-3xl font-black text-slate-900 tracking-tight leading-none">
+            Cadastrar Instituição
+          </h2>
+          <p className="text-slate-500 font-medium">
+            Configure uma nova entidade parceira no ecossistema.
+          </p>
+        </div>
       </div>
 
       <Card className="border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white rounded-[2.5rem] overflow-hidden">
