@@ -253,7 +253,7 @@ export default function LandingPage() {
                                     <span className="text-blue-600">microcrédito.</span>
                                 </h1>
                                 <p className="text-xl md:text-2xl font-medium text-slate-500 max-w-4xl mx-auto leading-relaxed font-inter">
-                                    Diga adeus aos cadernos e planilhas confusas. O <span className="text-slate-950 font-black">GestãoFlex</span> automatiza sua cobrança e organiza seus lucros em um sistema profissional, moderno e **feito para a realidade de Moçambique.**
+                                    Pare de lutar com cadernos e planilhas confusas. O <span className="text-slate-950 font-black">GestãoFlex</span> é a plataforma definitiva para automatizar suas cobranças e escalar seus lucros com a **segurança que o mercado moçambicano exige.**
                                 </p>
                             </motion.div>
 
@@ -428,8 +428,8 @@ export default function LandingPage() {
                                     Cuidado com a sua Margem
                                 </div>
                                 <h2 className="text-5xl md:text-7xl font-[1000] text-white tracking-[-0.03em] leading-[1] font-sora">
-                                    VOCÊ ESTÁ PERDENDO<br />
-                                    <span className="text-slate-500">DINHEIRO AGORA.</span>
+                                    CADERNO NÃO É <br />
+                                    <span className="text-slate-500">FERRAMENTA DE GESTÃO.</span>
                                 </h2>
                                 <p className="text-xl text-slate-400 font-medium leading-relaxed max-w-xl font-inter">
                                     Se você trabalha com crédito e ainda usa cadernos ou planilhas, a sua operação está em risco constante.
@@ -573,7 +573,7 @@ export default function LandingPage() {
                                             via <span className="text-emerald-500">WhatsApp.</span>
                                         </h4>
                                         <p className="text-xl text-slate-400 font-medium max-w-md leading-relaxed font-inter">
-                                            O sistema envia lembretes inteligentes sem que você mova um dedo. Reduza a inadimplência em até 42.5%.
+                                            Notificações automáticas de vencimento que eliminam falhas de comunicação e reduzem drasticamente a inadimplência na sua carteira.
                                         </p>
                                     </div>
                                     <div className="absolute -bottom-20 -right-20 w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] group-hover:bg-emerald-500/15 transition-all" />
@@ -593,7 +593,7 @@ export default function LandingPage() {
                                         </div>
                                         <h4 className="text-2xl font-black text-slate-950 tracking-tight font-sora">Segurança <br />Bancária.</h4>
                                         <p className="text-slate-500 font-medium leading-relaxed font-inter">
-                                            Dados criptografados, backup automático e servidores de alta disponibilidade. Seus lucros estão seguros.
+                                            Infraestrutura de alta disponibilidade com backups em tempo real, garantindo que sua operação e dados financeiros estejam sempre protegidos.
                                         </p>
                                     </div>
                                     <div className="pt-10 border-t border-slate-100 space-y-4">
@@ -634,9 +634,17 @@ export default function LandingPage() {
 
                             {/* Card 5: Mobile (Wide bottom) */}
                             <FadeIn delay={400} className="md:col-span-3 lg:col-span-1 lg:row-span-1">
-                                <div className="h-full bg-orange-500 p-10 rounded-[3.5rem] shadow-2xl shadow-orange-500/20 flex flex-col justify-center items-center text-center group">
-                                    <Smartphone className="h-12 w-12 text-white mb-4 transform group-hover:-rotate-12 transition-transform" />
-                                    <h4 className="text-2xl font-black text-white tracking-tight font-sora">Na Palma da Mão.</h4>
+                                <div className="h-full bg-orange-500 rounded-[3.5rem] shadow-2xl shadow-orange-500/20 flex flex-col justify-center items-center text-center group overflow-hidden relative">
+                                    <img 
+                                        src="/mockups/mobile-hand-mockup.png" 
+                                        alt="Sistema na palma da mão" 
+                                        className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-orange-600/80 to-transparent" />
+                                    <div className="relative z-10 p-10">
+                                        <Smartphone className="h-12 w-12 text-white mb-4 mx-auto transform group-hover:-rotate-12 transition-transform" />
+                                        <h4 className="text-2xl font-black text-white tracking-tight font-sora">Na Palma da Mão.</h4>
+                                    </div>
                                 </div>
                             </FadeIn>
                         </div>
@@ -662,21 +670,21 @@ export default function LandingPage() {
                         <div className="grid md:grid-cols-3 gap-8">
                             {[
                                 {
-                                    quote: "O GestãoFlex é robusto mas simples. Reduzi minha inadimplência pela metade e hoje durmo tranquilo sabendo que meus dados estão seguros.",
-                                    name: "João Silva",
-                                    role: "Agente de Crédito",
+                                    quote: "Antes do GestãoFlex, eu perdia horas conferindo comprovantes do M-Pesa. Agora, as parcelas caem e o sistema já me avisa quem pagou. Minha carteira de 20 clientes virou 60 sem eu perder o controle.",
+                                    name: "Litos Tembe",
+                                    role: "Agente de Microcrédito - Maputo",
                                     image: "/testimonials/joao.png",
                                 },
                                 {
-                                    quote: "Migrar do Excel para cá foi a melhor decisão do ano. Meus clientes recebem lembretes e eu recebo os pagamentos em dia.",
-                                    name: "Maria Santos",
-                                    role: "Gestora Financeira",
+                                    quote: "O que eu mais gosto é a cobrança automática no WhatsApp. Mandar lembrete um por um era um sofrimento. Hoje o sistema faz o trabalho pesado e eu foco em analisar novos empréstimos com segurança.",
+                                    name: "Zaida Mucavele",
+                                    role: "Gestora Financeira - Beira",
                                     image: "/testimonials/maria.png",
                                 },
                                 {
-                                    quote: "Interface rápida e intuitiva. Treinei minha equipe em 20 minutos. Os relatórios são exatamente o que eu precisava.",
-                                    name: "António Costa",
-                                    role: "Empreendedor",
+                                    quote: "Trabalho com crédito há 10 anos e nunca vi algo tão adaptado à nossa realidade. O relatório de inadimplência é cirúrgico. Consigo ver onde meu capital está preso e agir antes do prejuízo.",
+                                    name: "Arlindo Mondlane",
+                                    role: "Consultor de Negócios - Nampula",
                                     image: "/testimonials/antonio.png",
                                 },
                             ].map((t, i) => (
