@@ -38,12 +38,13 @@ import {
     Target,
     Clock,
     HeartHandshake,
-    Building,
     Landmark,
+    UserCheck2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRef, useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { createClient } from "@/utils/supabase/client";
 
 // Fade-in on scroll hook
 function useInView(threshold = 0.15) {
@@ -76,8 +77,8 @@ function FadeIn({ children, delay = 0, className = "" }: { children: React.React
 export default function LandingPage() {
     const [scrolled, setScrolled] = useState(false);
     const [activeFaq, setActiveFaq] = useState<number | null>(null);
-
     const [showFloatingCTA, setShowFloatingCTA] = useState(false);
+    const [user, setUser] = useState<any>(null);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -88,73 +89,80 @@ export default function LandingPage() {
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
+    useEffect(() => {
+        const supabase = createClient();
+        supabase.auth.getUser().then(({ data: { user } }) => {
+            setUser(user);
+        });
+    }, []);
+
     const faqItems = [
         {
-            q: "Preciso saber usar tecnologia?",
-            a: "Não! O sistema foi desenhado para ser extremamente intuitivo. Se você sabe usar o WhatsApp, conseguirá organizar seu crédito em poucos minutos."
+            q: "Como o sistema garante que eu receba meu capital?",
+            a: "O GestãoFlex automatiza a régua de cobrança. O sistema envia lembretes antes, no dia e após o vencimento via WhatsApp, garantindo que o seu cliente nunca 'esqueça' de pagar."
         },
         {
-            q: "Funciona no telemóvel?",
-            a: "Sim! O GestãoFlex é 100% responsivo. Você pode fazer cobranças e cadastros diretamente do seu smartphone ou tablet."
+            q: "Funciona para quem recebe via M-Pesa?",
+            a: "Sim! O sistema é otimizado para o mercado de Moçambique. Você registra o recebimento em segundos e o fluxo de caixa é atualizado em tempo real."
         },
         {
-            q: "É gratuito?",
-            a: "Sim! Oferecemos um teste inicial gratuito de 45 dias para você conhecer todas as funcionalidades e ver os resultados na prática."
+            q: "Posso testar antes de assinar?",
+            a: "Com certeza. Oferecemos 45 dias de acesso total gratuito. Queremos que você veja o dinheiro voltando para o seu bolso antes de investir qualquer metical no sistema."
         }
     ];
 
     const pricingPlans = [
         {
-            name: "Essencial",
-            price: "15.000",
+            name: "Agente Individual",
+            price: "1.500",
             currency: "MZN/mês",
-            desc: "Ideal para quem está a começar",
+            desc: "Ideal para quem está a começar no mercado",
             features: [
-                "Até 50 clientes ativos",
-                "Gestão de empréstimos",
-                "Relatórios automáticos",
-                "Suporte prioritário via WhatsApp",
+                "Até 30 clientes ativos",
+                "Gestão de parcelas via M-Pesa",
+                "Relatórios de lucros básicos",
+                "Suporte via WhatsApp",
             ],
-            cta: "Começar Grátis",
+            cta: "Começar Agora",
             highlighted: false,
         },
         {
-            name: "Profissional",
-            price: "35.000",
+            name: "Credor Profit",
+            price: "4.500",
             currency: "MZN/mês",
-            desc: "Para quem quer escala e controle",
+            desc: "Para quem quer escala e controle total",
             features: [
                 "Clientes ilimitados",
-                "Cálculos avançados de juros",
-                "Alertas de cobrança SMS/Zap",
-                "Exportação Excel/PDF",
-                "Gestão de Fiadores",
+                "Cálculos automáticos de juros",
+                "Cobrança automática WhatsApp",
+                "Exportação PDF para Fiadores",
+                "Gestão de Múltiplas Carteiras",
             ],
-            cta: "Escolher Profissional",
+            cta: "Escolher Profit",
             highlighted: true,
         },
         {
-            name: "Enterprise",
+            name: "Agência de Crédito",
             price: "Sob consulta",
             currency: "",
-            desc: "Para redes e instituições",
+            desc: "Para equipes e redes de agentes",
             features: [
-                "Múltiplas filiais/agentes",
-                "API de integração total",
-                "Gestor de conta dedicado",
-                "Personalização da marca",
-                "Backup em tempo real",
+                "Múltiplos agentes/colaboradores",
+                "Relatórios regulatórios prontos",
+                "Branding personalizado",
+                "Auditoria de transações",
+                "Backup prioritário",
             ],
-            cta: "Contactar Consultor",
+            cta: "Falar com Consultor",
             highlighted: false,
         },
     ];
 
     const stats = [
-        { value: "+50", label: "Empréstimos Simulados", icon: Calculator },
-        { value: "100%", label: "Foco no Mercado Africano", icon: Globe },
-        { value: "0", label: "Erros de Cálculo", icon: ShieldCheck },
-        { value: "24/7", label: "Controle Total", icon: Zap },
+        { value: "+50", label: "Agentes Profissionalizados", icon: UserCheck },
+        { value: "100%", label: "Foco em Moçambique", icon: Globe },
+        { value: "0", label: "Inadimplência por Esquecimento", icon: ShieldCheck },
+        { value: "24/7", label: "Controle do Seu Lucro", icon: Zap },
     ];
 
     return (
@@ -210,14 +218,14 @@ export default function LandingPage() {
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <Link href="/auth/login">
+                        <Link href={user ? "/dashboard" : "/auth/login"}>
                             <Button variant="ghost" className="text-xs font-bold text-slate-500 hover:text-slate-900 px-4 h-10 rounded-xl transition-colors">
-                                Entrar
+                                {user ? "Meu Painel" : "Entrar"}
                             </Button>
                         </Link>
-                        <Link href="/auth/signup">
+                        <Link href={user ? "/dashboard" : "/auth/signup"}>
                             <Button className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl px-5 h-10 shadow-lg shadow-blue-600/20 transition-all active:scale-95">
-                                Criar Conta Grátis
+                                {user ? "Dashboard" : "Criar Conta Grátis"}
                             </Button>
                         </Link>
                     </div>
@@ -249,11 +257,11 @@ export default function LandingPage() {
                                 className="space-y-10"
                             >
                                 <h1 className="text-6xl md:text-8xl lg:text-9xl font-[1000] text-slate-950 tracking-[-0.04em] leading-[0.95] md:leading-[1] font-sora">
-                                    Domine o seu<br />
-                                    <span className="text-blue-600">microcrédito.</span>
+                                    Garanta que<br />
+                                    <span className="text-blue-600">seu capital volte.</span>
                                 </h1>
                                 <p className="text-xl md:text-2xl font-medium text-slate-500 max-w-4xl mx-auto leading-relaxed font-inter">
-                                    Pare de lutar com cadernos e planilhas confusas. O <span className="text-slate-950 font-black">GestãoFlex</span> é a plataforma definitiva para automatizar suas cobranças e escalar seus lucros com a **segurança que o mercado moçambicano exige.**
+                                    O <span className="text-slate-950 font-black">GestãoFlex</span> automatiza suas cobranças no WhatsApp e organiza cada parcela, para que você nunca mais perca o rastro do seu dinheiro. <span className="text-slate-950 font-black italic underline decoration-blue-500 underline-offset-4">Feito para o credor profissional de Moçambique.</span>
                                 </p>
                             </motion.div>
 
@@ -263,9 +271,9 @@ export default function LandingPage() {
                                 transition={{ delay: 0.2, duration: 1, ease: [0.16, 1, 0.3, 1] }}
                                 className="flex flex-col sm:flex-row gap-6 justify-center"
                             >
-                                <Link href="/auth/signup">
+                                <Link href={user ? "/dashboard" : "/auth/signup"}>
                                     <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white font-[1000] h-20 px-12 text-xl rounded-2xl shadow-[0_20px_40px_-12px_rgba(249,115,22,0.4)] transition-all hover:scale-[1.03] active:scale-95 group w-full sm:w-auto font-sora tracking-tight">
-                                        Começar grátis agora
+                                        {user ? "Ir para o Dashboard" : "Começar grátis agora"}
                                         <ArrowRight className="ml-2 h-7 w-7 transition-transform group-hover:translate-x-2" />
                                     </Button>
                                 </Link>
@@ -418,6 +426,63 @@ export default function LandingPage() {
                     </div>
                 </section>
 
+                {/* NEW: TARGET AUDIENCE SEGMENTATION Section */}
+                <section className="py-24 bg-slate-50 border-y border-slate-200 overflow-hidden">
+                    <div className="max-w-7xl mx-auto px-6">
+                        <div className="grid lg:grid-cols-2 gap-12">
+                            {/* Para Quem É */}
+                            <FadeIn className="bg-white p-12 rounded-[3rem] shadow-sm border border-slate-100 flex flex-col gap-8">
+                                <div className="space-y-4">
+                                    <div className="h-12 w-12 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
+                                        <UserCheck className="h-6 w-6" />
+                                    </div>
+                                    <h3 className="text-3xl font-black text-slate-950 tracking-tight font-sora italic underline decoration-emerald-500 underline-offset-8">Para quem é o GestãoFlex:</h3>
+                                    <p className="text-slate-500 font-medium">Se você se identifica com os pontos abaixo, este sistema foi feito sob medida para você:</p>
+                                </div>
+                                <div className="space-y-4">
+                                    {[
+                                        "Empreendedores que gerenciam mais de 10 empréstimos ativos.",
+                                        "Agentes de crédito que usam M-Pesa ou E-Mola diariamente.",
+                                        "Quem está cansado de perder prazos e esquecer cobranças no caderno.",
+                                        "Professores ou funcionários que fazem empréstimos extra para complementar renda.",
+                                        "Quem quer profissionalizar o negócio e escalar sem contratar pessoal."
+                                    ].map((text, i) => (
+                                        <div key={i} className="flex items-start gap-4 text-slate-700 font-bold">
+                                            <CheckCircle2 className="h-5 w-5 text-emerald-500 mt-0.5 flex-shrink-0" />
+                                            <span>{text}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </FadeIn>
+
+                            {/* Para Quem NÃO É */}
+                            <FadeIn delay={200} className="bg-slate-950 p-12 rounded-[3rem] shadow-2xl flex flex-col gap-8">
+                                <div className="space-y-4">
+                                    <div className="h-12 w-12 rounded-2xl bg-rose-500/10 text-rose-500 flex items-center justify-center">
+                                        <ShieldAlert className="h-6 w-6" />
+                                    </div>
+                                    <h3 className="text-3xl font-black text-white tracking-tight font-sora">Quem <span className="text-rose-500">NÃO</span> deve usar:</h3>
+                                    <p className="text-slate-400 font-medium font-inter">Este sistema não é para todos. Por favor, NÃO use se:</p>
+                                </div>
+                                <div className="space-y-4">
+                                    {[
+                                        "Você é um Banco Comercial ou Seguradora de grande porte.",
+                                        "Você faz apenas 1 ou 2 empréstimos por ano para familiares.",
+                                        "Você busca um ERP complexo para gestão industrial ou estoque.",
+                                        "Você prefere continuar dependendo da sorte e da memória (ou do papel).",
+                                        "Você não tem interesse em organizar seu fluxo de caixa e lucros."
+                                    ].map((text, i) => (
+                                        <div key={i} className="flex items-start gap-4 text-slate-400 font-bold">
+                                            <div className="h-1.5 w-1.5 rounded-full bg-rose-500 mt-2.5 flex-shrink-0" />
+                                            <span>{text}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </FadeIn>
+                        </div>
+                    </div>
+                </section>
+
                 {/* 2. PROBLEMA (Narrative Overhaul) */}
                 <section id="problema" className="py-32 bg-slate-950 px-6 relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_50%,rgba(59,130,246,0.1),transparent_50%)]" />
@@ -472,18 +537,18 @@ export default function LandingPage() {
                 </section>
 
                 {/* 3. SOLUÇÃO (Premium Split Layout) */}
-                <section id="solucao" className="py-32 bg-white px-6">
+                <section id="solucao" className="py-32 bg-white px-6 overflow-hidden">
                     <div className="max-w-7xl mx-auto space-y-24">
                         <FadeIn className="text-center space-y-6 max-w-4xl mx-auto">
                             <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-[10px] font-black text-emerald-600 uppercase tracking-[0.4em] mb-4">
                                 A Solução Definitiva
                             </div>
                             <h3 className="text-5xl md:text-7xl font-[1000] text-slate-950 tracking-[-0.03em] leading-[1] font-sora">
-                                Deixe o sistema <br />
-                                <span className="text-blue-600">fazer o trabalho duro.</span>
+                                Automatize sua <br />
+                                <span className="text-blue-600">cobrança e cálculos.</span>
                             </h3>
                             <p className="text-xl md:text-2xl text-slate-500 font-medium max-w-3xl mx-auto leading-relaxed font-inter">
-                                O GestãoFlex automatiza sua operação para que você foque apenas no que importa: <span className="text-slate-950 font-black italic">fazer seu lucro crescer.</span>
+                                O GestãoFlex cuida da parte burocrática para que você foque no que realmente importa: <span className="text-slate-950 font-black italic">fazer seu capital girar e seu lucro crescer.</span>
                             </p>
                         </FadeIn>
                         
@@ -569,8 +634,8 @@ export default function LandingPage() {
                                             <TrendingUp className="h-8 w-8" />
                                         </div>
                                         <h4 className="text-4xl font-black text-white tracking-tight leading-tight font-sora">
-                                            Cobrança Automática <br />
-                                            via <span className="text-emerald-500">WhatsApp.</span>
+                                            Você Empresta, <br />
+                                            o Sistema <span className="text-emerald-500">Cobra.</span>
                                         </h4>
                                         <p className="text-xl text-slate-400 font-medium max-w-md leading-relaxed font-inter">
                                             Notificações automáticas de vencimento que eliminam falhas de comunicação e reduzem drasticamente a inadimplência na sua carteira.
@@ -823,9 +888,9 @@ export default function LandingPage() {
                                             Vagas limitadas para lançamento.
                                         </p>
                                     </div>
-                                    <Link href="/auth/signup">
+                                    <Link href={user ? "/dashboard" : "/auth/signup"}>
                                         <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black h-24 rounded-[2rem] shadow-[0_20px_40px_-12px_rgba(37,99,235,0.4)] text-2xl transition-all active:scale-95 font-sora tracking-tight">
-                                            Criar Conta Grátis
+                                            {user ? "Acessar Dashboard" : "Criar Conta Grátis"}
                                             <ArrowRight className="ml-3 h-8 w-8" />
                                         </Button>
                                     </Link>
@@ -848,11 +913,11 @@ export default function LandingPage() {
                                         Industrial Strength
                                     </div>
                                     <h2 className="text-5xl md:text-7xl font-[1000] text-slate-950 tracking-[-0.03em] font-sora leading-[1]">
-                                        Segurança de <br />
-                                        <span className="text-blue-600">nível bancário.</span>
+                                        Seu capital, <br />
+                                        <span className="text-blue-600">totalmente blindado.</span>
                                     </h2>
                                     <p className="text-xl text-slate-500 font-medium leading-relaxed max-w-lg font-inter">
-                                        Sua empresa não pode parar. Protegemos seus lucros com os mesmos padrões de segurança das maiores fintechs globais.
+                                        Sabemos que cada metical emprestado é fruto do seu trabalho. Protegemos seu histórico e seus lucros com criptografia de ponta a ponta.
                                     </p>
                                 </div>
                                 <div className="grid sm:grid-cols-2 gap-8 pt-4">
@@ -904,7 +969,7 @@ export default function LandingPage() {
                 </section>
 
                 {/* 9. FAQ (Senior UI Accordion) */}
-                <section id="faq" className="py-32 bg-slate-50 px-6">
+                <section id="faq" className="py-32 bg-slate-50 px-6 overflow-hidden">
                     <div className="max-w-4xl mx-auto space-y-20">
                         <FadeIn className="text-center space-y-6">
                             <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-[10px] font-black text-blue-600 uppercase tracking-[0.4em] mb-4 font-inter">
@@ -946,11 +1011,11 @@ export default function LandingPage() {
                     <div className="max-w-5xl mx-auto text-center space-y-12 relative z-10">
                         <FadeIn className="space-y-6">
                             <h2 className="text-6xl md:text-8xl font-[1000] text-slate-950 tracking-[-0.04em] leading-[1] font-sora">
-                                Recupere seu tempo. <br />
-                                <span className="text-blue-600">Multiplique seu lucro.</span>
+                                Chega de <span className="text-blue-600">perder dinheiro.</span> <br />
+                                Profissionalize-se hoje.
                             </h2>
                             <p className="text-2xl text-slate-500 font-medium max-w-3xl mx-auto italic font-inter leading-relaxed">
-                                "O melhor momento para organizar seu negócio era ontem. <br /> O segundo melhor é agora."
+                                "Organizei meus empréstimos em 10 minutos e nunca mais dormi preocupado com o caderno."
                             </p>
                         </FadeIn>
                         

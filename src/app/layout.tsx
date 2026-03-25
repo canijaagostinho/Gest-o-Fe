@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Plus_Jakarta_Sans, Sora } from "next/font/google"; // Import Sora
+import type { Viewport } from "next";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -10,10 +11,10 @@ const sora = Sora({ subsets: ["latin"], variable: "--font-sora" }); // Configure
 export const metadata: Metadata = {
   metadataBase: new URL("https://gestaoflex.com"),
   title: {
-    default: "Gestão Flex | Sistema de Microcrédito Profissional",
+    default: "Gestão Flex | Garanta que seu Capital Volte com Lucro",
     template: "%s | Gestão Flex"
   },
-  description: "A plataforma mais completa para gestão de microcrédito. Automatize seus processos e cresça com segurança.",
+  description: "A plataforma definitiva para agentes e credores em Moçambique. Automatize suas cobranças no WhatsApp e tenha controle total do seu capital.",
   keywords: ["microcrédito", "gestão financeira", "empréstimos", "SaaS", "Gestão Flex"],
   authors: [{ name: "Gestão Flex" }],
   openGraph: {
@@ -27,6 +28,13 @@ export const metadata: Metadata = {
   verification: {
     google: "PLACEHOLDER_FOR_GOOGLE_VERIFICATION_CODE",
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 import { ThemeProvider } from "@/components/theme-provider";
