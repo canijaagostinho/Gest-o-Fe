@@ -50,6 +50,8 @@ export default function DashboardPage() {
         overdueItems: [] as any[],
         upcomingItems: [] as any[],
         totalLoansCount: 0,
+        lentCount: 0,
+        receivablesCount: 0,
     });
 
     const now = new Date();
@@ -105,7 +107,7 @@ export default function DashboardPage() {
                     if (profile?.role?.name !== "admin_geral") {
                         const { data: allLoans } = await supabase
                             .from("loans")
-                            .select("loan_amount, created_at")
+                            .select("id, loan_amount, created_at, status")
                             .eq("institution_id", profile.institution_id);
 
                         const { data: payments } = await supabase
@@ -149,10 +151,14 @@ export default function DashboardPage() {
 
                         const activePortfolio = pendingItems.reduce((acc, i) => acc + Number(i.amount), 0) || 0;
                         const thirtyDays = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 30).toISOString().split("T")[0];
-                        const receivables30D = pendingItems.filter(i => {
+                        const receivables30DItems = pendingItems.filter(i => {
                             const d = i.due_date.split("T")[0];
                             return d >= todayStr && d <= thirtyDays;
-                        }).reduce((acc, i) => acc + Number(i.amount), 0) || 0;
+                        });
+                        const receivables30D = receivables30DItems.reduce((acc, i) => acc + Number(i.amount), 0) || 0;
+
+                        const lentCountVal = allLoans?.filter(l => l.status === "active").length || 0;
+                        const receivablesCountVal = receivables30DItems.length;
 
                         // Chart Data
                         const chartData = [];
@@ -186,6 +192,8 @@ export default function DashboardPage() {
                             totalBalance: accounts?.reduce((acc, a) => acc + Number(a.balance), 0) || 0,
                             chartData: chartData as any[],
                             totalLoansCount: allLoans?.length || 0,
+                            lentCount: lentCountVal,
+                            receivablesCount: receivablesCountVal,
                             overdueItems: (realOverdueItems as any)?.map((i: any) => ({
                                 id: i.id,
                                 name: i.loans?.clients?.full_name || "Cliente",
