@@ -91,7 +91,8 @@ export async function registerAndLoginAction(data: {
     const roleId = roleData.id;
 
     // 5. Create Auth User (Auto-confirmed)
-    const { data: newUser, error: createError } =
+    let userId: string;
+    const { data: authData, error: createError } =
       await supabaseAdmin.auth.admin.createUser({
         email: data.email,
         password: data.password,
@@ -104,33 +105,46 @@ export async function registerAndLoginAction(data: {
       });
 
     if (createError) {
-      console.error("Auth User Creation Error:", createError);
-      // Rollback Institution
-      await supabaseAdmin.from("institutions").delete().eq("id", institutionId);
+      console.log("Auth User Creation Error or User Exists:", createError.message);
+
       if (
-        createError.message.includes("already registered") ||
-        createError.message.includes("exists")
+        createError.message.toLowerCase().includes("already registered") ||
+        createError.message.toLowerCase().includes("exists")
       ) {
-        return { success: false, error: "Este email já está em uso." };
+        // Find existing user
+        const { data: usersData, error: listError } = await supabaseAdmin.auth.admin.listUsers();
+        const existingUser = usersData?.users.find(u => u.email?.toLowerCase() === data.email.toLowerCase());
+
+        if (existingUser) {
+          userId = existingUser.id;
+          console.log("Found existing auth user:", userId);
+          // Update metadata to ensure it's correct for profile creation
+          await supabaseAdmin.auth.admin.updateUserById(userId, {
+            user_metadata: {
+              full_name: data.fullName,
+              institution_id: institutionId,
+              role_id: roleId,
+            }
+          });
+        } else {
+          // Rollback Institution
+          await supabaseAdmin.from("institutions").delete().eq("id", institutionId);
+          return { success: false, error: "Este email já está em uso, mas não pôde ser recuperado." };
+        }
+      } else {
+        // Rollback Institution
+        await supabaseAdmin.from("institutions").delete().eq("id", institutionId);
+        return {
+          success: false,
+          error: "Erro ao registrar usuário: " + createError.message,
+        };
       }
-      return {
-        success: false,
-        error: "Erro ao registrar usuário: " + createError.message,
-      };
+    } else {
+      userId = authData.user!.id;
     }
-
-    if (!newUser.user) {
-      await supabaseAdmin.from("institutions").delete().eq("id", institutionId);
-      return {
-        success: false,
-        error: "Erro desconhecido na criação do usuário.",
-      };
-    }
-
-    const userId = newUser.user.id;
 
     // 6. Create User Profile
-    const { error: profileError } = await supabaseAdmin.from("users").insert({
+    const { error: profileError } = await supabaseAdmin.from("users").upsert({
       id: userId,
       email: data.email,
       full_name: data.fullName,
@@ -140,9 +154,11 @@ export async function registerAndLoginAction(data: {
     });
 
     if (profileError) {
-      console.error("Profile Creation Error:", profileError);
-      // Rollback Auth User and Institution
-      await supabaseAdmin.auth.admin.deleteUser(userId);
+      console.error("Profile Creation Error (Upsert):", profileError);
+      // Rollback Auth User and Institution (only if we created a NEW user)
+      if (!createError) {
+        await supabaseAdmin.auth.admin.deleteUser(userId);
+      }
       await supabaseAdmin.from("institutions").delete().eq("id", institutionId);
       return {
         success: false,

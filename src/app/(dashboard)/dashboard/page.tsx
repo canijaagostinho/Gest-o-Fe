@@ -289,16 +289,23 @@ export default function DashboardPage() {
     return (
         <div className="flex-1 bg-[#F8FAFC] min-h-screen relative overflow-hidden">
             <div className="absolute inset-0 bg-dot-pattern opacity-40 pointer-events-none" />
-            <div className="relative max-w-7xl mx-auto p-6 md:p-10 space-y-10">
+            <div className="relative max-w-7xl mx-auto px-6 py-12 md:py-16 space-y-16">
                 
                 {/* 1. Greeting */}
-                <div className="flex flex-col gap-1 px-2">
-                    <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
-                        Olá, {user?.full_name?.split(" ")[0] || "Gestor"} 👋
-                    </h1>
-                    <p className="text-xs font-black text-slate-400 uppercase tracking-[0.3em]">
-                        CENTRO DE CONTROLE • {new Date().toLocaleDateString('pt-MZ', { day: '2-digit', month: 'long' })}
-                    </p>
+                <div className="flex flex-col gap-2 px-2">
+                    <div className="flex items-center gap-3">
+                        <div className="h-12 w-12 rounded-2xl bg-white shadow-xl flex items-center justify-center text-2xl border border-slate-100 rotate-3 animate-bounce-slow">
+                            👋
+                        </div>
+                        <div>
+                            <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter leading-none mb-1">
+                                Olá, {user?.full_name?.split(" ")[0] || "Gestor"}
+                            </h1>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">
+                                CENTRO DE CONTROLE • {new Date().toLocaleDateString('pt-MZ', { day: '2-digit', month: 'long', year: 'numeric' })}
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
                 {/* 2. KPIs */}

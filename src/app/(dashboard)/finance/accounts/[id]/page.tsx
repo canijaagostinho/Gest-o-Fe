@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { ChevronLeft, Wallet, History, ArrowDownLeft } from "lucide-react";
 import Link from "next/link";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { cn, formatCurrency, formatDate } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Card,

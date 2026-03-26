@@ -57,22 +57,67 @@ export default function DashboardLayout({
           .eq("id", user.id)
           .maybeSingle();
 
-        if (profileError) {
-          console.error("Layout Role Fetch Error:", profileError);
-          // Don't throw, just log and handle null profile
+        let finalProfile = profile;
+
+        // TENTATIVA DE RECUPERAÇÃO: Se o perfil não existe mas o usuário está autenticado
+        if (!finalProfile) {
+          console.warn(
+            "Perfil não encontrado em public.users, tentando recuperar dos metadados:",
+            user.id,
+          );
+          const metadata = user.user_metadata;
+
+          if (
+            metadata?.full_name &&
+            metadata?.institution_id &&
+            metadata?.role_id
+          ) {
+            console.log("Iniciando criação automática de perfil...");
+            const { data: recoveredProfile, error: recoveryError } =
+              await supabase
+                .from("users")
+                .insert({
+                  id: user.id,
+                  full_name: metadata.full_name,
+                  email: user.email,
+                  institution_id: metadata.institution_id,
+                  role_id: metadata.role_id,
+                  status: "active",
+                })
+                .select(
+                  `
+                                role:roles(name),
+                                institution_id,
+                                institutions (
+                                    subscriptions (status)
+                                )
+                            `,
+                )
+                .maybeSingle();
+
+            if (!recoveryError && recoveredProfile) {
+              console.log("Perfil recuperado com sucesso!");
+              finalProfile = recoveredProfile;
+            } else {
+              console.error(
+                "Falha na recuperação automática:",
+                recoveryError || "Perfil retornado nulo",
+              );
+            }
+          }
         }
 
-        if (!profile) {
+        if (!finalProfile) {
           console.warn("No profile found for user:", user.id);
-          // Fallback or error state
           setError(
-            "Perfil não encontrado. Por favor, tente fazer login novamente.",
+            "Seu perfil não foi encontrado ou sua instituição foi desativada. Por favor, entre em contato com o suporte ou tente login novamente.",
           );
           return;
         }
 
+        const profileData = finalProfile;
         let roleName = null;
-        const roleData = profile?.role;
+        const roleData = profileData?.role;
         if (Array.isArray(roleData)) {
           roleName = roleData[0]?.name;
         } else {
@@ -88,7 +133,7 @@ export default function DashboardLayout({
 
         // Subscription status check
         let subStatus = "active";
-        const instData = (profile as any)?.institutions;
+        const instData = (profileData as any)?.institutions;
         const subscriptions = instData?.subscriptions;
         if (Array.isArray(subscriptions) && subscriptions.length > 0) {
           subStatus = subscriptions[0].status;

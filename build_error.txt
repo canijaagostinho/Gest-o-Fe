@@ -1,0 +1,130 @@
+﻿
+> microcred-saas@0.1.0 build
+> next build
+
+Ôû▓ Next.js 16.1.6 (Turbopack)
+- Environments: .env.local
+
+node.exe : ÔÜá The 
+"middleware" file 
+convention is 
+deprecated. Please 
+use "proxy" instead. 
+Learn more: https://n
+extjs.org/docs/messag
+es/middleware-to-prox
+y
+At line:1 char:1
++ & "C:\Program Files
+\nodejs/node.exe" 
+"C:\Users\HEDWIG DA 
+FATIMA\AppDa ...
++ ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: (ÔÜá The   
+  "middle...lewar    
+e-to-proxy:Strin    
+g) [], RemoteExc    
+eption
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
+  Creating an optimized production build ...
+(node:5840) [MODULE_T
+YPELESS_PACKAGE_JSON]
+ Warning: Module 
+type of file:///C:/Us
+ers/HEDWIG%20DA%20FAT
+IMA/Desktop/gestao/Mi
+crocreditoSaas/src/st
+yles/colors.ts is 
+not specified and it 
+doesn't parse as 
+CommonJS.
+Reparsing as ES 
+module because 
+module syntax was 
+detected. This 
+incurs a performance 
+overhead.
+To eliminate this 
+warning, add "type": 
+"module" to 
+C:\Users\HEDWIG DA FA
+TIMA\Desktop\gestao\M
+icrocreditoSaas\packa
+ge.json.
+(Use `node 
+--trace-warnings 
+...` to show where 
+the warning was 
+created)
+Ô£ô Compiled successfully in 70s
+  Skipping validation of types
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/41) ...
+  Generating static pages using 3 workers (10/41) 
+  Generating static pages using 3 workers (20/41) 
+  Generating static pages using 3 workers (30/41) 
+Ô£ô Generating static pages using 3 workers (41/41) in 4.4s
+  Finalizing page optimization ...
+
+Route (app)
+Ôöî Ôùï /
+Ôö£ Ôùï /_not-found
+Ôö£ ãÆ /agents
+Ôö£ Ôùï /alerts
+Ôö£ ãÆ /api/cron/check-subscriptions
+Ôö£ ãÆ /api/cron/notifications
+Ôö£ ãÆ /api/webhooks/payments
+Ôö£ ãÆ /audit-logs
+Ôö£ ãÆ /auth/callback
+Ôö£ Ôùï /auth/login
+Ôö£ Ôùï /auth/signup
+Ôö£ Ôùï /billing/blocked
+Ôö£ ãÆ /clients
+Ôö£ ãÆ /clients/[id]
+Ôö£ Ôùï /clients/new
+Ôö£ Ôùï /collateral
+Ôö£ Ôùï /dashboard
+Ôö£ ãÆ /finance/accounts
+Ôö£ ãÆ /finance/accounts/[id]
+Ôö£ ãÆ /finance/expenses
+Ôö£ ãÆ /institutions
+Ôö£ ãÆ /institutions/[id]
+Ôö£ ãÆ /institutions/[id]/edit
+Ôö£ Ôùï /institutions/new
+Ôö£ ãÆ /institutions/payments
+Ôö£ Ôùï /loans
+Ôö£ ãÆ /loans/[id]
+Ôö£ Ôùï /loans/new
+Ôö£ ãÆ /monitoring
+Ôö£ Ôùï /notifications
+Ôö£ Ôùï /notifications/system
+Ôö£ Ôùï /payments
+Ôö£ Ôùï /payments/new
+Ôö£ Ôùï /profile
+Ôö£ Ôùï /reports
+Ôö£ Ôùï /reports/regulatory
+Ôö£ Ôùï /robots.txt
+Ôö£ Ôùï /settings
+Ôö£ Ôùï /settings/billing
+Ôö£ Ôùï /settings/institution
+Ôö£ Ôùï /settings/notifications
+Ôö£ Ôùï /settings/plans
+Ôö£ Ôùï /sitemap.xml
+Ôö£ Ôùï /test
+Ôö£ ãÆ /users
+Ôöö Ôùï /users/new
+
+
+ãÆ Proxy (Middleware)
+
+Ôùï  (Static)   prerendered as static content
+ãÆ  (Dynamic)  server-rendered on demand
+

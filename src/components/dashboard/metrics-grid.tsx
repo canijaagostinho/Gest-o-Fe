@@ -1,6 +1,6 @@
 "use client";
 
-import { Wallet, Briefcase, Clock, AlertTriangle, ArrowUpRight, ArrowDownRight, TrendingDown } from "lucide-react";
+import { Wallet, Briefcase, Clock, AlertTriangle, ArrowUpRight, TrendingDown } from "lucide-react";
 import { formatCurrency, cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { AutoScalingAmount } from "@/components/ui/auto-scaling-amount";
@@ -26,7 +26,7 @@ export function MetricsGrid({ data, privacyMode, maskValue }: MetricsGridProps) 
     {
       title: "Saldo Consolidado",
       value: data.totalBalance || 0,
-      subValue: `Mês anterior: ${data.growthRate > 0 ? '+' : ''}${(data.growthRate || 0).toFixed(1)}%`,
+      subValue: `Crescimento: ${data.growthRate > 0 ? '+' : ''}${(data.growthRate || 0).toFixed(1)}%`,
       icon: Wallet,
       color: "blue",
       trend: data.growthRate >= 0 ? "up" : "down"
@@ -42,7 +42,7 @@ export function MetricsGrid({ data, privacyMode, maskValue }: MetricsGridProps) 
     {
       title: "A Receber (30 d)",
       value: data.receivables || 0,
-      subValue: `${data.receivablesCount || 0} recebimentos previstos`,
+      subValue: `${data.receivablesCount || 0} recebimentos`,
       icon: Clock,
       color: "indigo",
       trend: "up"
@@ -50,7 +50,7 @@ export function MetricsGrid({ data, privacyMode, maskValue }: MetricsGridProps) 
     {
       title: "Inadimplência",
       value: data.delinquencyAmount || 0,
-      subValue: `${(data.delinquencyRate || 0).toFixed(1)}% do total`,
+      subValue: `${(data.delinquencyRate || 0).toFixed(1)}% risco total`,
       icon: AlertTriangle,
       color: "rose",
       trend: data.delinquencyAmount > 0 ? "down" : "up"
@@ -58,72 +58,76 @@ export function MetricsGrid({ data, privacyMode, maskValue }: MetricsGridProps) 
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16 px-2">
       {cards.map((card, i) => {
         const theme = {
-          blue: "from-blue-50/70 to-blue-100/30 border-blue-100/50 shadow-blue-100/20 text-blue-600",
-          slate: "from-slate-50/70 to-slate-100/30 border-slate-100/50 shadow-slate-100/20 text-slate-600", // Updated slate theme
-          indigo: "from-indigo-50/70 to-indigo-100/30 border-indigo-100/50 shadow-indigo-100/20 text-indigo-600",
-          rose: "from-rose-50/70 to-rose-100/30 border-rose-100/50 shadow-rose-100/20 text-rose-600"
-        }[card.color] || "from-slate-50/70 to-slate-100/30 border-slate-100/50 shadow-slate-100/20 text-slate-600";
+          blue: "from-blue-600 to-indigo-700 shadow-blue-200/50 hover:shadow-blue-300/60",
+          slate: "from-slate-800 to-slate-950 shadow-slate-200/50 hover:shadow-slate-300/60",
+          indigo: "from-indigo-600 to-violet-700 shadow-indigo-200/50 hover:shadow-indigo-300/60",
+          rose: "from-rose-500 to-orange-600 shadow-rose-200/50 hover:shadow-rose-300/60"
+        }[card.color] || "from-slate-700 to-slate-900 shadow-slate-200/50 hover:shadow-slate-300/60";
 
         return (
           <motion.div
             key={i}
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            whileHover={{ y: -5 }}
-            transition={{ delay: i * 0.1, type: "spring", stiffness: 300 }}
-            className={cn(
-              "p-6 rounded-[2.5rem] bg-white border-2 shadow-sm hover:shadow-xl transition-all group relative overflow-hidden bg-gradient-to-br",
-              theme
-            )}
+            whileHover={{ y: -10, scale: 1.02 }}
+            transition={{ delay: i * 0.1, type: "spring", stiffness: 300, damping: 25 }}
+            className="group relative h-full"
           >
-            <div className="flex items-center justify-between mb-6 relative z-10">
-              <div className={cn(
-                "p-3 rounded-2xl shadow-sm bg-white/80 backdrop-blur-sm border",
-                card.color === "slate" ? "bg-slate-800 border-slate-700 text-blue-400" : cn("border-white/50", theme.split(" ")[theme.split(" ").length - 1])
-              )}>
-                <card.icon className="h-6 w-6" />
-              </div>
-              {card.trend !== "neutral" && (
-                  <div className={cn(
-                      "flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm",
-                      card.trend === "up" ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : "bg-rose-50 text-rose-600 border border-rose-100"
-                  )}>
-                      {card.trend === "up" ? <ArrowUpRight className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
-                      {card.trend === "up" ? "Alta" : "Risco"}
-                  </div>
-              )}
-            </div>
-
-            <div className="space-y-1 relative z-10">
-              <p className={cn(
-                  "text-[10px] font-black uppercase tracking-widest text-slate-500"
-              )}>
-                {card.title}
-              </p>
-              <AutoScalingAmount
-                amount={typeof card.value === 'number' ? card.value : 0}
-                baseSize="3xl"
-                className="text-slate-950 font-black"
-                showCurrency={!privacyMode}
-              />
-              <p className={cn(
-                  "text-[11px] font-bold mt-2",
-                  card.color === "slate" ? "text-slate-500" : "text-slate-400"
-              )}>
-                {card.subValue}
-              </p>
-            </div>
-            
-            {/* Soft decorative blur */}
             <div className={cn(
-                "absolute -right-4 -bottom-4 w-24 h-24 rounded-full blur-[40px] opacity-20 transition-all group-hover:opacity-40",
-                card.color === "blue" ? "bg-blue-500" : 
-                card.color === "rose" ? "bg-rose-500" : 
-                card.color === "indigo" ? "bg-indigo-500" : "bg-slate-500"
-            )} />
+              "p-10 rounded-[3rem] bg-gradient-to-br transition-all flex flex-col h-full relative overflow-hidden text-white shadow-2xl border border-white/10",
+              theme
+            )}>
+              {/* Decorative Glow */}
+              <div className="absolute -right-16 -top-16 w-48 h-48 bg-white/10 rounded-full blur-[80px] group-hover:bg-white/20 transition-all duration-700" />
+              
+              {/* Top Row: Icon and Trend */}
+              <div className="flex items-start justify-between mb-10 relative z-10">
+                <div className="p-5 rounded-3xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-inner group-hover:rotate-12 transition-transform duration-500 ring-4 ring-white/5">
+                  <card.icon className="h-7 w-7 text-white" />
+                </div>
+                {card.trend !== "neutral" && (
+                  <div className={cn(
+                    "flex items-center gap-2 px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] backdrop-blur-xl border shadow-lg",
+                    card.trend === "up" ? "bg-emerald-500/30 text-emerald-200 border-emerald-500/40" : "bg-white/10 text-white/80 border-white/20"
+                  )}>
+                    {card.trend === "up" ? <ArrowUpRight className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+                    {card.trend === "up" ? "Alta" : "Risco"}
+                  </div>
+                )}
+              </div>
+
+              {/* Middle Row: Title and Value */}
+              <div className="space-y-6 relative z-10 flex-1">
+                <div>
+                  <p className="text-[11px] font-black uppercase tracking-[0.3em] text-white/50 mb-2">
+                    {card.title}
+                  </p>
+                  <AutoScalingAmount
+                    amount={typeof card.value === 'number' ? card.value : 0}
+                    baseSize="5xl"
+                    className="text-white font-black tracking-tighter leading-none"
+                    showCurrency={!privacyMode}
+                  />
+                </div>
+              </div>
+
+              {/* Bottom Row: Subtitle and Visual Accent */}
+              <div className="pt-8 mt-8 border-t border-white/10 relative z-10">
+                <p className="text-xs font-bold text-white/60 flex items-center gap-3">
+                  <span className="w-2 h-2 rounded-full bg-white/40 shadow-[0_0_10px_rgba(255,255,255,0.5)]" />
+                  {card.subValue}
+                </p>
+              </div>
+
+              {/* Grid Background Overlay */}
+              <div className="absolute inset-0 bg-[url('/grid-white.svg')] opacity-[0.05] pointer-events-none" />
+              
+              {/* Bottom Glass Glow */}
+              <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-black/10 rounded-full blur-[60px] opacity-0 group-hover:opacity-100 transition-opacity" />
+            </div>
           </motion.div>
         );
       })}
