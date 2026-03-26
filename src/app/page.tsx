@@ -112,6 +112,8 @@ export default function LandingPage() {
                 
                 if (profile) {
                     setUser(authUser);
+                    // NEW: Auto-redirect to dashboard if logged in
+                    router.push("/dashboard");
                 } else {
                     // Profile was deleted, treat as logged out
                     setUser(null);
@@ -247,14 +249,9 @@ export default function LandingPage() {
 
                     <div className="flex items-center gap-2 sm:gap-3">
                         <div className="hidden sm:flex items-center gap-2">
-                            <Link href={user ? "/dashboard" : "/auth/login"}>
-                                <Button variant="ghost" className="text-xs font-bold text-slate-500 hover:text-slate-900 px-4 h-10 rounded-xl transition-colors">
-                                    {user ? "Meu Painel" : "Entrar"}
-                                </Button>
-                            </Link>
                             <Link href={user ? "/dashboard" : "/auth/signup"}>
-                                <Button className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl px-5 h-10 shadow-lg shadow-blue-600/20 transition-all active:scale-95">
-                                    {user ? "Dashboard" : "Criar Conta Grátis"}
+                                <Button className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl px-6 h-10 shadow-lg shadow-blue-600/20 transition-all active:scale-95">
+                                    {user ? "Ir para o Dashboard" : "Criar Conta Grátis"}
                                 </Button>
                             </Link>
                         </div>
@@ -307,11 +304,13 @@ export default function LandingPage() {
                                             <div className="space-y-4">
                                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Acesso</p>
                                                 <div className="grid gap-3">
-                                                    <Link href={user ? "/dashboard" : "/auth/login"}>
-                                                        <Button variant="outline" className="w-full h-12 rounded-xl justify-start px-6 font-bold border-slate-200">
-                                                            {user ? "Meu Painel" : "Entrar na Conta"}
-                                                        </Button>
-                                                    </Link>
+                                                    {!user && (
+                                                        <Link href="/auth/login">
+                                                            <Button variant="outline" className="w-full h-12 rounded-xl justify-start px-6 font-bold border-slate-200">
+                                                                Entrar na Conta
+                                                            </Button>
+                                                        </Link>
+                                                    )}
                                                     <Link href={user ? "/dashboard" : "/auth/signup"}>
                                                         <Button className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 shadow-lg shadow-blue-600/20">
                                                             {user ? "Ir para o Dashboard" : "Criar Conta Grátis"}

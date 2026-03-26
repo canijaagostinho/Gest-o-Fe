@@ -20,6 +20,7 @@ export default function NewInstitutionPage() {
       toast.error("Erro ao criar instituição", {
         description: result.error,
       });
+      throw new Error(result.error);
     }
   }
 

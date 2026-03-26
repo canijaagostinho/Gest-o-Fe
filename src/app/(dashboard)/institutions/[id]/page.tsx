@@ -67,6 +67,11 @@ export default async function InstitutionDetailsPage({
               <Edit className="h-4 w-4" /> Editar
             </Button>
           </Link>
+          <Link href={`/users/new?institution_id=${id}`}>
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white gap-2">
+              <Users className="h-4 w-4" /> Criar Usuário
+            </Button>
+          </Link>
         </div>
       </div>
 

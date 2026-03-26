@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useRef } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,7 +25,19 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createClient();
+  const toastShown = useRef(false);
+
+  useEffect(() => {
+    const error = searchParams.get("error");
+    if (error === "auth_failed" && !toastShown.current) {
+      toast.error("Acesso Negado", {
+        description: "E-mail ou senha incorretos. Verifique suas credenciais.",
+      });
+      toastShown.current = true;
+    }
+  }, [searchParams]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,6 +81,25 @@ export default function LoginPage() {
           });
         }
         return;
+      }
+
+      // NOVO: Verificar se o perfil existe no banco de dados público
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from("users")
+          .select("id")
+          .eq("id", user.id)
+          .maybeSingle();
+
+        if (!profile) {
+          console.warn("Autenticado mas sem perfil em public.users:", user.id);
+          await supabase.auth.signOut();
+          toast.error("Acesso Negado", {
+            description: "E-mail ou senha incorretos. Verifique suas credenciais.",
+          });
+          return;
+        }
       }
 
       toast.success("Sucesso!", {

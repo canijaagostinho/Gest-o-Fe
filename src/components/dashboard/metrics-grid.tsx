@@ -32,17 +32,17 @@ export function MetricsGrid({ data, privacyMode, maskValue }: MetricsGridProps) 
       trend: data.growthRate >= 0 ? "up" : "down"
     },
     {
-      title: "Carteira Ativa",
+      title: "Total Desembolsado",
       value: data.totalLent || 0,
-      subValue: `${data.lentCount || 0} contratos ativos`,
+      subValue: `${data.totalLoansCount || 0} contratos totais`,
       icon: Briefcase,
       color: "slate",
       trend: "neutral"
     },
     {
-      title: "A Receber (30 d)",
+      title: "Carteira Ativa",
       value: data.receivables || 0,
-      subValue: `${data.receivablesCount || 0} recebimentos`,
+      subValue: `Capital em circulação`,
       icon: Clock,
       color: "indigo",
       trend: "up"
@@ -61,11 +61,11 @@ export function MetricsGrid({ data, privacyMode, maskValue }: MetricsGridProps) 
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16 px-2">
       {cards.map((card, i) => {
         const theme = {
-          blue: "from-blue-600 to-indigo-700 shadow-blue-200/50 hover:shadow-blue-300/60",
-          slate: "from-slate-800 to-slate-950 shadow-slate-200/50 hover:shadow-slate-300/60",
-          indigo: "from-indigo-600 to-violet-700 shadow-indigo-200/50 hover:shadow-indigo-300/60",
-          rose: "from-rose-500 to-orange-600 shadow-rose-200/50 hover:shadow-rose-300/60"
-        }[card.color] || "from-slate-700 to-slate-900 shadow-slate-200/50 hover:shadow-slate-300/60";
+          blue: "border-blue-100 bg-blue-50/30 text-blue-600",
+          slate: "border-slate-100 bg-slate-50/30 text-slate-600",
+          indigo: "border-indigo-100 bg-indigo-50/30 text-indigo-600",
+          rose: "border-rose-100 bg-rose-50/30 text-rose-600"
+        }[card.color] || "border-slate-100 bg-slate-50/30 text-slate-600";
 
         return (
           <motion.div
@@ -77,56 +77,50 @@ export function MetricsGrid({ data, privacyMode, maskValue }: MetricsGridProps) 
             className="group relative h-full"
           >
             <div className={cn(
-              "p-10 rounded-[3rem] bg-gradient-to-br transition-all flex flex-col h-full relative overflow-hidden text-white shadow-2xl border border-white/10",
-              theme
+               "p-8 rounded-[2rem] bg-white transition-all flex flex-col h-full relative overflow-hidden shadow-sm border border-slate-100 hover:shadow-md",
             )}>
-              {/* Decorative Glow */}
-              <div className="absolute -right-16 -top-16 w-48 h-48 bg-white/10 rounded-full blur-[80px] group-hover:bg-white/20 transition-all duration-700" />
               
               {/* Top Row: Icon and Trend */}
-              <div className="flex items-start justify-between mb-10 relative z-10">
-                <div className="p-5 rounded-3xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-inner group-hover:rotate-12 transition-transform duration-500 ring-4 ring-white/5">
-                  <card.icon className="h-7 w-7 text-white" />
+              <div className="flex items-start justify-between mb-8 relative z-10">
+                <div className={cn(
+                  "p-4 rounded-2xl border transition-all shadow-sm",
+                  theme
+                )}>
+                  <card.icon className="h-6 w-6" />
                 </div>
                 {card.trend !== "neutral" && (
                   <div className={cn(
-                    "flex items-center gap-2 px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] backdrop-blur-xl border shadow-lg",
-                    card.trend === "up" ? "bg-emerald-500/30 text-emerald-200 border-emerald-500/40" : "bg-white/10 text-white/80 border-white/20"
+                    "flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold tracking-tight border shadow-sm",
+                    card.trend === "up" ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-white text-slate-400 border-slate-100"
                   )}>
-                    {card.trend === "up" ? <ArrowUpRight className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+                    {card.trend === "up" ? <ArrowUpRight className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
                     {card.trend === "up" ? "Alta" : "Risco"}
                   </div>
                 )}
               </div>
 
               {/* Middle Row: Title and Value */}
-              <div className="space-y-6 relative z-10 flex-1">
+              <div className="space-y-4 relative z-10 flex-1">
                 <div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.3em] text-white/50 mb-2">
+                  <p className="text-[10px] font-bold text-slate-400 mb-1">
                     {card.title}
                   </p>
                   <AutoScalingAmount
                     amount={typeof card.value === 'number' ? card.value : 0}
-                    baseSize="5xl"
-                    className="text-white font-black tracking-tighter leading-none"
+                    baseSize="4xl"
+                    className="text-slate-900 font-black tracking-tighter leading-none"
                     showCurrency={!privacyMode}
                   />
                 </div>
               </div>
 
               {/* Bottom Row: Subtitle and Visual Accent */}
-              <div className="pt-8 mt-8 border-t border-white/10 relative z-10">
-                <p className="text-xs font-bold text-white/60 flex items-center gap-3">
-                  <span className="w-2 h-2 rounded-full bg-white/40 shadow-[0_0_10px_rgba(255,255,255,0.5)]" />
+              <div className="pt-6 mt-6 border-t border-slate-50 relative z-10">
+                <p className="text-xs font-medium text-slate-400 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-slate-200" />
                   {card.subValue}
                 </p>
               </div>
-
-              {/* Grid Background Overlay */}
-              <div className="absolute inset-0 bg-[url('/grid-white.svg')] opacity-[0.05] pointer-events-none" />
-              
-              {/* Bottom Glass Glow */}
-              <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-black/10 rounded-full blur-[60px] opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
           </motion.div>
         );

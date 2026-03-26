@@ -31,7 +31,63 @@ export async function payInstallmentAction(
     const installment = instData;
     const loan = instData.loans;
 
-    // 2. Update the installment
+    // 2. Create Payment record
+    const { data: payment, error: paymentError } = await supabase.from("payments").insert({
+      loan_id: loan.id,
+      installment_id: installmentId,
+      amount_paid: amountPaid,
+      payment_date: paymentDate.toISOString(),
+      institution_id: loan.institution_id,
+      status: "paid",
+      payment_method: paymentMethod,
+    }).select().single();
+
+    if (paymentError) {
+      console.error("Error creating payment record:", paymentError);
+      throw new Error("Erro ao criar registro de pagamento: " + paymentError.message);
+    }
+
+    // 3. Create Transaction record (Credit)
+    if (loan.account_id) {
+      const { error: transError } = await supabase.from("transactions").insert({
+        account_id: loan.account_id,
+        type: "credit",
+        amount: amountPaid,
+        description: `Recebimento Parcela #${installment.installment_number} - Empréstimo #${loan.contract_number}`,
+        reference_type: "payment",
+        reference_id: payment.id, // Linked to the new payment
+        institution_id: loan.institution_id,
+      });
+
+      if (transError) {
+        console.error("Error creating transaction record:", transError);
+        // Note: we might want to delete the payment record here to be truly atomic, 
+        // but for now, we'll just throw so the status doesn't change to "paid".
+        throw new Error("Erro ao criar registro financeiro de caixa.");
+      }
+
+      // 4. Update Account Balance
+      const { data: account } = await supabase
+        .from("accounts")
+        .select("balance")
+        .eq("id", loan.account_id)
+        .single();
+
+      if (account) {
+        const newBalance = Number(account.balance) + Number(amountPaid);
+        const { error: balError } = await supabase
+          .from("accounts")
+          .update({ balance: newBalance })
+          .eq("id", loan.account_id);
+        
+        if (balError) {
+           console.error("Error updating account balance:", balError);
+           throw new Error("Erro ao atualizar saldo da caixa.");
+        }
+      }
+    }
+
+    // 5. Update the installment (Status changed ONLY after financial success)
     const { error: updateError } = await supabase
       .from("installments")
       .update({
@@ -41,60 +97,15 @@ export async function payInstallmentAction(
       })
       .eq("id", installmentId);
 
-    if (updateError) throw new Error(updateError.message);
+    if (updateError) throw new Error("Erro ao atualizar status da parcela: " + updateError.message);
 
-    // 3. Create Payment record
-    const { error: paymentError } = await supabase.from("payments").insert({
-      loan_id: loan.id,
-      installment_id: installmentId,
-      amount_paid: amountPaid,
-      payment_date: paymentDate.toISOString(),
-      institution_id: loan.institution_id,
-      status: "paid",
-      payment_method: paymentMethod,
-    });
-
-    if (paymentError)
-      console.error("Error creating payment record:", paymentError);
-
-    // 4. Create Transaction record (Credit)
-    if (loan.account_id) {
-      const { error: transError } = await supabase.from("transactions").insert({
-        account_id: loan.account_id,
-        type: "credit",
-        amount: amountPaid,
-        description: `Recebimento Parcela #${installment.installment_number} - Empréstimo #${loan.contract_number}`,
-        reference_type: "payment",
-        reference_id: installmentId,
-        institution_id: loan.institution_id,
-      });
-
-      if (transError)
-        console.error("Error creating transaction record:", transError);
-
-      // 5. Update Account Balance
-      const { data: account } = await supabase
-        .from("accounts")
-        .select("balance")
-        .eq("id", loan.account_id)
-        .single();
-
-      if (account) {
-        const newBalance = Number(account.balance) + Number(amountPaid);
-        await supabase
-          .from("accounts")
-          .update({ balance: newBalance })
-          .eq("id", loan.account_id);
-      }
-    }
-
-    // 6. Check loan status
+    // 6. Check loan completion status
     const { data: allInstallments, error: allInstError } = await supabase
       .from("installments")
       .select("status")
       .eq("loan_id", loan.id);
 
-    if (!allInstError) {
+    if (!allInstError && allInstallments.length > 0) {
       const allPaid = allInstallments.every((i: any) => i.status === "paid");
       if (allPaid) {
         await supabase
@@ -112,7 +123,7 @@ export async function payInstallmentAction(
       await insertOperationLog({
         institution_id: loan.institution_id,
         user_id: user.id,
-        operation_id: paymentError ? undefined : (loan.id as string), // Use loan id as reference
+        operation_id: loan.id,
         type: "Pagamento",
         amount: amountPaid,
         status: "success",
@@ -122,13 +133,13 @@ export async function payInstallmentAction(
 
     revalidatePath(`/loans/${loan.id}`);
     revalidatePath("/loans");
-    revalidatePath("/clients");
-    revalidatePath("/payments");
     revalidatePath("/dashboard");
+    revalidatePath("/payments");
     revalidatePath("/finance/accounts");
 
     return { success: true };
   } catch (error: any) {
+    console.error("Payment Process Error:", error);
     return {
       success: false,
       error: error.message || "Erro ao processar pagamento.",

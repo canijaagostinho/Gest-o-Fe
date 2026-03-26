@@ -45,10 +45,12 @@ export function InstitutionForm({
   });
 
   const handleSubmit = async (data: InstitutionFormValues) => {
+    if (isLoading) return;
     setIsLoading(true);
     try {
       await onSubmit(data);
-    } finally {
+      // We don't reset isLoading here if redirect is handled by parent
+    } catch (error) {
       setIsLoading(false);
     }
   };

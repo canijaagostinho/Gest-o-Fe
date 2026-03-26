@@ -21,7 +21,6 @@ export default function DashboardLayout({
   const [isLoading, setIsLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
   const [role, setRole] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
@@ -42,17 +41,16 @@ export default function DashboardLayout({
 
         console.log("Fetching profile for user:", user.id);
 
-        // maybeSingle is safer for robustness
         const { data: profile, error: profileError } = await supabase
           .from("users")
           .select(
             `
-                        role:roles(name),
-                        institution_id,
-                        institutions (
-                            subscriptions (status)
-                        )
-                    `,
+                role:roles(name),
+                institution_id,
+                institutions (
+                    subscriptions (status)
+                )
+            `,
           )
           .eq("id", user.id)
           .maybeSingle();
@@ -61,57 +59,33 @@ export default function DashboardLayout({
 
         // TENTATIVA DE RECUPERAÇÃO: Se o perfil não existe mas o usuário está autenticado
         if (!finalProfile) {
-          console.warn(
-            "Perfil não encontrado em public.users, tentando recuperar dos metadados:",
-            user.id,
-          );
+          console.warn("Perfil não encontrado, tentando recuperar...");
           const metadata = user.user_metadata;
 
-          if (
-            metadata?.full_name &&
-            metadata?.institution_id &&
-            metadata?.role_id
-          ) {
-            console.log("Iniciando criação automática de perfil...");
-            const { data: recoveredProfile, error: recoveryError } =
-              await supabase
-                .from("users")
-                .insert({
-                  id: user.id,
-                  full_name: metadata.full_name,
-                  email: user.email,
-                  institution_id: metadata.institution_id,
-                  role_id: metadata.role_id,
-                  status: "active",
-                })
-                .select(
-                  `
-                                role:roles(name),
-                                institution_id,
-                                institutions (
-                                    subscriptions (status)
-                                )
-                            `,
-                )
-                .maybeSingle();
+          if (metadata?.full_name && metadata?.institution_id && metadata?.role_id) {
+            const { data: recoveredProfile, error: recoveryError } = await supabase
+              .from("users")
+              .insert({
+                id: user.id,
+                full_name: metadata.full_name,
+                email: user.email,
+                institution_id: metadata.institution_id,
+                role_id: metadata.role_id,
+                status: "active",
+              })
+              .select("role:roles(name), institution_id, institutions(subscriptions(status))")
+              .maybeSingle();
 
             if (!recoveryError && recoveredProfile) {
-              console.log("Perfil recuperado com sucesso!");
               finalProfile = recoveredProfile;
-            } else {
-              console.error(
-                "Falha na recuperação automática:",
-                recoveryError || "Perfil retornado nulo",
-              );
             }
           }
         }
 
         if (!finalProfile) {
-          console.warn("No profile found for user:", user.id);
-          setError(
-            "Seu perfil não foi encontrado ou sua instituição foi desativada. Por favor, entre em contato com o suporte ou tente login novamente.",
-          );
+          console.warn("No profile found - signing out and redirecting");
+          await supabase.auth.signOut();
+          router.push("/auth/login?error=auth_failed");
           return;
         }
 
@@ -124,14 +98,10 @@ export default function DashboardLayout({
           roleName = (roleData as any)?.name;
         }
 
-        // If we found a profile but NO role is assigned (unlikely but possible)
-        if (!roleName) {
-          roleName = "gestor";
-        }
-
+        if (!roleName) roleName = "gestor";
         setRole(roleName);
 
-        // Subscription status check
+        // Subscription status core check
         let subStatus = "active";
         const instData = (profileData as any)?.institutions;
         const subscriptions = instData?.subscriptions;
@@ -142,105 +112,63 @@ export default function DashboardLayout({
         }
 
         (window as any).__subscriptionStatus = subStatus;
-        console.log("Profile loaded successfully, role:", roleName);
       } catch (err: any) {
-        console.error("Critical error in DashboardLayout fetch:", err);
-        setError(err.message || "Ocorreu um erro ao carregar o seu perfil.");
+        console.error("Critical error in DashboardLayout:", err);
+        const supabase = createClient();
+        await supabase.auth.signOut();
+        router.push("/auth/login?error=auth_failed");
       } finally {
         setIsLoading(false);
-        console.log("Loading finished");
       }
     };
 
     fetchProfile();
   }, [router]);
 
-  // Permission check effect
+  // Permission and Authorization effect
   useEffect(() => {
-    // If there's an error or it's loading, wait
-    if (isLoading || error) return;
+    if (isLoading) return;
 
-    // If role is null after loading and no error was caught, something is wrong
     if (role === null) {
-      setError(
-        "Não foi possível carregar as permissões do seu perfil. Por favor, reinicie a sessão.",
-      );
-      return;
+        const supabase = createClient();
+        supabase.auth.signOut().then(() => {
+            router.push("/auth/login?error=auth_failed");
+        });
+        return;
     }
 
-    // --- ROTA E PERMISSÕES ---
-    // Explicit categories for better management
-    const platformRoutes = ["/institutions", "/audit-logs", "/plans"]; // SaaS Admin only
-    // Operador-restricted routes (gestor and admin_geral only)
+    // Role-based route protection
+    const platformRoutes = ["/institutions", "/audit-logs", "/plans"];
     const operadorBlockedSubRoutes = ["/settings/billing", "/settings/plans", "/settings/institution", "/monitoring"];
+    
+    const isPlatformRoute = platformRoutes.some(p => pathname.startsWith(p));
     const isOperadorBlockedSubRoute = operadorBlockedSubRoutes.some(p => pathname.startsWith(p));
+    const managementRoutes = ["/users", "/monitoring", "/agents"];
+    const isManagementRoute = managementRoutes.some(p => pathname.startsWith(p));
+
     if (isOperadorBlockedSubRoute && role === "operador") {
       router.push("/settings");
       return;
     }
-    const managementRoutes = ["/users", "/monitoring", "/agents"]; // Managers and Admins
-    const standardRoutes = ["/finance/accounts", "/finance/expenses", "/notifications", "/clients", "/loans", "/payments", "/reports"]; // Everyone authenticated (with internal page logic)
 
-    const isPlatformRoute = platformRoutes.some(p => pathname.startsWith(p));
-    const isManagementRoute = managementRoutes.some(p => pathname.startsWith(p));
-    const isStandardRoute = standardRoutes.some(p => pathname.startsWith(p));
-
-    console.log("PERMISSION CHECK:", {
-      role,
-      pathname,
-      isPlatformRoute,
-      isManagementRoute,
-      isStandardRoute,
-      subStatus: (window as any).__subscriptionStatus || "active"
-    });
-
-    // 1. Platfform Routes (admin_geral only)
     if (isPlatformRoute && role !== "admin_geral") {
-      console.warn("REDIRECT: Platform route restricted to admin_geral", { pathname, role });
       router.push("/");
       return;
     }
 
-    // 2. Management Routes (admin_geral and gestor only)
     if (isManagementRoute && role !== "admin_geral" && role !== "gestor") {
-      console.warn("REDIRECT: Management route restricted to gestor/admin", { pathname, role });
       router.push("/");
       return;
     }
 
-    // 3. Verificação de Assinatura (Bloqueia todos exceto Admin Geral se expirado/cancelado)
     const subStatus = (window as any).__subscriptionStatus || "active";
-    if (
-      role !== "admin_geral" &&
-      (subStatus === "past_due" || subStatus === "canceled")
-    ) {
-      console.warn("REDIRECT: Inactive subscription - account blocked", { subStatus, role });
+    if (role !== "admin_geral" && (subStatus === "past_due" || subStatus === "canceled")) {
       router.push("/billing/blocked");
       return;
     }
 
-    // 4. Fallback: If it's a known restricted route that didn't pass above, or just set authorized
     setAuthorized(true);
-  }, [pathname, role, isLoading, router, error]);
-
-  if (error) {
-    return (
-      <div className="h-screen w-screen flex flex-col items-center justify-center bg-[#F8FAFC] p-4 text-center">
-        <div className="bg-white p-8 rounded-3xl shadow-xl border border-red-100 max-w-md w-full">
-          <h2 className="text-2xl font-black text-slate-900 mb-4">
-            Erro de Acesso
-          </h2>
-          <p className="text-slate-600 mb-8">{error}</p>
-          <Button
-            onClick={() => (window.location.href = "/auth/login")}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold h-12 rounded-2xl"
-          >
-            Voltar para o Login
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  }, [pathname, role, isLoading, router]);
 
   if (isLoading || !authorized) {
     return (
@@ -255,12 +183,10 @@ export default function DashboardLayout({
 
   return (
     <div className="h-full relative bg-[#F8FAFC]">
-      {/* Desktop Sidebar */}
       <div className="hidden h-full md:flex md:w-72 md:flex-col md:fixed md:inset-y-0 z-40 shadow-2xl">
         <Sidebar />
       </div>
 
-      {/* Mobile Sidebar (Sheet) */}
       <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
         <SheetContent side="left" className="p-0 bg-[#111827] border-none w-72">
           <Sidebar onClose={() => setIsSidebarOpen(false)} />

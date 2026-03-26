@@ -17,31 +17,39 @@ export async function createInstitutionAction(data: InstitutionFormValues) {
       return { success: false, error: "Dados inválidos." };
     }
 
-    // Check for duplicates before inserting
-    const { data: existingInstitution } = await supabase
+    // Check for duplicates before inserting (case-insensitive)
+    const { data: nameExists } = await supabase
       .from("institutions")
       .select("id")
-      .or(`name.eq."${data.name}",email.eq."${data.email}"`)
+      .ilike("name", data.name)
       .maybeSingle();
 
-    if (existingInstitution) {
-      return { 
-        success: false, 
-        error: "Uma instituição com este nome ou e-mail já existe." 
-      };
+    if (nameExists) {
+      return { success: false, error: "Uma instituição com este nome já existe." };
+    }
+
+    const { data: emailExists } = await supabase
+      .from("institutions")
+      .select("id")
+      .ilike("email", data.email)
+      .maybeSingle();
+
+    if (emailExists) {
+      return { success: false, error: "Uma instituição com este e-mail já existe." };
     }
 
     const { error } = await supabase
       .from("institutions")
-      .insert([data])
-      .select()
-      .single();
+      .insert([data]);
 
     if (error) {
       return { success: false, error: error.message };
     }
 
     revalidatePath("/institutions");
+    revalidatePath("/dashboard");
+    revalidatePath("/");
+    
     return { success: true };
   } catch (error: any) {
     return { success: false, error: "Erro interno no servidor." };

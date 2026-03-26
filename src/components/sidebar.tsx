@@ -46,7 +46,7 @@ const adminGeralRoutes = [
       {
         label: "Painel Global",
         icon: LayoutDashboard,
-        href: "/",
+        href: "/dashboard",
         color: "text-sky-500",
       },
       {
@@ -106,7 +106,7 @@ const institutionalRoutes = [
       {
         label: "Painel de Controle",
         icon: LayoutDashboard,
-        href: "/",
+        href: "/dashboard",
         color: "text-blue-500",
       },
       {
@@ -308,7 +308,7 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
     <div className="flex flex-col h-full bg-[#111827] border-r border-white/5 relative z-50 shadow-2xl">
       <div className="p-6 relative bg-[#1F2937]/30 border-b border-white/5 backdrop-blur-xl mb-4">
         <Link
-          href="/"
+          href="/dashboard"
           className="flex items-center gap-4 group relative z-10 transition-transform active:scale-95"
         >
           {displayLogo ? (

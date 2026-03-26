@@ -187,54 +187,55 @@ export function GlobalDashboard() {
         <CardContent className="px-12 pb-12">
           <div className="grid gap-6">
             {stats.recentInstitutions.map((inst, idx) => (
-              <motion.div
-                key={inst.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 * idx }}
-                className="flex items-center justify-between p-6 rounded-[2rem] bg-slate-50/50 hover:bg-white hover:shadow-2xl hover:shadow-slate-200/50 transition-all border border-transparent hover:border-slate-100 group cursor-pointer"
-              >
-                <div className="flex items-center gap-6">
-                  <div className={cn(
-                    "h-16 w-16 rounded-2xl flex items-center justify-center font-black text-2xl shadow-xl transition-transform group-hover:scale-110 group-hover:-rotate-3",
-                    idx === 0 ? "bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-blue-200" :
-                    idx === 1 ? "bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-emerald-200" :
-                    "bg-white border-2 border-slate-100 text-slate-400 shadow-slate-100"
-                  )}>
-                    {inst.name.charAt(0).toUpperCase()}
-                  </div>
-                  <div>
-                    <p className="font-black text-slate-900 text-xl group-hover:text-blue-600 transition-colors uppercase tracking-tight">{inst.name}</p>
-                    <div className="flex items-center gap-3 mt-1.5 text-xs font-bold text-slate-400">
-                      <span className="flex items-center gap-1.5">
-                        <Activity className="h-3 w-3" />
-                        Adesão: {new Date(inst.created_at).toLocaleDateString('pt-MZ', { day: '2-digit', month: 'short', year: 'numeric' })}
-                      </span>
-                      <span className="w-1.5 h-1.5 rounded-full bg-slate-200" />
-                      <span className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">ID: {inst.id.split('-')[0]}</span>
+              <Link key={inst.id} href={`/institutions/${inst.id}`}>
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 * idx }}
+                  className="flex items-center justify-between p-6 rounded-[2rem] bg-slate-50/50 hover:bg-white hover:shadow-2xl hover:shadow-slate-200/50 transition-all border border-transparent hover:border-slate-100 group cursor-pointer"
+                >
+                  <div className="flex items-center gap-6">
+                    <div className={cn(
+                      "h-16 w-16 rounded-2xl flex items-center justify-center font-black text-2xl shadow-xl transition-transform group-hover:scale-110 group-hover:-rotate-3",
+                      idx === 0 ? "bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-blue-200" :
+                      idx === 1 ? "bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-emerald-200" :
+                      "bg-white border-2 border-slate-100 text-slate-400 shadow-slate-100"
+                    )}>
+                      {inst.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="font-black text-slate-900 text-xl group-hover:text-blue-600 transition-colors uppercase tracking-tight">{inst.name}</p>
+                      <div className="flex items-center gap-3 mt-1.5 text-xs font-bold text-slate-400">
+                        <span className="flex items-center gap-1.5">
+                          <Activity className="h-3 w-3" />
+                          Adesão: {new Date(inst.created_at).toLocaleDateString('pt-MZ', { day: '2-digit', month: 'short', year: 'numeric' })}
+                        </span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-slate-200" />
+                        <span className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">ID: {inst.id.split('-')[0]}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-8">
-                  <div className="hidden sm:flex flex-col items-end">
-                    <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1.5">Status da Rede</p>
-                    <Badge
-                      variant="outline"
-                      className={cn(
-                        "rounded-full px-5 py-1.5 font-black text-[10px] uppercase tracking-[0.2em] border-2 shadow-sm",
-                        inst.status === "active"
-                          ? "bg-emerald-50 text-emerald-600 border-emerald-100 shadow-emerald-100/20"
-                          : "bg-amber-50 text-amber-600 border-amber-100 shadow-amber-100/20"
-                      )}
-                    >
-                      {inst.status === "active" ? "Ativa" : "Pendente"}
-                    </Badge>
+                  <div className="flex items-center gap-8">
+                    <div className="hidden sm:flex flex-col items-end">
+                      <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1.5">Status da Rede</p>
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          "rounded-full px-5 py-1.5 font-black text-[10px] uppercase tracking-[0.2em] border-2 shadow-sm",
+                          inst.status === "active"
+                            ? "bg-emerald-50 text-emerald-600 border-emerald-100 shadow-emerald-100/20"
+                            : "bg-amber-50 text-amber-600 border-amber-100 shadow-amber-100/20"
+                        )}
+                      >
+                        {inst.status === "active" ? "Ativa" : "Pendente"}
+                      </Badge>
+                    </div>
+                    <div className="h-12 w-12 bg-white rounded-2xl border-2 border-slate-100 flex items-center justify-center text-slate-300 group-hover:text-blue-600 group-hover:border-blue-200 shadow-sm transition-all group-hover:rotate-[360deg] duration-700">
+                      <ArrowUpRight className="h-6 w-6" />
+                    </div>
                   </div>
-                  <div className="h-12 w-12 bg-white rounded-2xl border-2 border-slate-100 flex items-center justify-center text-slate-300 group-hover:text-blue-600 group-hover:border-blue-200 shadow-sm transition-all group-hover:rotate-[360deg] duration-700">
-                    <ArrowUpRight className="h-6 w-6" />
-                  </div>
-                </div>
-              </motion.div>
+                </motion.div>
+              </Link>
             ))}
           </div>
         </CardContent>

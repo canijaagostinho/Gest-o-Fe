@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { createClient } from "@/utils/supabase/client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import {
@@ -57,6 +57,8 @@ const userSchema = z
 export default function NewUserPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const searchParams = useSearchParams();
+  const institutionIdParam = searchParams.get("institution_id");
   const [showPassword, setShowPassword] = useState(false);
   const [institutions, setInstitutions] = useState<any[]>([]);
   const [roles, setRoles] = useState<any[]>([]);
@@ -66,12 +68,19 @@ export default function NewUserPage() {
     defaultValues: {
       full_name: "",
       email: "",
-      institution_id: "",
+      institution_id: institutionIdParam || "",
       role_id: "",
       password: "",
       confirmPassword: "",
     },
   });
+
+  // Re-sync if param changes after mount
+  useEffect(() => {
+    if (institutionIdParam) {
+      form.setValue("institution_id", institutionIdParam);
+    }
+  }, [institutionIdParam, form]);
 
   useEffect(() => {
     const fetchData = async () => {

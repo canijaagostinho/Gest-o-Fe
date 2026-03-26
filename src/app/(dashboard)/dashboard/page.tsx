@@ -52,6 +52,7 @@ export default function DashboardPage() {
         totalLoansCount: 0,
         lentCount: 0,
         receivablesCount: 0,
+        totalDisbursed: 0,
     });
 
     const now = new Date();
@@ -157,6 +158,7 @@ export default function DashboardPage() {
                         });
                         const receivables30D = receivables30DItems.reduce((acc, i) => acc + Number(i.amount), 0) || 0;
 
+                        const totalDisbursedVal = allLoans?.filter(l => l.status !== "cancelled").reduce((acc, l) => acc + Number(l.loan_amount), 0) || 0;
                         const lentCountVal = allLoans?.filter(l => l.status === "active").length || 0;
                         const receivablesCountVal = receivables30DItems.length;
 
@@ -180,9 +182,10 @@ export default function DashboardPage() {
                         const { data: realUpcomingItems } = await supabase.from("installments").select("id, amount, due_date, loans(clients(full_name))").eq("institution_id", profile.institution_id).eq("status", "pending").gte("due_date", todayStr).order("due_date", { ascending: true }).limit(5);
 
                         setKpiData({
-                            totalLent: activePortfolio, // Using active portfolio for clarity
+                            totalLent: totalDisbursedVal, // NOW: Total Disbursed Principal
                             totalReceived: payments?.reduce((acc, p) => acc + Number(p.amount_paid), 0) || 0,
-                            receivables: receivables30D,
+                            receivables: activePortfolio, // NOW: Total Outstanding Balance
+                            receivables30D: receivables30D,
                             delinquencyRate: delinquencyRateVal || 0,
                             delinquencyAmount: overdueAmount || 0,
                             growthRate: growth,
