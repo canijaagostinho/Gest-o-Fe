@@ -220,8 +220,8 @@ export default function LandingPage() {
                 <nav className="max-w-7xl w-full flex items-center justify-between px-4 sm:px-6 py-3 bg-white/70 backdrop-blur-xl border border-slate-200/40 rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.03)] pointer-events-auto">
                     <div className="flex items-center gap-4">
                         <Link href="/" className="flex items-center gap-3 group">
-                            <div className="h-9 w-9 sm:h-10 sm:w-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-600/20 group-hover:scale-105 transition-transform">
-                                <Zap className="h-5 w-5 sm:h-6 sm:w-6 fill-white" />
+                            <div className="h-9 w-9 sm:h-10 sm:w-10 bg-white rounded-xl flex items-center justify-center overflow-hidden shadow-lg shadow-blue-600/10 group-hover:scale-105 transition-transform border border-slate-100">
+                                <img src="/logo.png" alt="GestãoFlex Logo" className="h-full w-full object-cover" />
                             </div>
                             <span className="text-lg sm:text-xl font-black text-slate-950 tracking-tight font-sora">
                                 Gestão<span className="text-blue-600">Flex</span>
@@ -248,7 +248,14 @@ export default function LandingPage() {
                     </div>
 
                     <div className="flex items-center gap-2 sm:gap-3">
-                        <div className="hidden sm:flex items-center gap-2">
+                        <div className="hidden sm:flex items-center gap-4">
+                            {!user && (
+                                <Link href="/auth/login">
+                                    <Button variant="ghost" className="text-xs font-bold text-slate-500 hover:text-blue-600 transition-all uppercase tracking-widest">
+                                        Entrar
+                                    </Button>
+                                </Link>
+                            )}
                             <Link href={user ? "/dashboard" : "/auth/signup"}>
                                 <Button className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl px-6 h-10 shadow-lg shadow-blue-600/20 transition-all active:scale-95">
                                     {user ? "Ir para o Dashboard" : "Criar Conta Grátis"}
@@ -269,8 +276,8 @@ export default function LandingPage() {
                                         <SheetHeader className="p-6 border-b border-slate-100">
                                             <SheetTitle className="text-left">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center text-white">
-                                                        <Zap className="h-5 w-5 fill-white" />
+                                                    <div className="h-8 w-8 bg-white rounded-lg flex items-center justify-center overflow-hidden border border-slate-100 shadow-sm">
+                                                        <img src="/logo.png" alt="GestãoFlex" className="h-full w-full object-cover" />
                                                     </div>
                                                     <span className="text-lg font-black text-slate-950 font-sora">
                                                         Gestão<span className="text-blue-600">Flex</span>

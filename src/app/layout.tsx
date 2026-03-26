@@ -24,6 +24,19 @@ export const metadata: Metadata = {
     title: "Gestão Flex | Sistema de Microcrédito Profissional",
     description: "A plataforma mais completa para gestão de microcrédito.",
     siteName: "Gestão Flex",
+    images: [
+      {
+        url: "/logo.png",
+        width: 800,
+        height: 600,
+        alt: "Gestão Flex Logo",
+      },
+    ],
+  },
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
   },
   verification: {
     google: "PLACEHOLDER_FOR_GOOGLE_VERIFICATION_CODE",
