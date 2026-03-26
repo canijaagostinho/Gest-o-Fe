@@ -40,8 +40,16 @@ import {
     HeartHandshake,
     Landmark,
     UserCheck2,
+    Menu,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from "@/components/ui/sheet";
 import { useRef, useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/client";
@@ -90,10 +98,30 @@ export default function LandingPage() {
     }, []);
 
     useEffect(() => {
-        const supabase = createClient();
-        supabase.auth.getUser().then(({ data: { user } }) => {
-            setUser(user);
-        });
+        const checkUser = async () => {
+            const supabase = createClient();
+            const { data: { user: authUser } } = await supabase.auth.getUser();
+            
+            if (authUser) {
+                // Verify if profile exists in public.users
+                const { data: profile } = await supabase
+                    .from("users")
+                    .select("id")
+                    .eq("id", authUser.id)
+                    .maybeSingle();
+                
+                if (profile) {
+                    setUser(authUser);
+                } else {
+                    // Profile was deleted, treat as logged out
+                    setUser(null);
+                }
+            } else {
+                setUser(null);
+            }
+        };
+        
+        checkUser();
     }, []);
 
     const faqItems = [
@@ -172,13 +200,13 @@ export default function LandingPage() {
             <motion.div
                 initial={{ opacity: 0, y: 100 }}
                 animate={{ opacity: showFloatingCTA ? 1 : 0, y: showFloatingCTA ? 0 : 100 }}
-                className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[60] w-[90%] max-w-md"
+                className="fixed bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 z-[60] w-[92%] sm:w-auto"
             >
-                <div className="bg-white/80 backdrop-blur-xl border border-slate-200 p-2 rounded-full shadow-2xl flex items-center justify-between pl-6 text-sm">
+                <div className="bg-white/80 backdrop-blur-xl border border-slate-200 p-1.5 sm:p-2 rounded-full shadow-2xl flex items-center justify-between sm:pl-6 text-sm">
                     <span className="font-bold text-slate-700 hidden sm:block">Não perca mais dinheiro</span>
-                    <Link href="/auth/signup">
-                        <Button className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-full px-6 shadow-lg shadow-emerald-500/20">
-                            Organizar meu crédito agora
+                    <Link href="/auth/signup" className="w-full sm:w-auto">
+                        <Button className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-full px-4 sm:px-6 h-10 sm:h-11 shadow-lg shadow-emerald-500/20 text-xs sm:text-sm w-full">
+                            Abrir conta grátis agora
                         </Button>
                     </Link>
                 </div>
@@ -186,14 +214,14 @@ export default function LandingPage() {
 
             {/* Navigation */}
             {/* 0. HEADER (Premium Glassmorphism) */}
-            <header className="fixed top-0 left-0 right-0 z-[100] px-6 py-4 flex justify-center pointer-events-none">
-                <nav className="max-w-7xl w-full flex items-center justify-between px-6 py-3 bg-white/70 backdrop-blur-xl border border-slate-200/40 rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.03)] pointer-events-auto">
+            <header className="fixed top-0 left-0 right-0 z-[100] px-3 sm:px-6 py-4 flex justify-center pointer-events-none">
+                <nav className="max-w-7xl w-full flex items-center justify-between px-4 sm:px-6 py-3 bg-white/70 backdrop-blur-xl border border-slate-200/40 rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.03)] pointer-events-auto">
                     <div className="flex items-center gap-4">
                         <Link href="/" className="flex items-center gap-3 group">
-                            <div className="h-10 w-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-600/20 group-hover:scale-105 transition-transform">
-                                <Zap className="h-6 w-6 fill-white" />
+                            <div className="h-9 w-9 sm:h-10 sm:w-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-600/20 group-hover:scale-105 transition-transform">
+                                <Zap className="h-5 w-5 sm:h-6 sm:w-6 fill-white" />
                             </div>
-                            <span className="text-xl font-black text-slate-900 tracking-tight font-sora">
+                            <span className="text-lg sm:text-xl font-black text-slate-950 tracking-tight font-sora">
                                 Gestão<span className="text-blue-600">Flex</span>
                             </span>
                         </Link>
@@ -217,17 +245,91 @@ export default function LandingPage() {
                         ))}
                     </div>
 
-                    <div className="flex items-center gap-3">
-                        <Link href={user ? "/dashboard" : "/auth/login"}>
-                            <Button variant="ghost" className="text-xs font-bold text-slate-500 hover:text-slate-900 px-4 h-10 rounded-xl transition-colors">
-                                {user ? "Meu Painel" : "Entrar"}
-                            </Button>
-                        </Link>
-                        <Link href={user ? "/dashboard" : "/auth/signup"}>
-                            <Button className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl px-5 h-10 shadow-lg shadow-blue-600/20 transition-all active:scale-95">
-                                {user ? "Dashboard" : "Criar Conta Grátis"}
-                            </Button>
-                        </Link>
+                    <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="hidden sm:flex items-center gap-2">
+                            <Link href={user ? "/dashboard" : "/auth/login"}>
+                                <Button variant="ghost" className="text-xs font-bold text-slate-500 hover:text-slate-900 px-4 h-10 rounded-xl transition-colors">
+                                    {user ? "Meu Painel" : "Entrar"}
+                                </Button>
+                            </Link>
+                            <Link href={user ? "/dashboard" : "/auth/signup"}>
+                                <Button className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl px-5 h-10 shadow-lg shadow-blue-600/20 transition-all active:scale-95">
+                                    {user ? "Dashboard" : "Criar Conta Grátis"}
+                                </Button>
+                            </Link>
+                        </div>
+
+                        {/* Mobile Menu Trigger */}
+                        <div className="sm:hidden">
+                            <Sheet>
+                                <SheetTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl">
+                                        <Menu className="h-6 w-6 text-slate-600" />
+                                    </Button>
+                                </SheetTrigger>
+                                <SheetContent side="right" className="w-[300px] p-0 border-none bg-white">
+                                    <div className="flex flex-col h-full">
+                                        <SheetHeader className="p-6 border-b border-slate-100">
+                                            <SheetTitle className="text-left">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center text-white">
+                                                        <Zap className="h-5 w-5 fill-white" />
+                                                    </div>
+                                                    <span className="text-lg font-black text-slate-950 font-sora">
+                                                        Gestão<span className="text-blue-600">Flex</span>
+                                                    </span>
+                                                </div>
+                                            </SheetTitle>
+                                        </SheetHeader>
+                                        
+                                        <div className="flex-grow p-6 space-y-8">
+                                            <div className="space-y-4">
+                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Navegação</p>
+                                                <div className="grid gap-2">
+                                                    {[
+                                                        { label: "O Problema", href: "#problema" },
+                                                        { label: "A Solução", href: "#solucao" },
+                                                        { label: "Funcionalidades", href: "#funcionalidades" },
+                                                        { label: "Segurança", href: "#seguranca" },
+                                                        { label: "FAQ", href: "#faq" },
+                                                    ].map((item) => (
+                                                        <Link
+                                                            key={item.label}
+                                                            href={item.href}
+                                                            className="flex items-center px-4 py-3 rounded-xl hover:bg-slate-50 text-slate-600 font-bold transition-all"
+                                                        >
+                                                            {item.label}
+                                                        </Link>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            <div className="space-y-4">
+                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Acesso</p>
+                                                <div className="grid gap-3">
+                                                    <Link href={user ? "/dashboard" : "/auth/login"}>
+                                                        <Button variant="outline" className="w-full h-12 rounded-xl justify-start px-6 font-bold border-slate-200">
+                                                            {user ? "Meu Painel" : "Entrar na Conta"}
+                                                        </Button>
+                                                    </Link>
+                                                    <Link href={user ? "/dashboard" : "/auth/signup"}>
+                                                        <Button className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 shadow-lg shadow-blue-600/20">
+                                                            {user ? "Ir para o Dashboard" : "Criar Conta Grátis"}
+                                                        </Button>
+                                                    </Link>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="p-6 mt-auto bg-slate-50 border-t border-slate-100">
+                                            <p className="text-[10px] font-bold text-slate-400 text-center uppercase tracking-widest italic">
+                                                Feito para o credor de Moçambique
+                                            </p>
+                                        </div>
+                                    </div>
+                                </SheetContent>
+                            </Sheet>
+                        </div>
                     </div>
                 </nav>
             </header>
@@ -256,11 +358,11 @@ export default function LandingPage() {
                                 transition={{ delay: 0.1, duration: 1, ease: [0.16, 1, 0.3, 1] }}
                                 className="space-y-10"
                             >
-                                <h1 className="text-6xl md:text-8xl lg:text-9xl font-[1000] text-slate-950 tracking-[-0.04em] leading-[0.95] md:leading-[1] font-sora">
+                                <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-[1000] text-slate-950 tracking-[-0.04em] leading-[1] md:leading-[1] font-sora">
                                     Garanta que<br />
                                     <span className="text-blue-600">seu capital volte.</span>
                                 </h1>
-                                <p className="text-xl md:text-2xl font-medium text-slate-500 max-w-4xl mx-auto leading-relaxed font-inter">
+                                <p className="text-lg sm:text-xl md:text-2xl font-medium text-slate-500 max-w-4xl mx-auto leading-relaxed font-inter">
                                     O <span className="text-slate-950 font-black">GestãoFlex</span> automatiza suas cobranças no WhatsApp e organiza cada parcela, para que você nunca mais perca o rastro do seu dinheiro. <span className="text-slate-950 font-black italic underline decoration-blue-500 underline-offset-4">Feito para o credor profissional de Moçambique.</span>
                                 </p>
                             </motion.div>
@@ -269,16 +371,16 @@ export default function LandingPage() {
                                 initial={{ opacity: 0, y: 30 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.2, duration: 1, ease: [0.16, 1, 0.3, 1] }}
-                                className="flex flex-col sm:flex-row gap-6 justify-center"
+                                className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center"
                             >
-                                <Link href={user ? "/dashboard" : "/auth/signup"}>
-                                    <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white font-[1000] h-20 px-12 text-xl rounded-2xl shadow-[0_20px_40px_-12px_rgba(249,115,22,0.4)] transition-all hover:scale-[1.03] active:scale-95 group w-full sm:w-auto font-sora tracking-tight">
+                                <Link href={user ? "/dashboard" : "/auth/signup"} className="w-full sm:w-auto">
+                                    <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white font-[1000] h-16 sm:h-20 px-8 sm:px-12 text-lg sm:text-xl rounded-2xl shadow-[0_20px_40px_-12px_rgba(249,115,22,0.4)] transition-all hover:scale-[1.03] active:scale-95 group w-full font-sora tracking-tight">
                                         {user ? "Ir para o Dashboard" : "Começar grátis agora"}
-                                        <ArrowRight className="ml-2 h-7 w-7 transition-transform group-hover:translate-x-2" />
+                                        <ArrowRight className="ml-2 h-6 w-6 sm:h-7 sm:w-7 transition-transform group-hover:translate-x-2" />
                                     </Button>
                                 </Link>
-                                <Link href="#demonstracao">
-                                    <Button size="lg" variant="outline" className="bg-white border-slate-200 text-slate-900 font-[1000] h-20 px-12 text-xl rounded-2xl shadow-sm hover:bg-slate-50 transition-all w-full sm:w-auto font-sora tracking-tight border-2">
+                                <Link href="#demonstracao" className="w-full sm:w-auto">
+                                    <Button size="lg" variant="outline" className="bg-white border-slate-200 text-slate-900 font-[1000] h-16 sm:h-20 px-8 sm:px-12 text-lg sm:text-xl rounded-2xl shadow-sm hover:bg-slate-50 transition-all w-full font-sora tracking-tight border-2">
                                         Ver como funciona
                                     </Button>
                                 </Link>
@@ -427,17 +529,17 @@ export default function LandingPage() {
                 </section>
 
                 {/* NEW: TARGET AUDIENCE SEGMENTATION Section */}
-                <section className="py-24 bg-slate-50 border-y border-slate-200 overflow-hidden">
+                <section className="py-16 md:py-24 bg-slate-50 border-y border-slate-200 overflow-hidden">
                     <div className="max-w-7xl mx-auto px-6">
-                        <div className="grid lg:grid-cols-2 gap-12">
+                        <div className="grid lg:grid-cols-2 gap-8 md:gap-12">
                             {/* Para Quem É */}
-                            <FadeIn className="bg-white p-12 rounded-[3rem] shadow-sm border border-slate-100 flex flex-col gap-8">
+                            <FadeIn className="bg-white p-6 sm:p-12 rounded-[2.5rem] sm:rounded-[3rem] shadow-sm border border-slate-100 flex flex-col gap-6 sm:gap-8">
                                 <div className="space-y-4">
                                     <div className="h-12 w-12 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
                                         <UserCheck className="h-6 w-6" />
                                     </div>
-                                    <h3 className="text-3xl font-black text-slate-950 tracking-tight font-sora italic underline decoration-emerald-500 underline-offset-8">Para quem é o GestãoFlex:</h3>
-                                    <p className="text-slate-500 font-medium">Se você se identifica com os pontos abaixo, este sistema foi feito sob medida para você:</p>
+                                    <h3 className="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight font-sora italic underline decoration-emerald-500 underline-offset-8">Para quem é o GestãoFlex:</h3>
+                                    <p className="text-slate-500 font-medium text-sm sm:text-base">Se você se identifica com os pontos abaixo, este sistema foi feito sob medida para você:</p>
                                 </div>
                                 <div className="space-y-4">
                                     {[
@@ -447,7 +549,7 @@ export default function LandingPage() {
                                         "Professores ou funcionários que fazem empréstimos extra para complementar renda.",
                                         "Quem quer profissionalizar o negócio e escalar sem contratar pessoal."
                                     ].map((text, i) => (
-                                        <div key={i} className="flex items-start gap-4 text-slate-700 font-bold">
+                                        <div key={i} className="flex items-start gap-3 sm:gap-4 text-slate-700 font-bold text-sm sm:text-base">
                                             <CheckCircle2 className="h-5 w-5 text-emerald-500 mt-0.5 flex-shrink-0" />
                                             <span>{text}</span>
                                         </div>
@@ -456,13 +558,13 @@ export default function LandingPage() {
                             </FadeIn>
 
                             {/* Para Quem NÃO É */}
-                            <FadeIn delay={200} className="bg-slate-950 p-12 rounded-[3rem] shadow-2xl flex flex-col gap-8">
+                            <FadeIn delay={200} className="bg-slate-950 p-6 sm:p-12 rounded-[2.5rem] sm:rounded-[3rem] shadow-2xl flex flex-col gap-6 sm:gap-8">
                                 <div className="space-y-4">
                                     <div className="h-12 w-12 rounded-2xl bg-rose-500/10 text-rose-500 flex items-center justify-center">
                                         <ShieldAlert className="h-6 w-6" />
                                     </div>
-                                    <h3 className="text-3xl font-black text-white tracking-tight font-sora">Quem <span className="text-rose-500">NÃO</span> deve usar:</h3>
-                                    <p className="text-slate-400 font-medium font-inter">Este sistema não é para todos. Por favor, NÃO use se:</p>
+                                    <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight font-sora">Quem <span className="text-rose-500">NÃO</span> deve usar:</h3>
+                                    <p className="text-slate-400 font-medium text-sm sm:text-base font-inter">Este sistema não é para todos. Por favor, NÃO use se:</p>
                                 </div>
                                 <div className="space-y-4">
                                     {[
@@ -472,7 +574,7 @@ export default function LandingPage() {
                                         "Você prefere continuar dependendo da sorte e da memória (ou do papel).",
                                         "Você não tem interesse em organizar seu fluxo de caixa e lucros."
                                     ].map((text, i) => (
-                                        <div key={i} className="flex items-start gap-4 text-slate-400 font-bold">
+                                        <div key={i} className="flex items-start gap-3 sm:gap-4 text-slate-400 font-bold text-sm sm:text-base">
                                             <div className="h-1.5 w-1.5 rounded-full bg-rose-500 mt-2.5 flex-shrink-0" />
                                             <span>{text}</span>
                                         </div>
@@ -484,19 +586,19 @@ export default function LandingPage() {
                 </section>
 
                 {/* 2. PROBLEMA (Narrative Overhaul) */}
-                <section id="problema" className="py-32 bg-slate-950 px-6 relative overflow-hidden">
+                <section id="problema" className="py-20 md:py-32 bg-slate-950 px-6 relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_50%,rgba(59,130,246,0.1),transparent_50%)]" />
                     <div className="max-w-7xl mx-auto relative z-10">
-                        <div className="grid lg:grid-cols-2 gap-20 items-center">
-                            <FadeIn className="space-y-8">
+                        <div className="grid lg:grid-cols-2 gap-12 md:gap-20 items-center">
+                            <FadeIn className="space-y-6 md:space-y-8">
                                 <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-rose-500/10 border border-rose-500/20 rounded-full text-[10px] font-black text-rose-500 uppercase tracking-[0.3em]">
                                     Cuidado com a sua Margem
                                 </div>
-                                <h2 className="text-5xl md:text-7xl font-[1000] text-white tracking-[-0.03em] leading-[1] font-sora">
+                                <h2 className="text-4xl md:text-7xl font-[1000] text-white tracking-[-0.03em] leading-[1.1] md:leading-[1] font-sora">
                                     CADERNO NÃO É <br />
-                                    <span className="text-slate-500">FERRAMENTA DE GESTÃO.</span>
+                                    <span className="text-slate-500 text-3xl md:text-7xl">FERRAMENTA DE GESTÃO.</span>
                                 </h2>
-                                <p className="text-xl text-slate-400 font-medium leading-relaxed max-w-xl font-inter">
+                                <p className="text-lg md:text-xl text-slate-400 font-medium leading-relaxed max-w-xl font-inter">
                                     Se você trabalha com crédito e ainda usa cadernos ou planilhas, a sua operação está em risco constante.
                                 </p>
                                 <div className="space-y-4 pt-4">
@@ -505,7 +607,7 @@ export default function LandingPage() {
                                         "Horas perdidas com cálculos manuais",
                                         "Erros humanos que custam caro",
                                     ].map((text, i) => (
-                                        <div key={i} className="flex items-center gap-4 text-slate-300 font-bold">
+                                        <div key={i} className="flex items-center gap-4 text-slate-300 font-bold text-sm md:text-base">
                                             <div className="h-2 w-2 rounded-full bg-rose-500" />
                                             {text}
                                         </div>
@@ -520,13 +622,13 @@ export default function LandingPage() {
                                     { title: "Zero Escala", desc: "Você gasta 80% do tempo administrando e apenas 20% crescendo seu negócio.", icon: Zap, color: "bg-emerald-500/10 text-emerald-500" },
                                 ].map((pain, i) => (
                                     <FadeIn key={i} delay={i * 100}>
-                                        <div className="bg-white/5 backdrop-blur-sm p-8 rounded-[2.5rem] border border-white/5 flex items-start gap-6 group hover:bg-white/10 transition-all">
-                                            <div className={cn("h-14 w-14 rounded-2xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110", pain.color)}>
-                                                <pain.icon className="h-8 w-8" />
+                                        <div className="bg-white/5 backdrop-blur-sm p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border border-white/5 flex items-start gap-4 md:gap-6 group hover:bg-white/10 transition-all">
+                                            <div className={cn("h-12 w-12 md:h-14 md:w-14 rounded-2xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110", pain.color)}>
+                                                <pain.icon className="h-6 w-6 md:h-8 md:w-8" />
                                             </div>
                                             <div className="space-y-1">
-                                                <h4 className="text-xl font-bold text-white tracking-tight">{pain.title}</h4>
-                                                <p className="text-slate-400 font-medium leading-relaxed text-sm">{pain.desc}</p>
+                                                <h4 className="text-lg md:text-xl font-bold text-white tracking-tight">{pain.title}</h4>
+                                                <p className="text-slate-400 font-medium leading-relaxed text-xs md:text-sm">{pain.desc}</p>
                                             </div>
                                         </div>
                                     </FadeIn>
@@ -537,29 +639,29 @@ export default function LandingPage() {
                 </section>
 
                 {/* 3. SOLUÇÃO (Premium Split Layout) */}
-                <section id="solucao" className="py-32 bg-white px-6 overflow-hidden">
-                    <div className="max-w-7xl mx-auto space-y-24">
+                <section id="solucao" className="py-20 md:py-32 bg-white px-6 overflow-hidden">
+                    <div className="max-w-7xl mx-auto space-y-16 md:space-y-24">
                         <FadeIn className="text-center space-y-6 max-w-4xl mx-auto">
                             <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-[10px] font-black text-emerald-600 uppercase tracking-[0.4em] mb-4">
                                 A Solução Definitiva
                             </div>
-                            <h3 className="text-5xl md:text-7xl font-[1000] text-slate-950 tracking-[-0.03em] leading-[1] font-sora">
+                            <h3 className="text-4xl md:text-7xl font-[1000] text-slate-950 tracking-[-0.03em] leading-[1.1] md:leading-[1] font-sora">
                                 Automatize sua <br />
                                 <span className="text-blue-600">cobrança e cálculos.</span>
                             </h3>
-                            <p className="text-xl md:text-2xl text-slate-500 font-medium max-w-3xl mx-auto leading-relaxed font-inter">
+                            <p className="text-lg md:text-2xl text-slate-500 font-medium max-w-3xl mx-auto leading-relaxed font-inter">
                                 O GestãoFlex cuida da parte burocrática para que você foque no que realmente importa: <span className="text-slate-950 font-black italic">fazer seu capital girar e seu lucro crescer.</span>
                             </p>
                         </FadeIn>
                         
-                        <div className="grid lg:grid-cols-2 gap-24 items-center">
-                            <FadeIn delay={200} className="relative group overflow-visible">
+                        <div className="grid lg:grid-cols-2 gap-12 md:gap-24 items-center">
+                            <FadeIn delay={200} className="relative group overflow-visible order-2 lg:order-1">
                                 <div className="absolute -inset-10 bg-blue-600/5 blur-[100px] rounded-full opacity-50 group-hover:opacity-100 transition-opacity -z-10" />
-                                <div className="p-4 bg-slate-950 rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.4)] transform group-hover:scale-[1.02] transition-transform duration-700 border-8 border-slate-900 relative">
+                                <div className="p-2 sm:p-4 bg-slate-950 rounded-[2rem] sm:rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.4)] transform group-hover:scale-[1.02] transition-transform duration-700 border-4 sm:border-8 border-slate-900 relative mx-auto max-w-[500px] lg:max-w-none">
                                     <img
                                         src="/mockups/tablet-sharp.png"
                                         alt="Interface de Empréstimos GestãoFlex Real"
-                                        className="w-full h-auto rounded-[2.2rem] shadow-2xl"
+                                        className="w-full h-auto rounded-[1.5rem] sm:rounded-[2.2rem] shadow-2xl"
                                     />
                                     {/* Glass Reflection Overlay */}
                                     <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
@@ -568,36 +670,36 @@ export default function LandingPage() {
                                 <motion.div 
                                     animate={{ y: [0, -10, 0] }}
                                     transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                                    className="absolute -bottom-10 -right-10 bg-white p-6 rounded-[2.5rem] shadow-2xl border border-slate-100 hidden sm:block z-20"
+                                    className="absolute -bottom-6 -right-6 md:-bottom-10 md:-right-10 bg-white p-4 md:p-6 rounded-[1.5rem] md:rounded-[2.5rem] shadow-2xl border border-slate-100 hidden sm:block z-20"
                                 >
                                     <div className="flex items-center gap-4">
-                                        <div className="h-12 w-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                                            <TrendingUp className="h-6 w-6" />
+                                        <div className="h-10 w-10 md:h-12 md:w-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                                            <TrendingUp className="h-5 w-5 md:h-6 md:w-6" />
                                         </div>
                                         <div>
-                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Inadimplência</p>
-                                            <p className="text-2xl font-black text-slate-950">-42.5%</p>
+                                            <p className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">Inadimplência</p>
+                                            <p className="text-xl md:text-2xl font-black text-slate-950">-42.5%</p>
                                         </div>
                                     </div>
                                 </motion.div>
                             </FadeIn>
 
-                            <FadeIn delay={100} className="space-y-10">
-                                <h4 className="text-2xl font-black text-slate-950 tracking-tight font-sora">Controle total, esforço zero.</h4>
-                                <div className="space-y-8">
+                            <FadeIn delay={100} className="space-y-8 md:space-y-10 order-1 lg:order-2">
+                                <h4 className="text-xl md:text-2xl font-black text-slate-950 tracking-tight font-sora">Controle total, esforço zero.</h4>
+                                <div className="space-y-6 md:space-y-8">
                                     {[
                                         { title: "Registrar empréstimos em segundos", desc: "Criação rápida com taxas e juros personalizados.", icon: FileText, color: "bg-blue-500/10 text-blue-600" },
                                         { title: "Acompanhar todos os pagamentos", desc: "Baixa automática de parcelas e alertas de vencimento.", icon: RefreshCw, color: "bg-emerald-500/10 text-emerald-600" },
                                         { title: "Ver quem está em atraso", desc: "Histórico completo para evitar maus pagadores.", icon: Users, color: "bg-rose-500/10 text-rose-600" },
                                         { title: "Alertas de vencimentos", desc: "Lembretes por WhatsApp sem que você precise mover um dedo.", icon: Zap, color: "bg-orange-500/10 text-orange-600" },
                                     ].map((feat, i) => (
-                                        <div key={i} className="flex gap-6 group">
-                                            <div className={cn("h-14 w-14 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-110 transition-transform", feat.color)}>
-                                                <feat.icon className="h-7 w-7" />
+                                        <div key={i} className="flex gap-4 md:gap-6 group">
+                                            <div className={cn("h-12 w-12 md:h-14 md:w-14 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-110 transition-transform", feat.color)}>
+                                                <feat.icon className="h-6 w-6 md:h-7 md:w-7" />
                                             </div>
                                             <div className="space-y-1 pt-1">
-                                                <h5 className="text-xl font-bold text-slate-950 tracking-tight font-sora">{feat.title}</h5>
-                                                <p className="text-slate-500 font-medium text-lg leading-snug">{feat.desc}</p>
+                                                <h5 className="text-lg md:text-xl font-bold text-slate-950 tracking-tight font-sora">{feat.title}</h5>
+                                                <p className="text-slate-500 font-medium text-sm md:text-lg leading-snug">{feat.desc}</p>
                                             </div>
                                         </div>
                                     ))}
@@ -608,43 +710,43 @@ export default function LandingPage() {
                 </section>
 
                 {/* 4. FUNCIONALIDADES (Master Bento Grid) */}
-                <section id="funcionalidades" className="py-32 bg-slate-50/50 px-6 relative overflow-hidden">
+                <section id="funcionalidades" className="py-20 md:py-32 bg-slate-50/50 px-6 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-blue-500/5 rounded-full blur-[120px] -z-10 translate-x-1/2 -translate-y-1/2" />
                     
-                    <div className="max-w-7xl mx-auto space-y-20">
+                    <div className="max-w-7xl mx-auto space-y-16 md:space-y-20">
                         <FadeIn className="text-center space-y-6 max-w-4xl mx-auto">
                             <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-[10px] font-black text-blue-600 uppercase tracking-[0.4em] mb-4">
                                 Poder Sem Complexidade
                             </div>
-                            <h3 className="text-5xl md:text-7xl font-[1000] text-slate-950 tracking-[-0.03em] leading-[1] font-sora">
+                            <h3 className="text-4xl md:text-7xl font-[1000] text-slate-950 tracking-[-0.03em] leading-[1.1] md:leading-[1] font-sora">
                                 Simplicidade que <br />
                                 <span className="text-blue-600">gera escala real.</span>
                             </h3>
-                            <p className="text-xl text-slate-500 font-medium max-w-3xl mx-auto leading-relaxed font-inter">
+                            <p className="text-lg md:text-xl text-slate-500 font-medium max-w-3xl mx-auto leading-relaxed font-inter">
                                 Tudo o que você precisa para gerenciar sua carteira de crédito sem complicações técnicas ou dashboards confusos.
                             </p>
                         </FadeIn>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 auto-rows-[300px]">
+                        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 md:auto-rows-[300px]">
                             {/* Card 1: WhatsApp (Large 2x2) */}
                             <FadeIn className="md:col-span-2 md:row-span-2">
-                                <div className="h-full bg-slate-950 p-12 rounded-[3.5rem] shadow-2xl group overflow-hidden relative flex flex-col justify-between border border-white/5">
-                                    <div className="relative z-10 space-y-6">
-                                        <div className="h-16 w-16 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/30">
-                                            <TrendingUp className="h-8 w-8" />
+                                <div className="h-full bg-slate-950 p-6 sm:p-12 rounded-[2.5rem] sm:rounded-[4rem] shadow-2xl group overflow-hidden relative flex flex-col justify-between border border-white/5">
+                                    <div className="relative z-10 space-y-4 sm:space-y-6">
+                                        <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/30">
+                                            <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8" />
                                         </div>
-                                        <h4 className="text-4xl font-black text-white tracking-tight leading-tight font-sora">
+                                        <h4 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight font-sora">
                                             Você Empresta, <br />
                                             o Sistema <span className="text-emerald-500">Cobra.</span>
                                         </h4>
-                                        <p className="text-xl text-slate-400 font-medium max-w-md leading-relaxed font-inter">
+                                        <p className="text-sm sm:text-xl text-slate-400 font-medium max-w-md leading-relaxed font-inter">
                                             Notificações automáticas de vencimento que eliminam falhas de comunicação e reduzem drasticamente a inadimplência na sua carteira.
                                         </p>
                                     </div>
-                                    <div className="absolute -bottom-20 -right-20 w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] group-hover:bg-emerald-500/15 transition-all" />
-                                    <div className="relative z-10 flex items-center gap-4 pt-10">
-                                        <span className="px-6 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-emerald-400">ROI Imediato</span>
-                                        <span className="px-6 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-emerald-400">Zero Esforço</span>
+                                    <div className="absolute -bottom-20 -right-20 w-[300px] sm:w-[400px] h-[300px] sm:h-[400px] bg-emerald-500/10 rounded-full blur-[80px] sm:blur-[100px] group-hover:bg-emerald-500/15 transition-all" />
+                                    <div className="relative z-10 flex flex-wrap items-center gap-3 sm:gap-4 pt-6 sm:pt-10">
+                                        <span className="px-4 sm:px-6 py-2 bg-white/5 border border-white/10 rounded-xl text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-emerald-400">ROI Imediato</span>
+                                        <span className="px-4 sm:px-6 py-2 bg-white/5 border border-white/10 rounded-xl text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-emerald-400">Zero Esforço</span>
                                     </div>
                                 </div>
                             </FadeIn>
@@ -754,18 +856,18 @@ export default function LandingPage() {
                                 },
                             ].map((t, i) => (
                                 <FadeIn key={i} delay={i * 100}>
-                                    <div className="bg-slate-50 p-10 rounded-[3rem] space-y-8 flex flex-col h-full hover:shadow-2xl hover:shadow-blue-900/5 transition-all group border border-slate-100">
+                                    <div className="bg-slate-50 p-6 sm:p-10 rounded-[2.5rem] sm:rounded-[3rem] space-y-6 sm:space-y-8 flex flex-col h-full hover:shadow-2xl hover:shadow-blue-900/5 transition-all group border border-slate-100">
                                         <div className="flex gap-1.5">
-                                            {[1, 2, 3, 4, 5].map(j => <Star key={j} className="h-5 w-5 fill-orange-400 text-orange-400" />)}
+                                            {[1, 2, 3, 4, 5].map(j => <Star key={j} className="h-4 w-4 sm:h-5 sm:w-5 fill-orange-400 text-orange-400" />)}
                                         </div>
-                                        <p className="text-xl text-slate-600 font-medium leading-relaxed italic font-inter">&quot;{t.quote}&quot;</p>
-                                        <div className="flex items-center gap-5 pt-8 mt-auto border-t border-slate-200/60">
-                                            <div className="h-16 w-16 rounded-3xl border-2 border-white overflow-hidden shadow-lg flex-shrink-0">
+                                        <p className="text-lg sm:text-xl text-slate-600 font-medium leading-relaxed italic font-inter">&quot;{t.quote}&quot;</p>
+                                        <div className="flex items-center gap-4 sm:gap-5 pt-6 sm:pt-8 mt-auto border-t border-slate-200/60">
+                                            <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-2xl sm:rounded-3xl border-2 border-white overflow-hidden shadow-lg flex-shrink-0">
                                                 <img src={t.image} alt={t.name} className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500" />
                                             </div>
                                             <div>
-                                                <p className="font-black text-slate-950 text-lg leading-none font-sora tracking-tight">{t.name}</p>
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">{t.role}</p>
+                                                <p className="font-black text-slate-950 text-base sm:text-lg leading-none font-sora tracking-tight">{t.name}</p>
+                                                <p className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">{t.role}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -870,31 +972,31 @@ export default function LandingPage() {
                                     </div>
                                 </div>
 
-                                <FadeIn delay={200} className="bg-white p-12 rounded-[3.5rem] space-y-10 shadow-3xl transform lg:rotate-2 hover:rotate-0 transition-transform duration-700">
+                                <FadeIn delay={200} className="bg-white p-6 sm:p-12 rounded-[2.5rem] sm:rounded-[3.5rem] space-y-8 sm:space-y-10 shadow-3xl transform lg:rotate-2 hover:rotate-0 transition-transform duration-700">
                                     <div className="space-y-6">
-                                        <div className="inline-flex items-center gap-3 px-6 py-3 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl">
+                                        <div className="inline-flex items-center gap-3 px-4 sm:px-6 py-2 sm:py-3 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl">
                                             <div className="h-3 w-3 rounded-full bg-emerald-500 animate-pulse" />
                                             <span className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.3em] font-inter">Promoção Ativa</span>
                                         </div>
                                         <div className="space-y-1">
                                             <p className="text-slate-400 font-black uppercase tracking-widest text-[10px] font-inter">Acesso Vitalício + Free Trial</p>
-                                            <div className="flex items-baseline gap-4 pt-2">
-                                                <span className="text-9xl font-[1000] text-slate-950 tracking-tighter leading-none font-sora">ZERO</span>
-                                                <span className="text-slate-400 font-black uppercase text-xl tracking-widest bg-slate-100 px-5 py-2 rounded-2xl font-inter">MT</span>
+                                            <div className="flex items-baseline gap-2 sm:gap-4 pt-2">
+                                                <span className="text-6xl sm:text-9xl font-[1000] text-slate-950 tracking-tighter leading-none font-sora">ZERO</span>
+                                                <span className="text-slate-400 font-black uppercase text-sm sm:text-xl tracking-widest bg-slate-100 px-3 sm:px-5 py-1 sm:py-2 rounded-xl sm:rounded-2xl font-inter">MT</span>
                                             </div>
                                         </div>
-                                        <p className="text-rose-500 text-sm font-black pt-4 uppercase tracking-[0.2em] flex items-center gap-3 bg-rose-500/5 p-5 rounded-[2rem] border border-rose-500/10 font-sora">
+                                        <p className="text-rose-500 text-xs sm:text-sm font-black pt-4 uppercase tracking-[0.2em] flex items-center gap-3 bg-rose-500/5 p-4 sm:p-5 rounded-[1.5rem] sm:rounded-[2rem] border border-rose-500/10 font-sora">
                                             <TriangleAlert className="h-5 w-5" />
                                             Vagas limitadas para lançamento.
                                         </p>
                                     </div>
                                     <Link href={user ? "/dashboard" : "/auth/signup"}>
-                                        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black h-24 rounded-[2rem] shadow-[0_20px_40px_-12px_rgba(37,99,235,0.4)] text-2xl transition-all active:scale-95 font-sora tracking-tight">
+                                        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black h-16 sm:h-24 rounded-[1.5rem] sm:rounded-[2rem] shadow-[0_20px_40px_-12px_rgba(37,99,235,0.4)] text-lg sm:text-2xl transition-all active:scale-95 font-sora tracking-tight">
                                             {user ? "Acessar Dashboard" : "Criar Conta Grátis"}
-                                            <ArrowRight className="ml-3 h-8 w-8" />
+                                            <ArrowRight className="ml-2 sm:ml-3 h-6 w-6 sm:h-8 sm:w-8" />
                                         </Button>
                                     </Link>
-                                    <p className="text-center text-slate-400 text-[10px] font-black font-inter tracking-widest uppercase">
+                                    <p className="text-center text-slate-400 text-[8px] sm:text-[10px] font-black font-inter tracking-widest uppercase">
                                         Sem cartão necessário • Cancele quando quiser
                                     </p>
                                 </FadeIn>
@@ -983,18 +1085,18 @@ export default function LandingPage() {
                         <div className="grid gap-4">
                             {faqItems.map((item, i) => (
                                 <FadeIn key={i} delay={i * 50}>
-                                    <div className={cn("rounded-[2rem] border transition-all duration-500", activeFaq === i ? "bg-white border-blue-500/20 shadow-2xl shadow-blue-900/5" : "bg-white/50 border-slate-200/60 hover:border-blue-500/30")}>
+                                    <div className={cn("rounded-[1.5rem] sm:rounded-[2rem] border transition-all duration-500", activeFaq === i ? "bg-white border-blue-500/20 shadow-2xl shadow-blue-900/5" : "bg-white/50 border-slate-200/60 hover:border-blue-500/30")}>
                                         <button
                                             onClick={() => setActiveFaq(activeFaq === i ? null : i)}
-                                            className="w-full flex items-center justify-between p-8 text-left"
+                                            className="w-full flex items-center justify-between p-5 sm:p-8 text-left"
                                         >
-                                            <span className="text-xl font-black text-slate-950 pr-8 font-sora tracking-tight">{item.q}</span>
-                                            <div className={cn("h-10 w-10 flex-shrink-0 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 transition-all duration-500", activeFaq === i && "rotate-180 bg-blue-600 text-white shadow-lg shadow-blue-600/20")}>
-                                                <ChevronDown className="h-5 w-5" />
+                                            <span className="text-base sm:text-xl font-black text-slate-950 pr-4 sm:pr-8 font-sora tracking-tight">{item.q}</span>
+                                            <div className={cn("h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 transition-all duration-500", activeFaq === i && "rotate-180 bg-blue-600 text-white shadow-lg shadow-blue-600/20")}>
+                                                <ChevronDown className="h-4 w-4 sm:h-5 sm:w-5" />
                                             </div>
                                         </button>
                                         <div className={cn("overflow-hidden transition-all duration-500 ease-in-out", activeFaq === i ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0")}>
-                                            <div className="p-8 pt-0 text-slate-500 font-medium text-lg leading-relaxed font-inter border-t border-slate-50 mt-4">
+                                            <div className="p-5 sm:p-8 pt-0 text-slate-500 font-medium text-sm sm:text-lg leading-relaxed font-inter border-t border-slate-50 mt-4">
                                                 {item.a}
                                             </div>
                                         </div>
@@ -1010,18 +1112,18 @@ export default function LandingPage() {
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.08),transparent_70%)]" />
                     <div className="max-w-5xl mx-auto text-center space-y-12 relative z-10">
                         <FadeIn className="space-y-6">
-                            <h2 className="text-6xl md:text-8xl font-[1000] text-slate-950 tracking-[-0.04em] leading-[1] font-sora">
-                                Chega de <span className="text-blue-600">perder dinheiro.</span> <br />
+                            <h2 className="text-4xl md:text-8xl font-[1000] text-slate-950 tracking-[-0.04em] leading-[1.2] md:leading-[1] font-sora">
+                                Chega de <span className="text-blue-600">perder dinheiro.</span> <br className="hidden md:block" />
                                 Profissionalize-se hoje.
                             </h2>
-                            <p className="text-2xl text-slate-500 font-medium max-w-3xl mx-auto italic font-inter leading-relaxed">
+                            <p className="text-lg md:text-2xl text-slate-500 font-medium max-w-3xl mx-auto italic font-inter leading-relaxed">
                                 "Organizei meus empréstimos em 10 minutos e nunca mais dormi preocupado com o caderno."
                             </p>
                         </FadeIn>
                         
                         <FadeIn delay={200} className="flex flex-col items-center gap-10">
-                            <Link href="/auth/signup">
-                                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white font-black h-24 px-16 text-2xl rounded-[2rem] shadow-[0_30px_60px_-15px_rgba(37,99,235,0.4)] transition-all hover:scale-105 active:scale-95 font-sora tracking-tight uppercase">
+                            <Link href="/auth/signup" className="w-full sm:w-auto">
+                                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white font-black h-20 sm:h-24 px-8 sm:px-16 text-xl sm:text-2xl rounded-[1.5rem] sm:rounded-[2.5rem] shadow-[0_30px_60px_-15px_rgba(37,99,235,0.4)] transition-all hover:scale-105 active:scale-95 font-sora tracking-tight uppercase w-full">
                                     Começar agora gratuitamente
                                 </Button>
                             </Link>

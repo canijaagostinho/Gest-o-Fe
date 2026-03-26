@@ -17,6 +17,20 @@ export async function createInstitutionAction(data: InstitutionFormValues) {
       return { success: false, error: "Dados inválidos." };
     }
 
+    // Check for duplicates before inserting
+    const { data: existingInstitution } = await supabase
+      .from("institutions")
+      .select("id")
+      .or(`name.eq."${data.name}",email.eq."${data.email}"`)
+      .maybeSingle();
+
+    if (existingInstitution) {
+      return { 
+        success: false, 
+        error: "Uma instituição com este nome ou e-mail já existe." 
+      };
+    }
+
     const { error } = await supabase
       .from("institutions")
       .insert([data])

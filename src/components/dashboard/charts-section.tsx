@@ -10,7 +10,7 @@ interface ChartsSectionProps {
   delinquencyData?: any;
 }
 
-export function ChartsSection({ overviewData }: ChartsSectionProps) {
+export function ChartsSection({ overviewData, delinquencyData }: ChartsSectionProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
       {/* Main Evolution Chart */}
@@ -63,11 +63,15 @@ export function ChartsSection({ overviewData }: ChartsSectionProps) {
           <div className="mt-8 grid grid-cols-2 gap-4 w-full">
             <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 text-center">
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Ativos</p>
-              <p className="text-xl font-black text-slate-900">84%</p>
+              <p className="text-xl font-black text-slate-900">
+                {delinquencyData ? Math.round(100 - delinquencyData) : 100}%
+              </p>
             </div>
             <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 text-center">
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Em Risco</p>
-              <p className="text-xl font-black text-rose-600">16%</p>
+              <p className="text-xl font-black text-rose-600">
+                {delinquencyData ? Math.round(delinquencyData) : 0}%
+              </p>
             </div>
           </div>
         </CardContent>

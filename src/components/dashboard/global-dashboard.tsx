@@ -28,6 +28,7 @@ export function GlobalDashboard() {
     totalInstitutions: 0,
     activeInstitutions: 0,
     pendingInstitutions: 0,
+    totalManagers: 0,
     recentInstitutions: [] as any[],
   });
   const [loading, setLoading] = useState(true);
@@ -42,6 +43,12 @@ export function GlobalDashboard() {
         .select("*")
         .order("created_at", { ascending: false });
 
+      // Fetch manager count
+      const { count: managersCount } = await supabase
+        .from("users")
+        .select("id", { count: "exact", head: true })
+        .not("institution_id", "is", null); // Assuming institutions exist for managers
+
       if (insts) {
         setStats({
           totalInstitutions: insts.length,
@@ -49,6 +56,7 @@ export function GlobalDashboard() {
             .length,
           pendingInstitutions: insts.filter((i: any) => i.status === "pending")
             .length,
+          totalManagers: managersCount || 0,
           recentInstitutions: insts.slice(0, 5),
         });
       }
@@ -181,7 +189,7 @@ export function GlobalDashboard() {
                   Total Gestores
                 </p>
                 <p className="text-4xl font-black text-slate-900 tracking-tighter">
-                  --
+                  {stats.totalManagers}
                 </p>
               </div>
             </div>

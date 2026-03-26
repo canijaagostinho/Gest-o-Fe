@@ -34,26 +34,29 @@ import { toast } from "sonner";
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white/80 backdrop-blur-md border border-white/50 p-4 rounded-2xl shadow-2xl shadow-slate-200/50 min-w-[180px]">
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+      <div className="bg-white/40 backdrop-blur-xl border border-white/40 p-5 rounded-[2rem] shadow-2xl min-w-[220px] ring-1 ring-black/5">
+        <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 opacity-70">
           {label}
         </p>
-        <div className="space-y-2">
+        <div className="space-y-3">
           {payload.map((item: any, index: number) => (
             <div
               key={index}
-              className="flex items-center justify-between gap-4"
+              className="flex items-center justify-between gap-6"
             >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <div
-                  className="w-2 h-2 rounded-full"
-                  style={{ backgroundColor: item.color }}
+                  className="w-3 h-3 rounded-full shadow-[0_0_10px_rgba(0,0,0,0.1)]"
+                  style={{ 
+                    backgroundColor: item.color,
+                    boxShadow: `0 0 15px ${item.color}80` 
+                  }}
                 />
-                <span className="text-xs font-bold text-slate-600">
+                <span className="text-xs font-bold text-slate-700">
                   {item.name}
                 </span>
               </div>
-              <span className="text-xs font-black text-slate-900">
+              <span className="text-sm font-black text-slate-900 tracking-tight">
                 {formatCurrency(item.value)}
               </span>
             </div>
@@ -236,69 +239,76 @@ export function FinancialReport({
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={reportData.chartData}>
               <defs>
+                <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="4" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
                 <linearGradient id="colorReceita" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.2} />
+                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4} />
                   <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="colorDespesa" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#ef4444" stopOpacity={0.2} />
-                  <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.4} />
+                  <stop offset="95%" stopColor="#f43f5e" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid
-                strokeDasharray="3 3"
+                strokeDasharray="0"
                 vertical={false}
                 stroke="#f1f5f9"
+                strokeOpacity={0.5}
               />
               <XAxis
                 dataKey="name"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: "#94a3b8", fontSize: 11, fontWeight: 700 }}
+                tick={{ fill: "#94a3b8", fontSize: 10, fontWeight: 800, letterSpacing: '0.1em' }}
                 dy={15}
               />
               <YAxis
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: "#94a3b8", fontSize: 11, fontWeight: 700 }}
+                tick={{ fill: "#94a3b8", fontSize: 10, fontWeight: 800 }}
                 tickFormatter={(val) => `MT ${val / 1000}k`}
                 dx={-10}
               />
               <Tooltip
                 content={<CustomTooltip />}
-                cursor={{ stroke: "#f1f5f9", strokeWidth: 2 }}
+                cursor={{ stroke: "#e2e8f0", strokeWidth: 2, strokeDasharray: '5 5' }}
               />
               <Legend
                 verticalAlign="top"
-                height={48}
+                height={60}
                 iconType="circle"
                 formatter={(value) => (
-                  <span className="text-xs font-bold text-slate-600 px-2">
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 px-3">
                     {value}
                   </span>
                 )}
               />
               <Area
-                type="natural"
+                type="monotone"
                 dataKey="receita"
                 name="Receita"
                 stroke="#3b82f6"
-                strokeWidth={4}
+                strokeWidth={5}
                 fillOpacity={1}
                 fill="url(#colorReceita)"
-                animationDuration={1500}
-                activeDot={{ r: 6, strokeWidth: 0 }}
+                animationDuration={2000}
+                style={{ filter: "url(#glow)" }}
+                activeDot={{ r: 8, strokeWidth: 0, fill: "#3b82f6" }}
               />
               <Area
-                type="natural"
+                type="monotone"
                 dataKey="despesa"
                 name="Despesa"
-                stroke="#ef4444"
-                strokeWidth={4}
+                stroke="#f43f5e"
+                strokeWidth={5}
                 fillOpacity={1}
                 fill="url(#colorDespesa)"
-                animationDuration={1500}
-                activeDot={{ r: 6, strokeWidth: 0 }}
+                animationDuration={2000}
+                style={{ filter: "url(#glow)" }}
+                activeDot={{ r: 8, strokeWidth: 0, fill: "#f43f5e" }}
               />
             </AreaChart>
           </ResponsiveContainer>
@@ -317,6 +327,10 @@ export function FinancialReport({
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={reportData.chartData}>
                 <defs>
+                  <filter id="barGlow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="3" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                  </filter>
                   <linearGradient
                     id="colorBarReceita"
                     x1="0"
@@ -325,19 +339,21 @@ export function FinancialReport({
                     y2="1"
                   >
                     <stop offset="0%" stopColor="#3b82f6" stopOpacity={1} />
-                    <stop offset="100%" stopColor="#60a5fa" stopOpacity={0.8} />
+                    <stop offset="100%" stopColor="#2dd4bf" stopOpacity={1} />
                   </linearGradient>
                 </defs>
                 <XAxis dataKey="name" hide />
                 <Tooltip
                   content={<CustomTooltip />}
-                  cursor={{ fill: "#f8fafc", radius: 12 }}
+                  cursor={{ fill: "#f8fafc", opacity: 0.4 }}
                 />
                 <Bar
                   dataKey="receita"
                   fill="url(#colorBarReceita)"
-                  radius={[10, 10, 0, 0]}
-                  barSize={40}
+                  radius={[20, 20, 20, 20]}
+                  barSize={32}
+                  style={{ filter: "url(#barGlow)" }}
+                  animationDuration={2000}
                 />
               </BarChart>
             </ResponsiveContainer>
@@ -355,7 +371,7 @@ export function FinancialReport({
               <AreaChart data={reportData.chartData}>
                 <defs>
                   <linearGradient id="colorLucro" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.2} />
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
                     <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                   </linearGradient>
                 </defs>
@@ -367,8 +383,10 @@ export function FinancialReport({
                   name="Lucro"
                   stroke="#10b981"
                   fill="url(#colorLucro)"
-                  strokeWidth={3}
-                  activeDot={{ r: 6, strokeWidth: 0 }}
+                  strokeWidth={5}
+                  style={{ filter: "url(#glow)" }}
+                  activeDot={{ r: 8, strokeWidth: 0, fill: "#10b981" }}
+                  animationDuration={2000}
                 />
               </AreaChart>
             </ResponsiveContainer>

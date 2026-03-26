@@ -313,7 +313,7 @@ export default function DashboardPage() {
                             <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-2 px-2">
                                 <Activity className="h-4 w-4 text-blue-600" /> Histórico de Carteira
                             </h3>
-                            <ChartsSection overviewData={kpiData.chartData} />
+                            <ChartsSection overviewData={kpiData.chartData} delinquencyData={kpiData.delinquencyRate} />
                         </section>
 
                         <section className="space-y-6">

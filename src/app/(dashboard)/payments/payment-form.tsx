@@ -24,7 +24,20 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
+import { Loader2, Check, ChevronsUpDown, Search } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 
 const formSchema = z.object({
   loan_id: z.string().uuid({
@@ -47,9 +60,10 @@ export function PaymentForm() {
     {
       id: string;
       loan_amount: number;
+      contract_number: string;
       client_id: string;
       institution_id: string;
-      clients: { name: string };
+      clients: { name: string; code: string };
     }[]
   >([]);
   const [loadingLoans, setLoadingLoans] = useState(true);
@@ -91,7 +105,7 @@ export function PaymentForm() {
       // Get active loans
       const { data, error } = await supabase
         .from("loans")
-        .select("id, loan_amount, client_id, institution_id, clients(name)")
+        .select("id, loan_amount, contract_number, client_id, institution_id, clients(name, code)")
         .eq("status", "active");
 
       if (error) {
@@ -160,18 +174,65 @@ export function PaymentForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Empréstimo Ativo</FormLabel>
-                  <select
-                    {...field}
-                    className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background disabled:cursor-not-allowed disabled:opacity-50"
-                    disabled={loadingLoans}
-                  >
-                    <option value="">Selecione um empréstimo...</option>
-                    {loans.map((loan) => (
-                      <option key={loan.id} value={loan.id}>
-                        {loan.clients.name} - MZN {loan.loan_amount}
-                      </option>
-                    ))}
-                  </select>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "w-full justify-between h-11 px-3 py-2 text-sm",
+                            !field.value && "text-muted-foreground"
+                          )}
+                          disabled={loadingLoans}
+                        >
+                          {field.value
+                            ? (() => {
+                                const selected = loans.find((l) => l.id === field.value);
+                                return selected 
+                                  ? `${selected.clients.name} (${selected.clients.code || 'S/C'}) - ${selected.contract_number || 'N/A'}`
+                                  : "Selecione um empréstimo..."
+                              })()
+                            : "Pesquisar cliente ou código..."}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                      <Command>
+                        <CommandInput placeholder="Pesquisar por nome, código ou contrato..." />
+                        <CommandList>
+                          <CommandEmpty>Nenhum empréstimo encontrado.</CommandEmpty>
+                          <CommandGroup>
+                            {loans.map((loan) => (
+                              <CommandItem
+                                key={loan.id}
+                                value={`${loan.clients.name} ${loan.clients.code} ${loan.contract_number}`}
+                                onSelect={() => {
+                                  form.setValue("loan_id", loan.id);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    loan.id === field.value
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                                <div className="flex flex-col text-left">
+                                  <span className="font-bold">{loan.clients.name}</span>
+                                  <span className="text-[10px] text-slate-500 uppercase tracking-tighter">
+                                    Cód: {loan.clients.code || "---"} • Contrato: {loan.contract_number || "---"} • MZN {loan.loan_amount}
+                                  </span>
+                                </div>
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}

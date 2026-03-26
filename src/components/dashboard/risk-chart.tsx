@@ -10,11 +10,29 @@ interface RiskData {
   color: string;
 }
 
+const CustomTooltip = ({ active, payload }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white/40 backdrop-blur-xl border border-white/40 p-3 rounded-2xl shadow-2xl min-w-[160px] ring-1 ring-black/5">
+        <div className="flex flex-col gap-1 text-center">
+          <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest opacity-70">
+            {payload[0].name}
+          </span>
+          <span className="text-sm font-black text-slate-900">
+            {payload[0].value} Contratos
+          </span>
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
 export function RiskChart() {
   const [data, setData] = useState<RiskData[]>([
-    { name: "Até 30 Dias", value: 0, color: "#F59E0B" },
-    { name: "31-60 Dias", value: 0, color: "#F97316" },
-    { name: "+90 Dias (Crítico)", value: 0, color: "#EF4444" },
+    { name: "Até 30 Dias", value: 0, color: "#fbbf24" },
+    { name: "31-60 Dias", value: 0, color: "#f97316" },
+    { name: "+90 Dias (Crítico)", value: 0, color: "#f43f5e" },
   ]);
   const [loading, setLoading] = useState(true);
 
@@ -22,7 +40,6 @@ export function RiskChart() {
     async function fetchRiskData() {
       const supabase = createClient();
 
-      // Get current user and their institution
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -36,13 +53,11 @@ export function RiskChart() {
 
       const isAdminGeral = (userData?.role as any)?.name === "admin_geral";
 
-      // Fetch all installments with their loan info
       let query = supabase
         .from("installments")
         .select("*")
         .eq("status", "pending");
 
-      // Filter by institution if not admin_geral
       if (!isAdminGeral && userData?.institution_id) {
         query = query.eq("institution_id", userData.institution_id);
       }
@@ -54,12 +69,11 @@ export function RiskChart() {
         return;
       }
 
-      // Calculate days overdue for each installment
       const now = new Date();
       const riskCounts = {
-        low: 0, // 0-30 days
-        medium: 0, // 31-60 days
-        high: 0, // 90+ days
+        low: 0,
+        medium: 0,
+        high: 0,
       };
 
       installments.forEach((inst: any) => {
@@ -80,12 +94,12 @@ export function RiskChart() {
       });
 
       setData([
-        { name: "Até 30 Dias", value: riskCounts.low, color: "#F59E0B" },
-        { name: "31-60 Dias", value: riskCounts.medium, color: "#F97316" },
+        { name: "Até 30 Dias", value: riskCounts.low, color: "#fbbf24" },
+        { name: "31-60 Dias", value: riskCounts.medium, color: "#f97316" },
         {
           name: "+90 Dias (Crítico)",
           value: riskCounts.high,
-          color: "#EF4444",
+          color: "#f43f5e",
         },
       ]);
       setLoading(false);
@@ -110,7 +124,7 @@ export function RiskChart() {
   if (totalValue === 0) {
     return (
       <div className="flex items-center justify-center h-full">
-        <p className="text-sm text-slate-400 font-medium">
+        <p className="text-sm text-slate-400 font-medium italic">
           Nenhum empréstimo em atraso
         </p>
       </div>
@@ -120,26 +134,32 @@ export function RiskChart() {
   return (
     <ResponsiveContainer width="100%" height="100%">
       <PieChart>
+        <defs>
+          <filter id="pieGlow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
+        </defs>
         <Pie
           data={data}
           cx="50%"
           cy="50%"
-          innerRadius={60}
-          outerRadius={90}
-          paddingAngle={4}
+          innerRadius={70}
+          outerRadius={95}
+          paddingAngle={8}
           dataKey="value"
+          animationDuration={2000}
         >
           {data.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={entry.color} strokeWidth={0} />
+            <Cell 
+              key={`cell-${index}`} 
+              fill={entry.color} 
+              strokeWidth={0}
+              style={{ filter: "url(#pieGlow)" }}
+            />
           ))}
         </Pie>
-        <Tooltip
-          contentStyle={{
-            borderRadius: "8px",
-            border: "none",
-            boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
-          }}
-        />
+        <Tooltip content={<CustomTooltip />} />
       </PieChart>
     </ResponsiveContainer>
   );
