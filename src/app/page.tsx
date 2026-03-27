@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
     ArrowRight,
@@ -87,6 +88,7 @@ export default function LandingPage() {
     const [activeFaq, setActiveFaq] = useState<number | null>(null);
     const [showFloatingCTA, setShowFloatingCTA] = useState(false);
     const [user, setUser] = useState<any>(null);
+    const router = useRouter();
 
     useEffect(() => {
         const handleScroll = () => {
