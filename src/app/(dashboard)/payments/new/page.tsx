@@ -179,6 +179,9 @@ export default function NewPaymentPage() {
         account_id: values.account_id,
         user_id: user.id,
         institution_id: institutionId,
+        installment_id: values.installment_id,
+        payment_method: values.payment_method,
+        notes: values.notes,
       });
 
       if (!result.success) {

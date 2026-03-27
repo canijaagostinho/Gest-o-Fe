@@ -99,69 +99,19 @@ export async function transferAction(
 
     if (!userData?.institution_id) throw new Error("Instituição não encontrada.");
 
-    // 2. Source Account Check
-    const { data: sourceAcc, error: fetchSourceError } = await supabase
-        .from("accounts")
-        .select("balance, name")
-        .eq("id", sourceAccountId)
-        .single();
-    
-    if (fetchSourceError || !sourceAcc) throw new Error("Conta de origem não encontrada.");
-    if (Number(sourceAcc.balance) < amount) throw new Error("Saldo insuficiente na conta de origem.");
-
-    // 3. Perform Updates
-    // Decrement Source
-    const { data: decData, error: decError } = await supabase
-        .from("accounts")
-        .update({ balance: Number(sourceAcc.balance) - Number(amount) })
-        .eq("id", sourceAccountId)
-        .select();
-    
-    if (decError) throw decError;
-    if (!decData || decData.length === 0) throw new Error("Falha ao debitar conta de origem.");
-
-    // Increment Target
-    const { data: targetAcc, error: fetchTargetError } = await supabase
-        .from("accounts")
-        .select("balance, name")
-        .eq("id", targetAccountId)
-        .single();
-    
-    if (fetchTargetError || !targetAcc) throw new Error("Conta de destino não encontrada.");
-
-    const { data: incData, error: incError } = await supabase
-        .from("accounts")
-        .update({ balance: Number(targetAcc.balance) + Number(amount) })
-        .eq("id", targetAccountId)
-        .select();
-    
-    if (incError) throw incError;
-    if (!incData || incData.length === 0) throw new Error("Falha ao creditar conta de destino.");
-
-    // 4. Record Transactions
-    // Debit Transaction
-    await supabase.from("transactions").insert({
-      account_id: sourceAccountId,
-      type: "debit",
-      amount: amount,
-      description: `${description} (Para: ${targetAcc.name})`,
-      reference_type: "transfer",
-      reference_id: targetAccountId,
-      institution_id: userData.institution_id,
+    // 2. Perform Atomic Transfer via RPC
+    const { data: result, error: rpcError } = await supabase.rpc("handle_account_transfer", {
+      p_source_account_id: sourceAccountId,
+      p_target_account_id: targetAccountId,
+      p_amount: amount,
+      p_institution_id: userData.institution_id,
+      p_description: description,
     });
+        
+    if (rpcError) throw new Error("Erro crítico no banco de dados: " + rpcError.message);
+    if (!result.success) throw new Error(result.error);
 
-    // Credit Transaction
-    await supabase.from("transactions").insert({
-      account_id: targetAccountId,
-      type: "credit",
-      amount: amount,
-      description: `${description} (De: ${sourceAcc.name})`,
-      reference_type: "transfer",
-      reference_id: sourceAccountId,
-      institution_id: userData.institution_id,
-    });
-
-    // 5. Invalidate Caches
+    // 3. Invalidate Caches
     revalidatePath("/finance/accounts");
     revalidatePath(`/finance/accounts/${sourceAccountId}`);
     revalidatePath(`/finance/accounts/${targetAccountId}`);

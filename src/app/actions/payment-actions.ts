@@ -72,90 +72,38 @@ export async function createPaymentAction(data: {
   account_id: string;
   user_id: string;
   institution_id: string;
+  installment_id?: string; // Optional, for specific installment payment
+  payment_method?: string;
+  notes?: string;
 }) {
   try {
     const supabase = await createClient();
 
-    // 1. Get Account
-    const { data: account, error: accError } = await supabase
-      .from("accounts")
-      .select("balance")
-      .eq("id", data.account_id)
-      .single();
-
-    if (accError) throw new Error("Conta não encontrada.");
-
-    // 2. Create Payment
-    const { data: payment, error: payError } = await supabase
-      .from("payments")
-      .insert({
-        loan_id: data.loan_id,
-        client_id: data.client_id,
-        amount_paid: data.amount, // Using amount_paid col
-        payment_date: data.payment_date,
-        recorded_by: data.user_id,
-        institution_id: data.institution_id,
-        status: "paid",
-      })
-      .select()
-      .single();
-
-    if (payError) throw payError;
-
-    // 3. Credit to Account (Create Transaction)
-    const { error: transError } = await supabase.from("transactions").insert({
-      account_id: data.account_id,
-      type: "credit",
-      amount: data.amount,
-      description: `Pagamento de Empréstimo #${data.loan_id.slice(0, 8)}`,
-      reference_type: "payment",
-      reference_id: payment.id,
-      institution_id: data.institution_id,
+    // Use atomic RPC for data integrity
+    const { data: result, error: rpcError } = await supabase.rpc("handle_loan_payment", {
+      p_loan_id: data.loan_id,
+      p_client_id: data.client_id,
+      p_amount: data.amount,
+      p_payment_date: data.payment_date,
+      p_account_id: data.account_id,
+      p_recorded_by: data.user_id,
+      p_institution_id: data.institution_id,
+      p_installment_id: data.installment_id || null,
+      p_payment_method: data.payment_method || "Dinheiro",
+      p_notes: data.notes || "",
     });
 
-    if (transError) throw transError;
-
-    // 4. Update Account Balance
-    const newBalance = Number(account.balance) + data.amount;
-    const { error: balError } = await supabase
-      .from("accounts")
-      .update({ balance: newBalance })
-      .eq("id", data.account_id);
-
-    if (balError) throw balError;
-
-    // 5. Update Installment Logic (Check if we need to mark installments as paid)
-    // This logic was in payInstallmentAction, but here it's a general payment.
-    // We probably should try to match this payment to the oldest unpaid installment?
-    // Or just leave it as a general payment.
-    // Given existing code `payInstallmentAction` exists, maybe we should call that too?
-    // But `payInstallmentAction` takes `installmentId`.
-    // For now, we just record the payment transaction and account update.
-    // The installment update logic is separate in the current UI (Pay button on installment row).
-    // But the `PaymentForm` seems to be a general "Add Payment" form.
-    // If the user uses this form, they are paying "something".
-    // Let's assume for now this form is for general payments, and we won't auto-close installments unless we add logic for it.
-    // Ideally we should auto-distribute.
-    // But to stay safe and strict to "Gestão de Caixa" request:
-    // "Sempre que um... pagamento for registrado... atualizando o saldo".
-
-    // 6. Log Operation
-    await insertOperationLog({
-      institution_id: data.institution_id,
-      user_id: data.user_id,
-      operation_id: payment.id,
-      type: "Pagamento",
-      amount: data.amount,
-      status: "success",
-      observations: `Recebimento Direto Adicional - Empréstimo #${data.loan_id.slice(0, 8)}`,
-    });
+    if (rpcError) throw new Error("Erro crítico no banco de dados: " + rpcError.message);
+    if (!result.success) throw new Error(result.error);
 
     revalidatePath("/payments");
     revalidatePath("/finance/accounts");
     revalidatePath(`/loans/${data.loan_id}`);
+    revalidatePath("/dashboard");
 
-    return { success: true, paymentId: payment.id };
+    return { success: true, paymentId: result.payment_id };
   } catch (error: any) {
+    console.error("Payment registration failure:", error);
     return {
       success: false,
       error: error.message || "Erro ao criar pagamento.",
