@@ -34,12 +34,12 @@ export default function DashboardLayout({
         } = await supabase.auth.getUser();
 
         if (userError || !user) {
-          console.warn("No user found, redirecting to login");
-          router.push("/auth/login");
+          console.warn("[DEBUG Auth] No user found in DashboardLayout, redirecting to login");
+          router.push("/auth/login?reason=no_user");
           return;
         }
 
-        console.log("Fetching profile for user:", user.id);
+        console.log("[DEBUG Auth] Fetching profile for user:", user.id);
 
         const { data: profile, error: profileError } = await supabase
           .from("users")
@@ -59,7 +59,7 @@ export default function DashboardLayout({
 
         // TENTATIVA DE RECUPERAÇÃO: Se o perfil não existe mas o usuário está autenticado
         if (!finalProfile) {
-          console.warn("Perfil não encontrado, tentando recuperar...");
+          console.warn("[DEBUG Auth] Perfil não encontrado no DashboardLayout, tentando recuperar via metadata...");
           const metadata = user.user_metadata;
 
           if (metadata?.full_name && metadata?.institution_id && metadata?.role_id) {
@@ -77,7 +77,10 @@ export default function DashboardLayout({
               .maybeSingle();
 
             if (!recoveryError && recoveredProfile) {
+              console.log("[DEBUG Auth] Perfil recuperado com sucesso!");
               finalProfile = recoveredProfile;
+            } else {
+              console.error("[DEBUG Auth] Falha na recuperação automática:", recoveryError);
             }
           }
         }
@@ -89,16 +92,8 @@ export default function DashboardLayout({
           return;
         }
 
-        const profileData = finalProfile;
-        let roleName = null;
-        const roleData = profileData?.role;
-        if (Array.isArray(roleData)) {
-          roleName = roleData[0]?.name;
-        } else {
-          roleName = (roleData as any)?.name;
-        }
-
         if (!roleName) roleName = "gestor";
+        console.log("[DEBUG Auth] DashboardLayout Role resolved as:", roleName);
         setRole(roleName);
 
         // Subscription status core check
@@ -129,10 +124,13 @@ export default function DashboardLayout({
   useEffect(() => {
     if (isLoading) return;
 
+    console.log("[DEBUG Auth] Running Permission/Auth effect:", { pathname, role, isLoading });
+
     if (role === null) {
+        console.warn("[DEBUG Auth] Role is null in effect, signing out and redirecting to login");
         const supabase = createClient();
         supabase.auth.signOut().then(() => {
-            router.push("/auth/login?error=auth_failed");
+            router.push("/auth/login?error=auth_failed_no_role");
         });
         return;
     }
@@ -152,21 +150,25 @@ export default function DashboardLayout({
     }
 
     if (isPlatformRoute && role !== "admin_geral") {
-      router.push("/");
+      console.warn("[DEBUG Auth] Access denied to platform route:", pathname);
+      router.push("/auth/login?error=access_denied&from=" + encodeURIComponent(pathname));
       return;
     }
 
     if (isManagementRoute && role !== "admin_geral" && role !== "gestor") {
-      router.push("/");
+      console.warn("[DEBUG Auth] Access denied to management route:", pathname);
+      router.push("/auth/login?error=access_denied&from=" + encodeURIComponent(pathname));
       return;
     }
 
     const subStatus = (window as any).__subscriptionStatus || "active";
     if (role !== "admin_geral" && (subStatus === "past_due" || subStatus === "canceled")) {
+      console.warn("[DEBUG Auth] Blocking access due to subscription status:", subStatus);
       router.push("/billing/blocked");
       return;
     }
 
+    console.log("[DEBUG Auth] User authorized for route:", pathname);
     setAuthorized(true);
   }, [pathname, role, isLoading, router]);
 

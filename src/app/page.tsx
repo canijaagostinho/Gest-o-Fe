@@ -101,32 +101,40 @@ export default function LandingPage() {
 
     useEffect(() => {
         const checkUser = async () => {
-            const supabase = createClient();
-            const { data: { user: authUser } } = await supabase.auth.getUser();
-            
-            if (authUser) {
-                // Verify if profile exists in public.users
-                const { data: profile } = await supabase
-                    .from("users")
-                    .select("id")
-                    .eq("id", authUser.id)
-                    .maybeSingle();
+            try {
+                const supabase = createClient();
+                const { data: { user: authUser } } = await supabase.auth.getUser();
                 
-                if (profile) {
-                    setUser(authUser);
-                    // NEW: Auto-redirect to dashboard if logged in
-                    router.push("/dashboard");
+                if (authUser) {
+                    console.log("[DEBUG Auth] LandingPage found authUser:", authUser.id);
+                    // Verify if profile exists in public.users
+                    const { data: profile } = await supabase
+                        .from("users")
+                        .select("id")
+                        .eq("id", authUser.id)
+                        .maybeSingle();
+                    
+                    if (profile) {
+                        console.log("[DEBUG Auth] LandingPage found profile, triggering redirect to /dashboard");
+                        setUser(authUser);
+                        // NEW: Auto-redirect to dashboard if logged in
+                        router.push("/dashboard");
+                    } else {
+                        console.warn("[DEBUG Auth] LandingPage: authUser exists but profile not found. Treating as logged out.");
+                        setUser(null);
+                    }
                 } else {
-                    // Profile was deleted, treat as logged out
+                    console.log("[DEBUG Auth] LandingPage: No authenticated user found.");
                     setUser(null);
                 }
-            } else {
+            } catch (error) {
+                console.error("[DEBUG Auth] Error in LandingPage checkUser:", error);
                 setUser(null);
             }
         };
         
         checkUser();
-    }, []);
+    }, [router]);
 
     const faqItems = [
         {
