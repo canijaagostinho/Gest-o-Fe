@@ -16,6 +16,7 @@ interface MetricsGridProps {
     lentCount: number;
     receivablesCount: number;
     delinquencyRate: number;
+    totalLoansCount: number;
   };
   privacyMode: boolean;
   maskValue: (v: any) => any;

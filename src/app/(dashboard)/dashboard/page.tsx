@@ -39,6 +39,7 @@ export default function DashboardPage() {
         totalLent: 0,
         totalReceived: 0,
         receivables: 0,
+        receivables30D: 0,
         delinquencyRate: 0,
         growthRate: 0,
         efficiencyRate: 0,
@@ -211,6 +212,7 @@ export default function DashboardPage() {
                                 date: i.due_date,
                                 status: "upcoming"
                             })) || [],
+                            totalDisbursed: totalDisbursedVal,
                         });
                     }
                 }

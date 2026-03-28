@@ -364,7 +364,7 @@ export default function LandingPage() {
                             >
                                 <span className="flex h-2 w-2 rounded-full bg-blue-600 animate-pulse" />
                                 <span className="text-[11px] font-black text-blue-700 uppercase tracking-[0.2em] font-sora">
-                                    Trusted by +50 Financial Institutions
+                                    Confiança de +50 Instituições de Crédito em Moçambique
                                 </span>
                             </FadeIn>
 
@@ -375,11 +375,11 @@ export default function LandingPage() {
                                 className="space-y-10"
                             >
                                 <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-[1000] text-slate-950 tracking-[-0.04em] leading-[1] md:leading-[1] font-sora">
-                                    Garanta que<br />
-                                    <span className="text-blue-600">seu capital volte.</span>
+                                    O Controlo Absoluto que a<br />
+                                    <span className="text-blue-600">Sua Operação Exige.</span>
                                 </h1>
                                 <p className="text-lg sm:text-xl md:text-2xl font-medium text-slate-500 max-w-4xl mx-auto leading-relaxed font-inter">
-                                    O <span className="text-slate-950 font-black">GestãoFlex</span> automatiza suas cobranças no WhatsApp e organiza cada parcela, para que você nunca mais perca o rastro do seu dinheiro. <span className="text-slate-950 font-black italic underline decoration-blue-500 underline-offset-4">Feito para o credor profissional de Moçambique.</span>
+                                    O <span className="text-slate-950 font-black">GestãoFlex</span> organiza cada parcela e elimina falhas manuais na sua carteira. <span className="text-slate-950 font-black">Tenha visibilidade total sobre o seu capital</span> e garanta que cada empréstimo seja recuperado com eficiência. <span className="text-slate-950 font-black italic underline decoration-blue-500 underline-offset-4">A solução essencial para microcredores e agentes de crédito.</span>
                                 </p>
                             </motion.div>
 
@@ -390,14 +390,14 @@ export default function LandingPage() {
                                 className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center"
                             >
                                 <Link href={user ? "/dashboard" : "/auth/signup"} className="w-full sm:w-auto">
-                                    <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white font-[1000] h-16 sm:h-20 px-8 sm:px-12 text-lg sm:text-xl rounded-2xl shadow-[0_20px_40px_-12px_rgba(249,115,22,0.4)] transition-all hover:scale-[1.03] active:scale-95 group w-full font-sora tracking-tight">
-                                        {user ? "Ir para o Dashboard" : "Começar grátis agora"}
+                                    <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white font-[1000] h-16 sm:h-20 px-8 sm:px-12 text-lg sm:text-xl rounded-2xl shadow-[0_20px_40px_-12px_rgba(37,99,235,0.4)] transition-all hover:scale-[1.03] active:scale-95 group w-full font-sora tracking-tight">
+                                        {user ? "Ir para o Dashboard" : "Criar Minha Conta Profissional"}
                                         <ArrowRight className="ml-2 h-6 w-6 sm:h-7 sm:w-7 transition-transform group-hover:translate-x-2" />
                                     </Button>
                                 </Link>
                                 <Link href="#demonstracao" className="w-full sm:w-auto">
                                     <Button size="lg" variant="outline" className="bg-white border-slate-200 text-slate-900 font-[1000] h-16 sm:h-20 px-8 sm:px-12 text-lg sm:text-xl rounded-2xl shadow-sm hover:bg-slate-50 transition-all w-full font-sora tracking-tight border-2">
-                                        Ver como funciona
+                                        Ver Demonstração Grátis
                                     </Button>
                                 </Link>
                             </motion.div>

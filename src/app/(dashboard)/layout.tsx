@@ -86,19 +86,19 @@ export default function DashboardLayout({
         }
 
         if (!finalProfile) {
-          console.warn("No profile found - signing out and redirecting");
+          console.warn("[DEBUG Auth] No profile found after all attempts - signing out and redirecting");
           await supabase.auth.signOut();
-          router.push("/auth/login?error=auth_failed");
+          router.push("/auth/login?error=auth_failed&reason=profile_not_found");
           return;
         }
 
-        if (!roleName) roleName = "gestor";
+        const roleName = (finalProfile as any)?.role?.name || "gestor";
         console.log("[DEBUG Auth] DashboardLayout Role resolved as:", roleName);
         setRole(roleName);
 
         // Subscription status core check
         let subStatus = "active";
-        const instData = (profileData as any)?.institutions;
+        const instData = (finalProfile as any)?.institutions;
         const subscriptions = instData?.subscriptions;
         if (Array.isArray(subscriptions) && subscriptions.length > 0) {
           subStatus = subscriptions[0].status;
@@ -108,10 +108,10 @@ export default function DashboardLayout({
 
         (window as any).__subscriptionStatus = subStatus;
       } catch (err: any) {
-        console.error("Critical error in DashboardLayout:", err);
+        console.error("[DEBUG Auth] Critical error in DashboardLayout:", err);
         const supabase = createClient();
         await supabase.auth.signOut();
-        router.push("/auth/login?error=auth_failed");
+        router.push(`/auth/login?error=auth_failed&reason=catch_error&message=${encodeURIComponent(err.message || "unknown")}`);
       } finally {
         setIsLoading(false);
       }

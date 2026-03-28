@@ -280,7 +280,7 @@ export async function getRegulatoryData(
   const start = new Date(startDateISO);
   const end = new Date(endDateISO);
   const months = [];
-  let current = new Date(start.getFullYear(), start.getMonth(), 1);
+  const current = new Date(start.getFullYear(), start.getMonth(), 1);
 
   while (current <= end && months.length < 3) {
     months.push(await getMonthData(current));
