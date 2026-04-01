@@ -423,8 +423,8 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
                 </div>
               </div>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md border-none bg-white p-0 overflow-hidden rounded-[2.5rem] shadow-2xl ring-1 ring-slate-200">
-              <div className="bg-slate-50 p-8 space-y-2 text-center border-b border-slate-100">
+            <DialogContent className="sm:max-w-md border-none bg-white p-0 overflow-hidden rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl ring-1 ring-slate-200">
+              <div className="bg-slate-50 p-6 sm:p-8 space-y-2 text-center border-b border-slate-100">
                 <div className="mx-auto bg-white ring-1 ring-slate-200 w-20 h-20 rounded-[2rem] flex items-center justify-center mb-4 shadow-sm">
                   <Headphones className="h-10 w-10 text-blue-800" />
                 </div>
@@ -438,7 +438,7 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
                 </DialogDescription>
               </div>
 
-              <div className="p-8 space-y-4 bg-white">
+              <div className="p-6 sm:p-8 space-y-4 bg-white">
                 {/* WhatsApp Pill */}
                 <button
                   onClick={() =>
@@ -446,10 +446,10 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
                   }
                   className="group relative flex items-center w-full bg-white rounded-2xl p-2 pr-8 shadow-sm hover:shadow-md transition-all duration-300 border border-slate-200 hover:border-emerald-500/50"
                 >
-                  <div className="p-4 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white transition-all">
+                  <div className="p-3 sm:p-4 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white transition-all">
                     <MessageCircle className="h-6 w-6" />
                   </div>
-                  <div className="ml-5 text-left flex-1">
+                  <div className="ml-3 sm:ml-5 text-left flex-1">
                     <p className="text-base font-black text-slate-800 tracking-tight leading-none">
                       WhatsApp
                     </p>
@@ -466,10 +466,10 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
                   }
                   className="group relative flex items-center w-full bg-white rounded-2xl p-2 pr-8 shadow-sm hover:shadow-md transition-all duration-300 border border-slate-200 hover:border-blue-500/50"
                 >
-                  <div className="p-4 bg-blue-50 rounded-xl flex items-center justify-center text-blue-700 group-hover:bg-blue-700 group-hover:text-white transition-all">
+                  <div className="p-3 sm:p-4 bg-blue-50 rounded-xl flex items-center justify-center text-blue-700 group-hover:bg-blue-700 group-hover:text-white transition-all">
                     <Mail className="h-6 w-6" />
                   </div>
-                  <div className="ml-5 text-left flex-1">
+                  <div className="ml-3 sm:ml-5 text-left flex-1">
                     <p className="text-base font-black text-slate-800 tracking-tight leading-none">
                       Email
                     </p>
@@ -484,10 +484,10 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
                   onClick={() => (window.location.href = "tel:+258834646942")}
                   className="group relative flex items-center w-full bg-white rounded-2xl p-2 pr-8 shadow-sm hover:shadow-md transition-all duration-300 border border-slate-200 hover:border-slate-400"
                 >
-                  <div className="p-4 bg-slate-100 rounded-xl flex items-center justify-center text-slate-700 group-hover:bg-slate-800 group-hover:text-white transition-all">
+                  <div className="p-3 sm:p-4 bg-slate-100 rounded-xl flex items-center justify-center text-slate-700 group-hover:bg-slate-800 group-hover:text-white transition-all">
                     <Phone className="h-6 w-6" />
                   </div>
-                  <div className="ml-5 text-left flex-1">
+                  <div className="ml-3 sm:ml-5 text-left flex-1">
                     <p className="text-base font-black text-slate-800 tracking-tight leading-none">
                       Ligar Agora
                     </p>

@@ -44,7 +44,7 @@ export function SmartAlerts({ alerts }: SmartAlertsProps) {
           <motion.div
             whileHover={{ y: -2, scale: 1.01 }}
             className={cn(
-              "flex items-center justify-between p-5 rounded-[2rem] border-2 transition-all cursor-pointer group shadow-sm",
+              "flex items-center justify-between p-4 sm:p-5 rounded-[1.5rem] sm:rounded-[2rem] border-2 transition-all cursor-pointer group shadow-sm",
               alert.type === "error" && "bg-rose-50 border-rose-100 hover:border-rose-300",
               alert.type === "warning" && "bg-amber-50 border-amber-100 hover:border-amber-300",
               alert.type === "success" && "bg-emerald-50 border-emerald-100 hover:border-emerald-300"
