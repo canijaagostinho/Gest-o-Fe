@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -209,8 +210,8 @@ export default function LandingPage() {
                                     <SheetHeader className="p-6 border-b border-slate-100">
                                         <SheetTitle className="text-left">
                                             <div className="flex items-center gap-3">
-                                                <div className="h-8 w-8 bg-white rounded-lg flex items-center justify-center overflow-hidden border border-slate-100 shadow-sm">
-                                                    <img src="/logo.png" alt="GestãoFlex" className="h-full w-full object-cover" />
+                                                <div className="h-8 w-8 bg-white rounded-lg flex items-center justify-center overflow-hidden border border-slate-100 shadow-sm relative">
+                                                    <Image src="/logo.webp" alt="GestãoFlex Logotipo" fill className="object-cover" />
                                                 </div>
                                                 <span className="text-lg font-black text-slate-950 font-sora">
                                                     Gestão<span className="text-blue-600">Flex</span>
@@ -341,13 +342,13 @@ export default function LandingPage() {
                                             animate={{ y: [-15, 5, -15] }}
                                             transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
                                         >
-                                            <img
-                                                src="/hero-final.png"
-                                                alt="GestãoFlex Premium Eco-system"
+                                            <Image
+                                                src="/hero-final.webp"
+                                                alt="Interface do Dashboard GestãoFlex em dispositivos desktop e mobile demonstrando o ecossistema premium"
                                                 width={1200}
                                                 height={800}
                                                 loading="eager"
-                                                fetchPriority="high"
+                                                priority
                                                 className="w-full h-auto drop-shadow-[0_50px_100px_rgba(37,99,235,0.3)] transition-transform duration-700 hover:scale-[1.02] rounded-2xl"
                                             />
                                         </motion.div>
@@ -435,9 +436,11 @@ export default function LandingPage() {
                                     transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1 }}
                                     className="relative group"
                                 >
-                                    <img
-                                        src="/mobile-loan-agent-v3.png"
-                                        alt="Gestor Acessando Carteira no Celular"
+                                    <Image
+                                        src="/mobile-loan-agent-v3.webp"
+                                        alt="Visualização da carteira de clientes e contratos de crédito no smartphone"
+                                        width={800}
+                                        height={1200}
                                         className="w-full h-auto drop-shadow-[0_45px_90px_rgba(37,99,235,0.2)] rounded-3xl transition-transform duration-700 hover:scale-[1.02]"
                                     />
                                 </motion.div>
@@ -509,9 +512,11 @@ export default function LandingPage() {
                                     transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 2 }}
                                     className="relative group"
                                 >
-                                    <img
-                                        src="/desktop-data-analyst.png"
-                                        alt="Analista de Crédito Avaliando Gráficos"
+                                    <Image
+                                        src="/desktop-data-analyst.webp"
+                                        alt="Gráficos de inteligência financeira e análise de dados de crédito no computador"
+                                        width={1200}
+                                        height={800}
                                         className="w-full h-auto drop-shadow-[0_45px_90px_rgba(16,185,129,0.2)] rounded-3xl transition-transform duration-700 hover:scale-[1.02]"
                                     />
                                 </motion.div>
@@ -581,9 +586,11 @@ export default function LandingPage() {
                                 <div className="relative">
                                     <div className="absolute -inset-10 bg-gradient-to-tr from-blue-600/15 via-indigo-500/10 to-emerald-400/15 blur-[120px] rounded-full opacity-60 pointer-events-none" />
                                     <motion.div animate={{ y: [-15, 5, -15] }} transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}>
-                                        <img
-                                            src="/solucao-final.png"
-                                            alt="Solução GestãoFlex"
+                                        <Image
+                                            src="/solucao-final.webp"
+                                            alt="Visão geral da solução GestãoFlex para automação de cobranças"
+                                            width={1200}
+                                            height={800}
                                             className="w-full h-auto drop-shadow-[0_45px_90px_rgba(37,99,235,0.2)] rounded-3xl transition-transform duration-700 hover:scale-[1.02] relative z-10"
                                         />
                                     </motion.div>
@@ -645,7 +652,7 @@ export default function LandingPage() {
                         <div className="grid grid-cols-1 md:grid-cols-3 md:grid-rows-2 gap-6 max-w-5xl mx-auto">
                             {/* Você Empresta, o Sistema Cobra */}
                             <FadeIn delay={100} className="md:col-span-1 md:row-span-2 bg-[#0A0D14] rounded-[2.5rem] p-10 flex flex-col justify-between relative overflow-hidden group shadow-xl border border-white/5">
-                                <div className="absolute inset-0 bg-[url('/bento-collection.png')] bg-cover bg-center opacity-30 group-hover:opacity-50 transition-opacity duration-700" />
+                                <div className="absolute inset-0 bg-[url('/bento-collection.webp')] bg-cover bg-center opacity-30 group-hover:opacity-50 transition-opacity duration-700" />
                                 <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0A0D14]/80 to-[#0A0D14] mix-blend-multiply" />
                                 <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 blur-[80px] rounded-full" />
                                 <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-blue-600/10 blur-[100px] rounded-full" />
@@ -672,7 +679,7 @@ export default function LandingPage() {
 
                             {/* Insight em Tempo Real */}
                             <FadeIn delay={300} className="bg-blue-600 text-center rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-4 shadow-xl shadow-blue-600/20 relative overflow-hidden group">
-                                <div className="absolute inset-0 bg-[url('/bento-insight.png')] bg-cover bg-center opacity-60 group-hover:scale-105 transition-transform duration-700" />
+                                <div className="absolute inset-0 bg-[url('/bento-insight.webp')] bg-cover bg-center opacity-60 group-hover:scale-105 transition-transform duration-700" />
                                 <div className="absolute inset-0 bg-gradient-to-tr from-blue-900/80 to-blue-600/30" />
                                 <div className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center relative z-10 backdrop-blur-md border border-white/20">
                                     <LineChart className="h-6 w-6 text-white" />
@@ -691,7 +698,7 @@ export default function LandingPage() {
 
                             {/* Na Palma da Mão */}
                             <FadeIn delay={500} className="bg-orange-500 rounded-[2.5rem] p-8 flex flex-col items-center justify-end text-center relative overflow-hidden shadow-xl shadow-orange-500/20 min-h-[220px] group border border-orange-400/30">
-                                <div className="absolute inset-0 bg-[url('/bento-mobile.png')] bg-[length:120%_auto] bg-[center_-20px] opacity-100 group-hover:scale-105 group-hover:bg-[center_-10px] transition-all duration-700" />
+                                <div className="absolute inset-0 bg-[url('/bento-mobile.webp')] bg-[length:120%_auto] bg-[center_-20px] opacity-100 group-hover:scale-105 group-hover:bg-[center_-10px] transition-all duration-700" />
                                 <div className="absolute inset-0 bg-gradient-to-t from-orange-950/90 via-orange-800/40 to-transparent" />
                                 <div className="h-10 w-10 text-white/50 mb-4 relative z-10 bg-white/10 rounded-xl backdrop-blur-md flex items-center justify-center shadow-inner border border-white/20">
                                     <Smartphone className="h-5 w-5 text-white" />
@@ -720,7 +727,7 @@ export default function LandingPage() {
                         </FadeIn>
 
                         <FadeIn delay={200} className="relative rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl bg-black/50 p-2 group cursor-pointer max-w-3xl mx-auto">
-                            <img src="/hero-main.png" alt="Video Demo" className="w-full h-auto rounded-[1.5rem] opacity-70 group-hover:opacity-100 transition-opacity duration-500" />
+                            <Image src="/hero-main.webp" alt="Demonstração em vídeo das principais funcionalidades do sistema GestãoFlex" width={1000} height={600} className="w-full h-auto rounded-[1.5rem] opacity-70 group-hover:opacity-100 transition-opacity duration-500" />
                             <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-transparent transition-all">
                                 <div className="flex flex-col items-center gap-4">
                                     <div className="h-20 w-20 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-[0_0_40px_rgba(37,99,235,0.6)] group-hover:scale-110 transition-transform">
@@ -777,7 +784,9 @@ export default function LandingPage() {
                                         <p className="text-slate-600 font-medium text-lg leading-relaxed italic">"{testi.text}"</p>
                                     </div>
                                     <div className="flex items-center gap-4 mt-10">
-                                        <img src={testi.image} alt={testi.name} className="h-14 w-14 rounded-2xl bg-slate-100 border border-slate-200" />
+                                        <div className="relative h-14 w-14 overflow-hidden rounded-2xl bg-slate-100 border border-slate-200">
+                                            <Image src={testi.image.replace('.png', '.webp')} alt={`Foto de perfil de ${testi.name}`} fill className="object-cover" />
+                                        </div>
                                         <div>
                                             <p className="font-black text-slate-950 tracking-tight">{testi.name}</p>
                                             <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">{testi.role}</p>

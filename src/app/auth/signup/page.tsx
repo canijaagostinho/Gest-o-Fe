@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -95,8 +96,8 @@ export default function SignupPage() {
       <Card className="w-full max-w-md shadow-lg border-0 bg-background/95 backdrop-blur">
         <CardHeader className="space-y-4 text-center">
           <div className="flex justify-center">
-            <div className="h-16 w-16 bg-white rounded-2xl flex items-center justify-center overflow-hidden shadow-xl border border-slate-100">
-              <img src="/logo.png" alt="Gestão Flex" className="h-full w-full object-cover" />
+            <div className="h-16 w-16 bg-white rounded-2xl flex items-center justify-center overflow-hidden shadow-xl border border-slate-100 relative">
+              <Image src="/logo.webp" alt="Gestão Flex Logotipo" fill className="object-cover" />
             </div>
           </div>
           <CardTitle className="text-3xl font-bold tracking-tight text-primary">

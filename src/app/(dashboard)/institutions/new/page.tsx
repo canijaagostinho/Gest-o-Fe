@@ -1,6 +1,7 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
+import Image from "next/image";
 import { InstitutionForm } from "@/components/institutions/institution-form";
 import { createInstitutionAction } from "@/app/actions/institution-actions";
 import { InstitutionFormValues } from "@/schemas/institution";
@@ -27,8 +28,8 @@ export default function NewInstitutionPage() {
   return (
     <div className="flex-1 space-y-10 p-4 md:p-8 pt-6 max-w-3xl mx-auto">
       <div className="flex items-center gap-4">
-        <div className="h-16 w-16 bg-white rounded-2xl flex items-center justify-center overflow-hidden shadow-xl border border-slate-100 shadow-slate-200/50">
-          <img src="/logo.png" alt="Gestão Flex" className="h-full w-full object-cover" />
+        <div className="h-16 w-16 bg-white rounded-2xl flex items-center justify-center overflow-hidden shadow-xl border border-slate-100 shadow-slate-200/50 relative">
+          <Image src="/logo.webp" alt="Gestão Flex Logotipo" fill className="object-cover" />
         </div>
         <div className="space-y-1">
           <h2 className="text-3xl font-black text-slate-900 tracking-tight leading-none">

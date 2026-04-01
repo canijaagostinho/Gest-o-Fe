@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal, Edit, Trash, Eye, Wallet, Zap } from "lucide-react";
@@ -115,14 +116,11 @@ export const WalletCard: React.FC<WalletCardProps> = ({ data, userRole, totalBal
                 data.is_default ? "bg-white" : ""
             )}>
               {provider !== "outro" && provider !== "cash" ? (
-                <img
-                  src={`/logos/providers/${provider}.png`}
-                  alt={provider}
-                  className="w-full h-full object-contain p-2"
-                  onError={(e) => {
-                    e.currentTarget.style.display = "none";
-                    e.currentTarget.nextElementSibling?.classList.remove("hidden");
-                  }}
+                <Image
+                  src={`/logos/providers/${provider}.webp`}
+                  alt={`Logotipo da conta ${provider}`}
+                  fill
+                  className="object-contain p-2"
                 />
               ) : null}
               <div className={cn(provider !== "outro" && provider !== "cash" ? "hidden" : "block")}>

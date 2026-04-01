@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { Suspense } from "react";
@@ -117,10 +118,11 @@ function LoginContent() {
           <div className="relative mb-6 group">
             <div className="absolute inset-0 bg-blue-500/20 blur-xl rounded-full opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
             <div className="relative h-24 w-24 rounded-2xl flex items-center justify-center overflow-hidden shadow-2xl shadow-blue-900/10 group-hover:scale-105 transition-all duration-300 ring-1 ring-slate-900/5 dark:ring-white/10 bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-800">
-              <img
-                src="/logo.png"
-                alt="Gestão Flex Logo"
-                className="object-cover w-full h-full"
+              <Image
+                src="/logo.webp"
+                alt="Gestão Flex Logotipo - Sistema de Gestão Financeira"
+                fill
+                className="object-cover"
               />
             </div>
           </div>

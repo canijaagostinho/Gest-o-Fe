@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 
 import { Bell, Search, Menu, DollarSign, Plus, User } from "lucide-react";
 import Link from "next/link";
@@ -67,10 +68,11 @@ export function Header({
           <div className="relative">
             <div className="absolute inset-0 bg-blue-500/10 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <div className="relative h-10 w-10 rounded-xl flex items-center justify-center overflow-hidden shadow-lg shadow-blue-900/5 group-hover:scale-105 transition-all duration-300 ring-1 ring-slate-900/5 dark:ring-white/10 bg-white">
-              <img
-                src="/logo.png"
-                alt="Gestão Flex"
-                className="h-full w-full object-cover"
+              <Image
+                src="/logo.webp"
+                alt="Gestão Flex - Sistema de Microcrédito e Cobrança"
+                fill
+                className="object-cover"
               />
             </div>
           </div>

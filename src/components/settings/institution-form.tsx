@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -376,10 +377,11 @@ export function InstitutionForm() {
           <CardContent className="flex items-center space-x-4">
             <div className="h-12 w-12 rounded-lg bg-slate-100 flex items-center justify-center border border-slate-200 overflow-hidden">
               {previewLogo ? (
-                <img
+                <Image
                   src={previewLogo}
-                  alt="Logo"
-                  className="h-full w-full object-cover"
+                  alt="Pré-visualização do Logotipo da Instituição"
+                  fill
+                  className="object-cover"
                 />
               ) : (
                 <span className="text-xs font-bold text-slate-400">LOGO</span>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
@@ -322,10 +323,11 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
           {displayLogo ? (
             <div className="relative">
               <div className="relative h-10 w-10 rounded-xl flex items-center justify-center overflow-hidden shadow-2xl group-hover:shadow-blue-500/30 transition-all duration-300 ring-1 ring-white/20 bg-white">
-                <img
-                  src={displayLogo}
-                  alt={displayName}
-                  className="h-full w-full object-contain p-1.5"
+                <Image
+                  src={displayLogo.replace('.png', '.webp')}
+                  alt={`Logotipo da instituição ${displayName}`}
+                  fill
+                  className="object-contain p-1.5"
                 />
               </div>
               <div className="absolute -bottom-1 -right-1 h-3.5 w-3.5 bg-emerald-500 rounded-full border-2 border-[#0F172A] shadow-lg shadow-emerald-500/20" />

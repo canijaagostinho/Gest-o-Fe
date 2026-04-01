@@ -1,6 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
+import Image from "next/image";
 import { CellAction } from "./cell-action";
 import { formatCurrency } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -27,16 +28,11 @@ export const columns: ColumnDef<AccountColumn>[] = [
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0 border border-slate-100">
             {provider !== "outro" ? (
-              <img
-                src={`/logos/providers/${provider}.png`}
-                alt={provider}
-                className="w-full h-full object-contain"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = "none";
-                  (
-                    e.target as HTMLImageElement
-                  ).nextElementSibling?.classList.remove("hidden");
-                }}
+              <Image
+                src={`/logos/providers/${provider}.webp`}
+                alt={`Logotipo do provedor de pagamento ${provider}`}
+                fill
+                className="object-contain"
               />
             ) : null}
             <div className={provider !== "outro" ? "hidden" : "block"}>

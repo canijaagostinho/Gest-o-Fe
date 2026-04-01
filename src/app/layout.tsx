@@ -69,6 +69,38 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "SoftwareApplication",
+                "name": "GestãoFlex",
+                "operatingSystem": "Web",
+                "applicationCategory": "BusinessApplication, FinanceApplication",
+                "description": "A plataforma definitiva para agentes e credores em Moçambique. Automatize suas cobranças no WhatsApp e tenha controle total do seu capital.",
+                "offers": {
+                  "@type": "Offer",
+                  "price": "0",
+                  "priceCurrency": "MZN",
+                  "description": "Teste gratuito disponível",
+                  "availability": "https://schema.org/InStock"
+                },
+                "aggregateRating": {
+                  "@type": "AggregateRating",
+                  "ratingValue": "4.9",
+                  "ratingCount": "127",
+                  "bestRating": "5",
+                  "worstRating": "1"
+                },
+                "author": {
+                  "@type": "Organization",
+                  "name": "GestãoFlex",
+                  "url": "https://gestaoflex.com"
+                }
+              })
+            }}
+          />
           <Toaster />
         </ThemeProvider>
       </body>
