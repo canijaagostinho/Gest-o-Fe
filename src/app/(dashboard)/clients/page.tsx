@@ -2,8 +2,24 @@ import { createClient } from "@/utils/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ClientsClient } from "./clients-client";
+import type { Client } from "@/types";
+
+interface ClientLoan {
+  id: string;
+  installments: Array<{
+    amount: number;
+    amount_paid: number;
+  }>;
+}
+
+interface ClientWithLoans extends Client {
+  loans?: ClientLoan[];
+}
+
+interface ProcessedClient extends ClientWithLoans {
+  repayment_progress: number;
+}
 
 export default async function ClientsPage() {
   const supabase = await createClient();
@@ -18,9 +34,9 @@ export default async function ClientsPage() {
       .from("users")
       .select("role:roles(name)")
       .eq("id", user.id)
-      .single();
+      .single() as { data: { role: { name: string } } | null };
 
-    userRole = (profile?.role as any)?.name || "operador";
+    userRole = profile?.role?.name || "operador";
   }
 
   // Query with nested loans and installments for progress calculation
@@ -38,21 +54,21 @@ export default async function ClientsPage() {
             )
         `,
     )
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false }) as { data: ClientWithLoans[] | null; error: unknown };
 
   if (error && !dbClients) {
     console.error("Error fetching clients:", error);
   }
 
   // Process clients to calculate real repayment progress
-  const processedClients = (dbClients || []).map((client: any) => {
+  const processedClients: ProcessedClient[] = (dbClients || []).map((client) => {
     let totalOwed = 0;
     let totalPaid = 0;
 
     if (client.loans && client.loans.length > 0) {
-      client.loans.forEach((loan: any) => {
+      client.loans.forEach((loan) => {
         if (loan.installments && loan.installments.length > 0) {
-          loan.installments.forEach((inst: any) => {
+          loan.installments.forEach((inst) => {
             totalOwed += Number(inst.amount);
             totalPaid += Number(inst.amount_paid);
           });

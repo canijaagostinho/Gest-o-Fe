@@ -5,9 +5,20 @@ import { GroupedCollateralList } from "@/components/collateral/grouped-collatera
 import { ShieldCheck } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import type { LoanCollateral } from "@/types";
+
+interface CollateralData extends LoanCollateral {
+  loans?: {
+    id: string;
+    status: string;
+    clients: {
+      full_name: string;
+    };
+  };
+}
 
 export default function CollateralPage() {
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<CollateralData[]>([]);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
 

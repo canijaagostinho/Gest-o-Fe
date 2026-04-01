@@ -2,6 +2,8 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
+import { insertOperationLog } from "@/utils/operation-logger";
+import { translateSupabaseError } from "@/lib/error-handler";
 
 /**
  * Deletes a client if they have no active or completed loans.
@@ -34,6 +36,23 @@ export async function deleteClientAction(clientId: string) {
 
     if (deleteError) throw new Error(deleteError.message);
 
+    // 3. Log Operation
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      // We need to know which institution this is for, though RLS handles it, the log needs it explicitly.
+      const { data: profile } = await supabase.from("users").select("institution_id").eq("id", user.id).single();
+      if (profile) {
+        await insertOperationLog({
+          institution_id: profile.institution_id,
+          user_id: user.id,
+          operation_id: clientId,
+          type: "Cancelamento",
+          status: "success",
+          observations: `Eliminação de ficha de cliente ID: ${clientId}`,
+        });
+      }
+    }
+
     revalidatePath("/clients");
     return { success: true };
   } catch (error: any) {
@@ -64,6 +83,22 @@ export async function updateClientAction(clientId: string, data: any) {
       .eq("id", clientId);
 
     if (error) throw error;
+
+    // 3. Log Operation
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: profile } = await supabase.from("users").select("institution_id").eq("id", user.id).single();
+      if (profile) {
+        await insertOperationLog({
+          institution_id: profile.institution_id,
+          user_id: user.id,
+          operation_id: clientId,
+          type: "Atualização",
+          status: "success",
+          observations: `Atualização de dados do cliente: ${data.full_name}`,
+        });
+      }
+    }
 
     revalidatePath("/clients");
     revalidatePath(`/clients/${clientId}`);

@@ -3,6 +3,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { insertOperationLog } from "@/utils/operation-logger";
+import { translateSupabaseError } from "@/lib/error-handler";
 
 /**
  * Voids a payment transaction.
@@ -59,7 +60,7 @@ export async function voidPaymentAction(paymentId: string) {
   } catch (error: any) {
     return {
       success: false,
-      error: error.message || "Erro ao anular pagamento.",
+      error: translateSupabaseError(error),
     };
   }
 }
@@ -93,8 +94,19 @@ export async function createPaymentAction(data: {
       p_notes: data.notes || "",
     });
 
-    if (rpcError) throw new Error("Erro crítico no banco de dados: " + rpcError.message);
-    if (!result.success) throw new Error(result.error);
+    if (rpcError) throw new Error("Erro no banco de dados: " + translateSupabaseError(rpcError));
+    if (!result.success) throw new Error(translateSupabaseError(result.error));
+
+    // 4. Log Operation
+    await insertOperationLog({
+      institution_id: data.institution_id,
+      user_id: data.user_id,
+      operation_id: result.payment_id,
+      type: "Pagamento",
+      amount: data.amount,
+      status: "success",
+      observations: `Pagamento registado. Ref empréstimo: ${data.loan_id}${data.installment_id ? ` (Parcela ID: ${data.installment_id})` : ""}`,
+    });
 
     revalidatePath("/payments");
     revalidatePath("/finance/accounts");
@@ -106,7 +118,7 @@ export async function createPaymentAction(data: {
     console.error("Payment registration failure:", error);
     return {
       success: false,
-      error: error.message || "Erro ao criar pagamento.",
+      error: translateSupabaseError(error),
     };
   }
 }

@@ -4,6 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 import { createClient as createSupabaseAdmin } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { translateSupabaseError } from "@/lib/error-handler";
 
 export async function registerAndLoginAction(data: {
   fullName: string;
@@ -64,7 +65,7 @@ export async function registerAndLoginAction(data: {
       console.error("Institution Creation Error:", instError);
       return {
         success: false,
-        error: "Erro ao criar instituição: " + instError.message,
+        error: "Erro ao criar instituição: " + translateSupabaseError(instError),
       };
     }
 
@@ -136,7 +137,7 @@ export async function registerAndLoginAction(data: {
         await supabaseAdmin.from("institutions").delete().eq("id", institutionId);
         return {
           success: false,
-          error: "Erro ao registrar usuário: " + createError.message,
+          error: "Erro ao registrar usuário: " + translateSupabaseError(createError),
         };
       }
     } else {
@@ -162,7 +163,7 @@ export async function registerAndLoginAction(data: {
       await supabaseAdmin.from("institutions").delete().eq("id", institutionId);
       return {
         success: false,
-        error: "Erro ao criar perfil: " + profileError.message,
+        error: "Erro ao criar perfil: " + translateSupabaseError(profileError),
       };
     }
 
@@ -188,6 +189,6 @@ export async function registerAndLoginAction(data: {
     return { success: true };
   } catch (e: any) {
     console.error("Server Action Exception:", e);
-    return { success: false, error: "Erro interno: " + e.message };
+    return { success: false, error: "Erro interno: " + translateSupabaseError(e) };
   }
 }

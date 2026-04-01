@@ -2,9 +2,10 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
-import { ActionResponse, AccountCreateData, AccountUpdateData, RoleName } from "@/types";
+import { ActionResponse, AccountCreateData, AccountUpdateData, RoleName, Account } from "@/types";
+import { insertOperationLog } from "@/utils/operation-logger";
 
-export async function getAccountsAction(): Promise<ActionResponse> {
+export async function getAccountsAction(): Promise<ActionResponse<Account[]>> {
   try {
     const supabase = await createClient();
     // RLS will now enforce institution separation automatically.
@@ -96,6 +97,18 @@ export async function createAccountAction(data: AccountCreateData): Promise<Acti
       }
     }
 
+    // 3. Log Operation
+    await insertOperationLog({
+      institution_id: institutionId,
+      user_id: user.id,
+      operation_id: account.id,
+      type: "Outro",
+      status: "success",
+      observations: `Abertura de nova conta/caixa: ${data.name} (${data.bank_provider})`,
+      amount: data.balance,
+      metadata: { is_default: data.is_default },
+    });
+
     revalidatePath("/finance/accounts");
     return { success: true };
   } catch (error: unknown) {
@@ -121,6 +134,22 @@ export async function updateAccountAction(
     const { error } = await supabase.from("accounts").update(data).eq("id", id);
 
     if (error) throw error;
+
+    // 3. Log Operation (We might need user info here)
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: profile } = await supabase.from("users").select("institution_id").eq("id", user.id).single();
+      if (profile) {
+        await insertOperationLog({
+          institution_id: profile.institution_id,
+          user_id: user.id,
+          operation_id: id,
+          type: "Atualização",
+          status: "success",
+          observations: `Atualização de configurações da conta ID: ${id}`,
+        });
+      }
+    }
 
     revalidatePath("/finance/accounts");
     return { success: true };

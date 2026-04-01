@@ -20,8 +20,9 @@ async function applyMigration() {
         console.log("Migration SQL loaded. Attempting to execute...");
         console.log("ERROR: Direct raw SQL execution via JS client is not supported without a custom Postgres function (RPC).");
         console.log("Please run the SQL file manually in the Supabase SQL Editor: supabase/migrations/20240302_audit_and_harden_security.sql");
-    } catch (e: any) {
-        console.error("Failed:", e.message);
+    } catch (e) {
+        const error = e instanceof Error ? e : new Error(String(e));
+        console.error("Failed:", error.message);
     }
 }
 

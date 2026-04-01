@@ -13,12 +13,19 @@ export default async function ExpensesPage() {
     redirect("/login");
   }
 
-  // Fetch user profile to get institution_id
+  // 1. Fetch user profile to get institution_id and role
   const { data: profile } = await supabase
     .from("users")
     .select("institution_id, role:roles(name)")
     .eq("id", user.id)
     .single();
+
+  const userRole = (profile?.role as any)?.name;
+
+  // 2. Restrict access for non-managers
+  if (["operador", "agente", "cliente"].includes(userRole)) {
+    redirect("/dashboard");
+  }
 
   if (!profile?.institution_id) {
     return <div>Erro: Instituição não encontrada.</div>;

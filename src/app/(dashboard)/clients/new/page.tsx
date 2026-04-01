@@ -11,10 +11,6 @@ import {
   User,
   Phone,
   MapPin,
-  CreditCard,
-  Calendar,
-  Briefcase,
-  Heart,
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -132,8 +128,9 @@ export default function NewClientPage() {
       toast.success("Cliente cadastrado com sucesso!");
       router.push("/clients");
       router.refresh();
-    } catch (error: any) {
-      toast.error("Erro ao cadastrar cliente: " + error.message);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Erro desconhecido";
+      toast.error("Erro ao cadastrar cliente: " + errorMessage);
     } finally {
       setLoading(false);
     }

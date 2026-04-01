@@ -41,7 +41,9 @@ export const AccountClient: React.FC<AccountClientProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 px-2">
         <div className="space-y-1">
           <h2 className="text-3xl font-black text-slate-900 tracking-tight">Gestão de Canais</h2>
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">Fluxo de Caixa & Disponibilidade</p>
+          {!["operador", "agente", "cliente"].includes(userRole) && (
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">Fluxo de Caixa & Disponibilidade</p>
+          )}
         </div>
         {userRole !== "operador" && (
           <Button onClick={() => setOpen(true)} className="bg-blue-600 hover:bg-blue-700 h-12 rounded-2xl font-black shadow-lg shadow-blue-500/20 transition-all hover:scale-105 active:scale-95 px-8">

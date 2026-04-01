@@ -17,6 +17,7 @@ import { Loader2, Building2, User, Mail, Lock, Eye, EyeOff } from "lucide-react"
 import { toast } from "sonner";
 import Link from "next/link";
 import { registerAndLoginAction } from "@/app/actions/auth-actions";
+import { translateSupabaseError } from "@/lib/error-handler";
 
 export default function SignupPage() {
   const [fullName, setFullName] = useState("");
@@ -81,7 +82,9 @@ export default function SignupPage() {
         router.refresh();
       }
     } catch (error) {
-      toast.error("Erro inesperado");
+      toast.error("Erro inesperado", {
+        description: translateSupabaseError(error),
+      });
     } finally {
       setIsLoading(false);
     }

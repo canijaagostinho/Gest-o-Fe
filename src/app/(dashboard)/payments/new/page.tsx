@@ -15,6 +15,8 @@ import {
   CheckCircle2,
   AlertCircle,
   Wallet,
+  Check,
+  ChevronsUpDown,
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -37,7 +39,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { createClient } from "@/utils/supabase/client";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrency, formatDate, cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 // Import Actions
 import { createPaymentAction } from "@/app/actions/payment-actions";
 import { getAccountsAction } from "@/app/actions/account-actions";
@@ -60,6 +64,7 @@ export default function NewPaymentPage() {
   const [accounts, setAccounts] = useState<any[]>([]); // Accounts State
   const [selectedLoan, setSelectedLoan] = useState<any>(null);
   const [selectedInstallment, setSelectedInstallment] = useState<any>(null);
+  const [open, setOpen] = useState(false);
 
   const supabase = createClient();
 
@@ -100,7 +105,7 @@ export default function NewPaymentPage() {
 
       // Accounts
       const res = await getAccountsAction();
-      if (res.success && res.data) {
+      if (res.success && Array.isArray(res.data)) {
         setAccounts(res.data);
         // Set default if exists
         const defaultAcc = res.data.find((a: any) => a.is_default);
@@ -234,26 +239,59 @@ export default function NewPaymentPage() {
                   control={form.control}
                   name="loan_id"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col">
                       <FormLabel>Empréstimo Ativo</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione um contrato..." />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {loans.map((l) => (
-                            <SelectItem key={l.id} value={l.id}>
-                              {l.clients?.full_name} -{" "}
-                              {formatCurrency(l.loan_amount)}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <Popover open={open} onOpenChange={setOpen}>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              aria-expanded={open}
+                              className={cn(
+                                "w-full justify-between font-normal",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value
+                                ? loans.find((l) => l.id === field.value)?.clients?.full_name + " - " + formatCurrency(loans.find((l) => l.id === field.value)?.loan_amount)
+                                : "Selecione um contrato..."}
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[400px] p-0" align="start">
+                          <Command>
+                            <CommandInput placeholder="Pesquisar nome ou ID do cliente..." />
+                            <CommandList>
+                              <CommandEmpty>Nenhum contrato encontrado.</CommandEmpty>
+                              <CommandGroup>
+                                {loans.map((l) => (
+                                  <CommandItem
+                                    key={l.id}
+                                    value={`${l.clients?.full_name} ${l.id}`}
+                                    onSelect={() => {
+                                      form.setValue("loan_id", l.id);
+                                      setOpen(false);
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        l.id === field.value ? "opacity-100" : "opacity-0"
+                                      )}
+                                    />
+                                    <div className="flex flex-col">
+                                      <span className="font-medium">{l.clients?.full_name}</span>
+                                      <span className="text-xs text-slate-500">ID: {l.id.slice(0, 8)}... • {formatCurrency(l.loan_amount)}</span>
+                                    </div>
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
                       <FormMessage />
                     </FormItem>
                   )}

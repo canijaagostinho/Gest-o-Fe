@@ -222,12 +222,13 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
             .single();
 
           if (profile) {
-            const role = (profile.role as any)?.name || "gestor";
+            const profileWithRole = profile as { role: { name: string } | null; institution?: Record<string, unknown> };
+            const role = profileWithRole.role?.name || "gestor";
             setUserRole(role);
 
             // Set institution data if available and not admin_geral
-            if (role !== "admin_geral" && profile.institution) {
-              setInstitutionData(profile.institution);
+            if (role !== "admin_geral" && profileWithRole.institution) {
+              setInstitutionData(profileWithRole.institution as Record<string, unknown>);
             }
           }
         }
@@ -244,14 +245,21 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
     let groups =
       userRole === "admin_geral" ? adminGeralRoutes : institutionalRoutes;
 
-    // Filter routes for 'funcionario' (Operador)
-    if (userRole === "operador") {
-      const operadorBlocked = ["/agents", "/monitoring", "/settings/plans", "/reports"];
+    // Filter routes for non-managers (Operador, Agente, Cliente)
+    const restrictedRoles = ["operador", "agente", "cliente"];
+    if (userRole && restrictedRoles.includes(userRole)) {
+      const blockedRoutes = [
+        "/agents", 
+        "/monitoring", 
+        "/settings/plans", 
+        "/reports",
+        "/finance/expenses" // Hide 'Fluxo de Caixa'
+      ];
       groups = groups
         .map((group) => ({
           ...group,
           items: group.items.filter(
-            (item: any) => !operadorBlocked.includes(item.href),
+            (item: { href: string }) => !blockedRoutes.includes(item.href),
           ),
         }))
         .filter((group) => group.items.length > 0);
@@ -267,12 +275,12 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
     if (routeGroups.length > 1) {
       setOpenGroup(routeGroups[1].label);
     }
-  }, [userRole]); // Removed routeGroups from dependencies to avoid loop if it were unstable, but now it is memoized anyway
+  }, [userRole, routeGroups]);
 
   // Auto-expand active group on navigation
   useEffect(() => {
-    const activeGroupIndex = routeGroups.findIndex((g: any) =>
-      g.items.some((i: any) => i.href === pathname),
+    const activeGroupIndex = routeGroups.findIndex((g: { items: Array<{ href: string }> }) =>
+      g.items.some((i) => i.href === pathname),
     );
     if (activeGroupIndex !== -1) {
       setOpenGroup(routeGroups[activeGroupIndex].label);
@@ -506,19 +514,34 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
   );
 }
 
+interface RouteItem {
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  href: string;
+  color: string;
+  subItems?: RouteItem[];
+}
+
+interface SidebarGroupType {
+  label: string;
+  items: RouteItem[];
+}
+
+interface SidebarGroupProps {
+  group: SidebarGroupType;
+  pathname: string;
+  isOpen: boolean;
+  onToggle: () => void;
+  onClose?: () => void;
+}
+
 function SidebarGroup({
   group,
   pathname,
   isOpen,
   onToggle,
   onClose,
-}: {
-  group: any;
-  pathname: string;
-  isOpen: boolean;
-  onToggle: () => void;
-  onClose?: () => void;
-}) {
+}: SidebarGroupProps) {
   return (
     <div className="space-y-1 relative">
       <button
@@ -544,7 +567,7 @@ function SidebarGroup({
             className="overflow-hidden"
           >
             <div className="space-y-1 pb-2">
-              {group.items.map((route: any) => {
+              {group.items.map((route) => {
                 const isActive = pathname === route.href;
                 return (
                   <Link

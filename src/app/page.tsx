@@ -42,6 +42,7 @@ import {
     Landmark,
     UserCheck2,
     Menu,
+    Plus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -87,7 +88,7 @@ export default function LandingPage() {
     const [scrolled, setScrolled] = useState(false);
     const [activeFaq, setActiveFaq] = useState<number | null>(null);
     const [showFloatingCTA, setShowFloatingCTA] = useState(false);
-    const [user, setUser] = useState<any>(null);
+    const [user, setUser] = useState<{ id: string } | null>(null);
     const router = useRouter();
 
     useEffect(() => {
@@ -106,8 +107,6 @@ export default function LandingPage() {
                 const { data: { user: authUser } } = await supabase.auth.getUser();
                 
                 if (authUser) {
-                    console.log("[DEBUG Auth] LandingPage found authUser:", authUser.id);
-                    // Verify if profile exists in public.users
                     const { data: profile } = await supabase
                         .from("users")
                         .select("id")
@@ -115,31 +114,25 @@ export default function LandingPage() {
                         .maybeSingle();
                     
                     if (profile) {
-                        console.log("[DEBUG Auth] LandingPage found profile, triggering redirect to /dashboard");
                         setUser(authUser);
-                        // NEW: Auto-redirect to dashboard if logged in
-                        router.push("/dashboard");
+                        // router.push("/dashboard"); // Removido para permitir visualizar a landing page enquanto logado se desejar
                     } else {
-                        console.warn("[DEBUG Auth] LandingPage: authUser exists but profile not found. Treating as logged out.");
                         setUser(null);
                     }
                 } else {
-                    console.log("[DEBUG Auth] LandingPage: No authenticated user found.");
                     setUser(null);
                 }
             } catch (error) {
-                console.error("[DEBUG Auth] Error in LandingPage checkUser:", error);
                 setUser(null);
             }
         };
-        
         checkUser();
     }, [router]);
 
     const faqItems = [
         {
             q: "Como o sistema garante que eu receba meu capital?",
-            a: "O GestãoFlex automatiza a régua de cobrança. O sistema envia lembretes antes, no dia e após o vencimento via WhatsApp, garantindo que o seu cliente nunca 'esqueça' de pagar."
+            a: "O GestãoFlex automatiza a régua de cobrança. O sistema envia lembretes antes, no dia e após o vencimento, garantindo que o seu cliente nunca 'esqueça' de pagar."
         },
         {
             q: "Funciona para quem recebe via M-Pesa?",
@@ -147,415 +140,239 @@ export default function LandingPage() {
         },
         {
             q: "Posso testar antes de assinar?",
-            a: "Com certeza. Oferecemos 45 dias de acesso total gratuito. Queremos que você veja o dinheiro voltando para o seu bolso antes de investir qualquer metical no sistema."
+            a: "Com certeza. Oferecemos acesso total gratuito para você ver o dinheiro voltando para o seu bolso antes de investir."
         }
     ];
 
-    const pricingPlans = [
-        {
-            name: "Agente Individual",
-            price: "1.500",
-            currency: "MZN/mês",
-            desc: "Ideal para quem está a começar no mercado",
-            features: [
-                "Até 30 clientes ativos",
-                "Gestão de parcelas via M-Pesa",
-                "Relatórios de lucros básicos",
-                "Suporte via WhatsApp",
-            ],
-            cta: "Começar Agora",
-            highlighted: false,
-        },
-        {
-            name: "Credor Profit",
-            price: "4.500",
-            currency: "MZN/mês",
-            desc: "Para quem quer escala e controle total",
-            features: [
-                "Clientes ilimitados",
-                "Cálculos automáticos de juros",
-                "Cobrança automática WhatsApp",
-                "Exportação PDF para Fiadores",
-                "Gestão de Múltiplas Carteiras",
-            ],
-            cta: "Escolher Profit",
-            highlighted: true,
-        },
-        {
-            name: "Agência de Crédito",
-            price: "Sob consulta",
-            currency: "",
-            desc: "Para equipes e redes de agentes",
-            features: [
-                "Múltiplos agentes/colaboradores",
-                "Relatórios regulatórios prontos",
-                "Branding personalizado",
-                "Auditoria de transações",
-                "Backup prioritário",
-            ],
-            cta: "Falar com Consultor",
-            highlighted: false,
-        },
-    ];
-
-    const stats = [
-        { value: "+50", label: "Agentes Profissionalizados", icon: UserCheck },
-        { value: "100%", label: "Foco em Moçambique", icon: Globe },
-        { value: "0", label: "Inadimplência por Esquecimento", icon: ShieldCheck },
-        { value: "24/7", label: "Controle do Seu Lucro", icon: Zap },
-    ];
-
     return (
-        <div className="flex flex-col min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-600/10 selection:text-blue-600 overflow-x-hidden">
+        <div className="flex flex-col min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-600/10 selection:text-blue-600 overflow-x-hidden">
 
-            {/* Floating CTA */}
-            <motion.div
-                initial={{ opacity: 0, y: 100 }}
-                animate={{ opacity: showFloatingCTA ? 1 : 0, y: showFloatingCTA ? 0 : 100 }}
-                className="fixed bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 z-[60] w-[92%] sm:w-auto"
-            >
-                <div className="bg-white/80 backdrop-blur-xl border border-slate-200 p-1.5 sm:p-2 rounded-full shadow-2xl flex items-center justify-between sm:pl-6 text-sm">
-                    <span className="font-bold text-slate-700 hidden sm:block">Não perca mais dinheiro</span>
-                    <Link href="/auth/signup" className="w-full sm:w-auto">
-                        <Button className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-full px-4 sm:px-6 h-10 sm:h-11 shadow-lg shadow-emerald-500/20 text-xs sm:text-sm w-full">
-                            Abrir conta grátis agora
-                        </Button>
-                    </Link>
-                </div>
-            </motion.div>
-
-            {/* Navigation */}
-            {/* 0. HEADER (Premium Glassmorphism) */}
+            {/* 0. HEADER (Premium Glassmorphism - Sticky) */}
             <header className="fixed top-0 left-0 right-0 z-[100] px-3 sm:px-6 py-4 flex justify-center pointer-events-none">
                 <nav className="max-w-7xl w-full flex items-center justify-between px-4 sm:px-6 py-3 bg-white/70 backdrop-blur-xl border border-slate-200/40 rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.03)] pointer-events-auto">
-                    <div className="flex items-center gap-4">
+                    {/* LEFT: Logo */}
+                    <div className="flex-1 flex items-center">
                         <Link href="/" className="flex items-center gap-3 group">
-                            <div className="h-9 w-9 sm:h-10 sm:w-10 bg-white rounded-xl flex items-center justify-center overflow-hidden shadow-lg shadow-blue-600/10 group-hover:scale-105 transition-transform border border-slate-100">
-                                <img src="/logo.png" alt="GestãoFlex Logo" className="h-full w-full object-cover" />
+                            <div className="h-9 w-9 bg-blue-600 rounded-xl flex items-center justify-center overflow-hidden shadow-lg shadow-blue-600/10 group-hover:scale-105 transition-transform border border-slate-100">
+                                <Landmark className="h-5 w-5 text-white" />
                             </div>
-                            <span className="text-lg sm:text-xl font-black text-slate-950 tracking-tight font-sora">
+                            <span className="text-lg font-black text-slate-950 tracking-tight font-sora">
                                 Gestão<span className="text-blue-600">Flex</span>
                             </span>
                         </Link>
                     </div>
 
-                    <div className="hidden lg:flex items-center gap-10">
-                        {[
-                            { label: "O Problema", href: "#problema" },
-                            { label: "A Solução", href: "#solucao" },
-                            { label: "Funcionalidades", href: "#funcionalidades" },
-                            { label: "Segurança", href: "#seguranca" },
-                        ].map((item) => (
-                            <Link
-                                key={item.label}
-                                href={item.href}
-                                className="text-[11px] font-bold text-slate-500 hover:text-blue-600 transition-all uppercase tracking-[0.2em] relative group py-2"
-                            >
-                                {item.label}
-                                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all group-hover:w-full" />
-                            </Link>
-                        ))}
+                    {/* CENTER: Navigation (The core of the alignment fix) */}
+                    <div className="hidden lg:flex flex-1 items-center justify-center">
+                        <div className="flex items-center gap-8">
+                            {[
+                                { label: "O Problema", href: "#problema" },
+                                { label: "Solução", href: "#solucao" },
+                                { label: "Segurança", href: "#faq" },
+                            ].map((item) => (
+                                <Link
+                                    key={item.label}
+                                    href={item.href}
+                                    className="text-[10px] font-black text-slate-600 hover:text-blue-600 transition-colors uppercase tracking-[0.3em] font-sora"
+                                >
+                                    {item.label}
+                                </Link>
+                            ))}
+                        </div>
                     </div>
 
-                    <div className="flex items-center gap-2 sm:gap-3">
-                        <div className="hidden sm:flex items-center gap-4">
-                            {!user && (
-                                <Link href="/auth/login">
-                                    <Button variant="ghost" className="text-xs font-bold text-slate-500 hover:text-blue-600 transition-all uppercase tracking-widest">
-                                        Entrar
-                                    </Button>
-                                </Link>
-                            )}
-                            <Link href={user ? "/dashboard" : "/auth/signup"}>
-                                <Button className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl px-6 h-10 shadow-lg shadow-blue-600/20 transition-all active:scale-95">
-                                    {user ? "Ir para o Dashboard" : "Criar Conta Grátis"}
+                    {/* RIGHT: Auth Buttons */}
+                    <div className="hidden lg:flex flex-1 items-center justify-end gap-6">
+                        <Link 
+                            href="/auth/login" 
+                            className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 hover:text-blue-600 transition-colors font-sora"
+                        >
+                            ENTRAR
+                        </Link>
+                        <Link href="/auth/signup">
+                            <Button className="bg-blue-600 hover:bg-blue-700 text-white font-black px-8 h-12 rounded-xl text-[11px] uppercase tracking-[0.2em] shadow-lg shadow-blue-600/20 transition-all font-sora border-none">
+                                Criar Conta Grátis
+                            </Button>
+                        </Link>
+                    </div>
+
+                    {/* Mobile Menu Trigger */}
+                    <div className="lg:hidden flex items-center gap-2">
+                        <Sheet>
+                            <SheetTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl pointer-events-auto">
+                                    <Menu className="h-6 w-6 text-slate-600" />
                                 </Button>
-                            </Link>
-                        </div>
-
-                        {/* Mobile Menu Trigger */}
-                        <div className="sm:hidden">
-                            <Sheet>
-                                <SheetTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl">
-                                        <Menu className="h-6 w-6 text-slate-600" />
-                                    </Button>
-                                </SheetTrigger>
-                                <SheetContent side="right" className="w-[300px] p-0 border-none bg-white">
-                                    <div className="flex flex-col h-full">
-                                        <SheetHeader className="p-6 border-b border-slate-100">
-                                            <SheetTitle className="text-left">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="h-8 w-8 bg-white rounded-lg flex items-center justify-center overflow-hidden border border-slate-100 shadow-sm">
-                                                        <img src="/logo.png" alt="GestãoFlex" className="h-full w-full object-cover" />
-                                                    </div>
-                                                    <span className="text-lg font-black text-slate-950 font-sora">
-                                                        Gestão<span className="text-blue-600">Flex</span>
-                                                    </span>
+                            </SheetTrigger>
+                            <SheetContent side="right" className="w-[300px] p-0 border-none bg-white">
+                                <div className="flex flex-col h-full">
+                                    <SheetHeader className="p-6 border-b border-slate-100">
+                                        <SheetTitle className="text-left">
+                                            <div className="flex items-center gap-3">
+                                                <div className="h-8 w-8 bg-white rounded-lg flex items-center justify-center overflow-hidden border border-slate-100 shadow-sm">
+                                                    <img src="/logo.png" alt="GestãoFlex" className="h-full w-full object-cover" />
                                                 </div>
-                                            </SheetTitle>
-                                        </SheetHeader>
-                                        
-                                        <div className="flex-grow p-6 space-y-8">
-                                            <div className="space-y-4">
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Navegação</p>
-                                                <div className="grid gap-2">
-                                                    {[
-                                                        { label: "O Problema", href: "#problema" },
-                                                        { label: "A Solução", href: "#solucao" },
-                                                        { label: "Funcionalidades", href: "#funcionalidades" },
-                                                        { label: "Segurança", href: "#seguranca" },
-                                                        { label: "FAQ", href: "#faq" },
-                                                    ].map((item) => (
-                                                        <Link
-                                                            key={item.label}
-                                                            href={item.href}
-                                                            className="flex items-center px-4 py-3 rounded-xl hover:bg-slate-50 text-slate-600 font-bold transition-all"
-                                                        >
-                                                            {item.label}
-                                                        </Link>
-                                                    ))}
-                                                </div>
+                                                <span className="text-lg font-black text-slate-950 font-sora">
+                                                    Gestão<span className="text-blue-600">Flex</span>
+                                                </span>
                                             </div>
+                                        </SheetTitle>
+                                    </SheetHeader>
+                                    
+                                    <div className="flex-grow p-6 space-y-8">
+                                        <div className="space-y-4">
+                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Navegação</p>
+                                            <div className="grid gap-2">
+                                                {[
+                                                    { label: "O Problema", href: "#problema" },
+                                                    { label: "A Solução", href: "#solucao" },
+                                                    { label: "Segurança", href: "#faq" },
+                                                ].map((item) => (
+                                                    <Link
+                                                        key={item.label}
+                                                        href={item.href}
+                                                        className="flex items-center px-4 py-3 rounded-xl hover:bg-slate-50 text-slate-600 font-bold transition-all"
+                                                    >
+                                                        {item.label}
+                                                    </Link>
+                                                ))}
+                                            </div>
+                                        </div>
 
-                                            <div className="space-y-4">
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Acesso</p>
-                                                <div className="grid gap-3">
-                                                    {!user && (
-                                                        <Link href="/auth/login">
-                                                            <Button variant="outline" className="w-full h-12 rounded-xl justify-start px-6 font-bold border-slate-200">
-                                                                Entrar na Conta
-                                                            </Button>
-                                                        </Link>
-                                                    )}
-                                                    <Link href={user ? "/dashboard" : "/auth/signup"}>
-                                                        <Button className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 shadow-lg shadow-blue-600/20">
-                                                            {user ? "Ir para o Dashboard" : "Criar Conta Grátis"}
+                                        <div className="space-y-4">
+                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Acesso</p>
+                                            <div className="grid gap-3">
+                                                {!user && (
+                                                    <Link href="/auth/login">
+                                                        <Button variant="outline" className="w-full h-12 rounded-xl justify-start px-6 font-bold border-slate-200">
+                                                            Entrar na Conta
                                                         </Button>
                                                     </Link>
-                                                </div>
+                                                )}
+                                                <Link href={user ? "/dashboard" : "/auth/signup"}>
+                                                    <Button className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 shadow-lg shadow-blue-600/20">
+                                                        {user ? "Ir para o Dashboard" : "Criar Conta Grátis"}
+                                                    </Button>
+                                                </Link>
                                             </div>
                                         </div>
-                                        
-                                        <div className="p-6 mt-auto bg-slate-50 border-t border-slate-100">
-                                            <p className="text-[10px] font-bold text-slate-400 text-center uppercase tracking-widest italic">
-                                                Feito para o credor de Moçambique
-                                            </p>
-                                        </div>
                                     </div>
-                                </SheetContent>
-                            </Sheet>
-                        </div>
+                                </div>
+                            </SheetContent>
+                        </Sheet>
                     </div>
                 </nav>
             </header>
 
             <main className="flex-grow">
-                {/* 1. HERO SECTION (Fintech Premium) */}
-                <section className="relative min-h-[90vh] lg:min-h-screen flex items-center pt-32 pb-24 lg:pt-40 lg:pb-32 overflow-hidden bg-white">
-                    {/* Deep Premium Gradients */}
-                    <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-[1200px] h-[1200px] bg-blue-50/60 rounded-full blur-[160px] pointer-events-none opacity-50" />
-                    <div className="absolute top-[20%] left-0 -translate-x-1/3 w-[800px] h-[800px] bg-emerald-50/40 rounded-full blur-[140px] pointer-events-none opacity-40" />
+                {/* 1. HERO SECTION (Pixel-Perfect Split Layout) */}
+                <section className="relative min-h-screen flex items-center pt-32 pb-24 lg:pt-32 lg:pb-32 overflow-hidden bg-white">
+                    {/* Premium Ambient Background */}
+                    <div className="absolute top-0 inset-x-0 h-full bg-[radial-gradient(ellipse_at_top_right,rgba(37,99,235,0.08),transparent_60%),radial-gradient(ellipse_at_bottom_left,rgba(37,99,235,0.05),transparent_60%)] pointer-events-none" />
                     
-                    <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
-                        <div className="max-w-[1400px] mx-auto space-y-12">
-                            <FadeIn
-                                className="inline-flex items-center gap-3 px-6 py-2 bg-blue-50/50 border border-blue-100 rounded-full shadow-sm mx-auto"
-                            >
-                                <span className="flex h-2 w-2 rounded-full bg-blue-600 animate-pulse" />
-                                <span className="text-[11px] font-black text-blue-700 uppercase tracking-[0.2em] font-sora">
-                                    Confiança de +50 Instituições de Crédito em Moçambique
-                                </span>
-                            </FadeIn>
+                    <div className="max-w-7xl mx-auto px-6 relative z-10 w-full">
+                        <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+                            {/* Left Content Column */}
+                            <div className="lg:col-span-5 space-y-10 max-w-2xl flex flex-col items-start text-left order-2 lg:order-1">
+                                <FadeIn className="inline-flex items-center gap-3 px-5 py-2 bg-blue-50/50 border border-blue-100/50 rounded-full shadow-sm">
+                                    <span className="flex h-1.5 w-1.5 rounded-full bg-blue-600 animate-pulse" />
+                                    <span className="text-[10px] font-black text-blue-700 uppercase tracking-[0.2em] font-sora">
+                                        SISTEMA PREMIUM PARA MICROCRÉDITO
+                                    </span>
+                                </FadeIn>
 
-                            <motion.div
-                                initial={{ opacity: 0, y: 30 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.1, duration: 1, ease: [0.16, 1, 0.3, 1] }}
-                                className="space-y-10"
-                            >
-                                <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-[1000] text-slate-950 tracking-[-0.04em] leading-[1] md:leading-[1] font-sora">
-                                    O Controlo Absoluto que a<br />
-                                    <span className="text-blue-600">Sua Operação Exige.</span>
-                                </h1>
-                                <p className="text-lg sm:text-xl md:text-2xl font-medium text-slate-500 max-w-4xl mx-auto leading-relaxed font-inter">
-                                    O <span className="text-slate-950 font-black">GestãoFlex</span> organiza cada parcela e elimina falhas manuais na sua carteira. <span className="text-slate-950 font-black">Tenha visibilidade total sobre o seu capital</span> e garanta que cada empréstimo seja recuperado com eficiência. <span className="text-slate-950 font-black italic underline decoration-blue-500 underline-offset-4">A solução essencial para microcredores e agentes de crédito.</span>
-                                </p>
-                            </motion.div>
-
-                            <motion.div
-                                initial={{ opacity: 0, y: 30 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.2, duration: 1, ease: [0.16, 1, 0.3, 1] }}
-                                className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center"
-                            >
-                                <Link href={user ? "/dashboard" : "/auth/signup"} className="w-full sm:w-auto">
-                                    <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white font-[1000] h-16 sm:h-20 px-8 sm:px-12 text-lg sm:text-xl rounded-2xl shadow-[0_20px_40px_-12px_rgba(37,99,235,0.4)] transition-all hover:scale-[1.03] active:scale-95 group w-full font-sora tracking-tight">
-                                        {user ? "Ir para o Dashboard" : "Criar Minha Conta Profissional"}
-                                        <ArrowRight className="ml-2 h-6 w-6 sm:h-7 sm:w-7 transition-transform group-hover:translate-x-2" />
-                                    </Button>
-                                </Link>
-                                <Link href="#demonstracao" className="w-full sm:w-auto">
-                                    <Button size="lg" variant="outline" className="bg-white border-slate-200 text-slate-900 font-[1000] h-16 sm:h-20 px-8 sm:px-12 text-lg sm:text-xl rounded-2xl shadow-sm hover:bg-slate-50 transition-all w-full font-sora tracking-tight border-2">
-                                        Ver Demonstração Grátis
-                                    </Button>
-                                </Link>
-                            </motion.div>
-                        </div>
-
-                        {/* Ultra-High Fidelity Hybrid Multi-Device Mockup */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 40 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 1, ease: "easeOut", delay: 0.3 }}
-                            className="mt-20 relative max-w-[1400px] mx-auto px-4 perspective-[2000px]"
-                        >
-                            <div className="relative flex items-center justify-center min-h-[500px] lg:min-h-[750px] pt-12 select-none pointer-events-none">
-                                
-                                {/* 1. iMac Studio Display (The Foundation - Center) */}
-                                <div className="relative z-10 w-full lg:w-[85%] mx-auto transform-gpu transition-all duration-700">
-                                    <div className="relative rounded-[2.5rem] p-2.5 bg-gradient-to-br from-slate-200 to-slate-400 border border-slate-500/20 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)]">
-                                        {/* Monitor Bezel */}
-                                        <div className="rounded-[2.1rem] overflow-hidden border-[12px] border-slate-900 bg-black shadow-inner relative">
-                                            {/* Screen/Screenshot Interior */}
-                                            <div className="aspect-[16/9] w-full overflow-hidden relative">
-                                                <img
-                                                    src="/mockups/dashboard-sharp.png"
-                                                    alt="GestãoFlex Desktop Dashboard Sharp"
-                                                    className="w-full h-full object-cover"
-                                                />
-                                                {/* Realistic Screen Glare */}
-                                                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.03] to-white/[0.08]" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {/* iMac Stand */}
-                                    <div className="absolute bottom-[-45px] left-1/2 -translate-x-1/2 w-[22%] h-[40px] bg-gradient-to-b from-slate-400 to-slate-500 rounded-b-xl border-x border-b border-slate-500/30 -z-10" />
-                                    <div className="absolute bottom-[-55px] left-1/2 -translate-x-1/2 w-[60%] h-8 bg-black/30 blur-3xl -z-20" />
-                                </div>
-
-                                {/* 2. iPad Pro Mockup (Floating Right-Bottom) */}
-                                <motion.div 
-                                    initial={{ x: 100, opacity: 0, rotateY: -10 }}
-                                    whileInView={{ x: 0, opacity: 1, rotateY: -6 }}
-                                    transition={{ delay: 0.6, duration: 0.8 }}
-                                    className="absolute -right-4 lg:right-[-2%] bottom-[12%] z-20 w-[42%] lg:w-[35%] hidden md:block"
+                                <motion.div
+                                    initial={{ opacity: 0, y: 30 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+                                    className="space-y-8"
                                 >
-                                    <div className="relative rounded-[2.2rem] p-1.5 bg-slate-900 border-[8px] border-slate-800 shadow-[20px_40px_80px_rgba(0,0,0,0.5)] aspect-[4/3] transform-gpu">
-                                        <div className="w-full h-full rounded-[1.6rem] overflow-hidden bg-slate-950 border border-white/5 relative">
-                                            {/* Camera Module */}
-                                            <div className="absolute left-1/2 -top-1 -translate-x-1/2 w-16 h-1.5 bg-black rounded-b-full z-10" />
-                                            <img
-                                                src="/mockups/tablet-sharp.png"
-                                                alt="GestãoFlex Tablet View"
-                                                className="w-full h-full object-cover"
-                                            />
-                                            {/* Top Polish Gloss */}
-                                            <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/[0.08] to-transparent" />
-                                        </div>
-                                    </div>
+                                    <h1 className="text-4xl md:text-5xl lg:text-[3.5rem] xl:text-[4rem] font-black text-slate-950 tracking-tighter leading-[1.1] font-sora max-w-xl">
+                                        Garanta que seu capital volte <span className="text-blue-600">sem correr atrás de devedores.</span>
+                                    </h1>
+                                    <p className="text-lg md:text-xl font-medium text-slate-500 leading-relaxed font-inter space-y-4">
+                                        <span>
+                                            O GestãoFlex organiza cada parcela e elimina falhas manuais na sua carteira. Tenha <span className="text-slate-950 font-black">visibilidade total sobre o seu capital</span> e garanta que cada empréstimo seja recuperado com eficiência.
+                                        </span>
+                                        <br /><br />
+                                        <span className="text-slate-950 font-black italic block">
+                                            A solução essencial para microcredores e agentes de crédito.
+                                        </span>
+                                    </p>
                                 </motion.div>
 
-                                {/* 3. iPhone 15 Pro (Top Layer - Far Right) */}
-                                <motion.div 
-                                    initial={{ x: 150, opacity: 0, rotateY: -15 }}
-                                    whileInView={{ x: 0, opacity: 1, rotateY: -10 }}
-                                    transition={{ delay: 0.8, duration: 0.8 }}
-                                    className="absolute right-[-20px] lg:right-[-6%] bottom-[-10%] z-30 w-[22%] lg:w-[17%] hidden lg:block"
+                                <motion.div
+                                    initial={{ opacity: 0, y: 30 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.1, duration: 1, ease: [0.16, 1, 0.3, 1] }}
+                                    className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-start w-full"
                                 >
-                                    <div className="relative rounded-[3.2rem] p-2 bg-slate-800 border-[8px] border-slate-700 shadow-[30px_60px_100px_rgba(0,0,0,0.7)] aspect-[9/19.5] transform-gpu">
-                                        {/* Physical Buttons */}
-                                        <div className="absolute left-[-11px] top-24 w-[3.5px] h-10 bg-slate-700 rounded-l-md" />
-                                        <div className="absolute left-[-11px] top-40 w-[3.5px] h-14 bg-slate-700 rounded-l-md" />
-                                        <div className="absolute left-[-11px] top-56 w-[3.5px] h-14 bg-slate-700 rounded-l-md" />
-                                        <div className="absolute right-[-11px] top-44 w-[4px] h-20 bg-slate-700 rounded-r-md" />
-
-                                        <div className="w-full h-full rounded-[2.5rem] overflow-hidden bg-slate-50 border border-slate-200 relative">
-                                            {/* Dynamic Island */}
-                                            <div className="absolute top-4 left-1/2 -translate-x-1/2 w-[38%] h-7 bg-black rounded-full z-[100] flex items-center justify-center">
-                                                <div className="h-1 w-1 bg-blue-500/30 rounded-full blur-[0.5px] ml-auto mr-4" />
-                                            </div>
-
-                                            {/* LIVE DASHBOARD SIMULATION (100% Crisp Level) */}
-                                            <div className="w-full h-full flex flex-col pt-8 px-4 gap-4 bg-white overflow-hidden pointer-events-none">
-                                                <div className="flex items-center justify-between">
-                                                    <div className="flex items-center gap-1.5">
-                                                        <div className="h-6 w-6 rounded-lg bg-blue-600 flex items-center justify-center text-[10px] text-white font-black">G</div>
-                                                        <span className="text-[12px] font-black text-slate-800">Gestão<span className="text-blue-600">Flex</span></span>
-                                                    </div>
-                                                    <div className="h-2.5 w-8 bg-slate-100 rounded-full" />
-                                                </div>
-
-                                                <div className="space-y-0.5 mt-2">
-                                                    <h3 className="text-sm font-black text-slate-800">Bem-vindo, litos 👋</h3>
-                                                    <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Controle Financeiro</p>
-                                                </div>
-
-                                                <div className="grid grid-cols-1 gap-3">
-                                                    <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100 space-y-2">
-                                                        <div className="h-8 w-8 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center">
-                                                            <TrendingUp className="h-4 w-4" />
-                                                        </div>
-                                                        <div className="space-y-0.5">
-                                                            <p className="text-[7px] font-black text-slate-400 uppercase">Receita Total</p>
-                                                            <p className="text-base font-black text-slate-900 leading-none">MZN 1.1M</p>
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100 space-y-2">
-                                                        <div className="h-8 w-8 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center">
-                                                            <ShieldAlert className="h-4 w-4" />
-                                                        </div>
-                                                        <div className="space-y-0.5">
-                                                            <p className="text-[7px] font-black text-slate-400 uppercase">Inadimplência</p>
-                                                            <p className="text-base font-black text-slate-900 leading-none">05.2%</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div className="mt-auto pb-10">
-                                                    <div className="bg-blue-600 w-full py-4 rounded-2xl shadow-lg shadow-blue-600/30 text-center">
-                                                        <span className="text-white text-[10px] font-black uppercase tracking-widest">Baixar Relatórios</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            {/* Top Polish Reflection */}
-                                            <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/10" />
-                                        </div>
-                                    </div>
+                                    <Link href={user ? "/dashboard" : "/auth/signup"} className="w-full sm:w-auto">
+                                        <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white font-black h-16 md:h-20 px-10 md:px-14 text-lg md:text-xl rounded-2xl shadow-[0_20px_40px_-12px_rgba(37,99,235,0.4)] transition-all hover:scale-[1.03] active:scale-95 group w-full font-sora border-none">
+                                            {user ? "Ir para o Dashboard" : "Criar Conta Grátis"}
+                                            <ArrowRight className="ml-2 h-7 w-7 transition-transform group-hover:translate-x-2" />
+                                        </Button>
+                                    </Link>
+                                    <Link href="#demonstracao" className="w-full sm:w-auto">
+                                        <Button size="lg" variant="outline" className="bg-white border-blue-600 text-blue-600 font-black h-16 md:h-20 px-10 md:px-14 text-lg md:text-xl rounded-2xl shadow-sm hover:bg-blue-50 transition-all w-full font-sora border-2">
+                                            Saiba Mais
+                                            <ArrowRight className="ml-2 h-7 w-7 transition-transform group-hover:translate-x-2" />
+                                        </Button>
+                                    </Link>
                                 </motion.div>
-
-                                {/* Floating Premium Trust Badge */}
-                                <div className="absolute -top-12 -left-8 bg-white/95 backdrop-blur-2xl p-8 rounded-[3rem] shadow-[0_48px_96px_rgba(0,0,0,0.2)] border border-slate-100/50 hidden xl:block z-40 transform -rotate-2 hover:rotate-0 transition-all duration-700 cursor-default">
-                                    <div className="flex items-center gap-6">
-                                        <div className="h-16 w-16 rounded-[2rem] bg-gradient-to-br from-emerald-400 to-emerald-600 text-white flex items-center justify-center shadow-xl shadow-emerald-500/20">
-                                            <ShieldCheck className="h-10 w-10 stroke-[1.5]" />
-                                        </div>
-                                        <div className="space-y-1">
-                                            <p className="text-[12px] font-black text-slate-400 uppercase tracking-widest">Segurança Total</p>
-                                            <p className="text-3xl font-[1000] text-slate-900 tracking-tighter">BANCÁRIA</p>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
-                        </motion.div>
+
+                            {/* Right Content Column (Premium 3D Mockup) */}
+                            <div className="lg:col-span-7 relative w-full order-1 lg:order-2 flex items-center justify-center">
+                                {/* Ambient Glow Background */}
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-blue-600/5 blur-[120px] rounded-full pointer-events-none" />
+
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.95, y: 30 }}
+                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                    transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+                                    className="relative z-10 w-full"
+                                >
+                                    <div className="relative group">
+                                        {/* Soft High-End Multi-Gradient Shadow */}
+                                        <div className="absolute -inset-10 bg-gradient-to-tr from-blue-600/15 via-purple-500/10 to-cyan-400/15 blur-[120px] rounded-full opacity-60 pointer-events-none" />
+                                        
+                                        <motion.div
+                                            animate={{ y: [-15, 5, -15] }}
+                                            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                                        >
+                                            <img
+                                                src="/hero-final.png"
+                                                alt="GestãoFlex Premium Eco-system"
+                                                width={1200}
+                                                height={800}
+                                                loading="eager"
+                                                fetchPriority="high"
+                                                className="w-full h-auto drop-shadow-[0_50px_100px_rgba(37,99,235,0.3)] transition-transform duration-700 hover:scale-[1.02] rounded-2xl"
+                                            />
+                                        </motion.div>
+                                    </div>
+                                </motion.div>
+
+                                {/* Accent Element (Subtle Blur) */}
+                                <div className="absolute -top-20 -right-20 w-64 h-64 bg-blue-200/30 blur-[120px] rounded-full pointer-events-none" />
+                            </div>
+                        </div>
                     </div>
+
+
                 </section>
 
-                {/* NEW: TARGET AUDIENCE SEGMENTATION Section */}
-                <section className="py-16 md:py-24 bg-slate-50 border-y border-slate-200 overflow-hidden">
+                {/* 2. TARGET AUDIENCE (Para Quem É) */}
+                <section className="py-24 bg-slate-50 border-y border-slate-200 overflow-hidden">
                     <div className="max-w-7xl mx-auto px-6">
-                        <div className="grid lg:grid-cols-2 gap-8 md:gap-12">
-                            {/* Para Quem É */}
-                            <FadeIn className="bg-white p-6 sm:p-12 rounded-[2.5rem] sm:rounded-[3rem] shadow-sm border border-slate-100 flex flex-col gap-6 sm:gap-8">
+                        <div className="grid lg:grid-cols-2 gap-12">
+                            <FadeIn className="bg-white p-12 rounded-[3rem] shadow-sm border border-slate-100 flex flex-col gap-8">
                                 <div className="space-y-4">
                                     <div className="h-12 w-12 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
                                         <UserCheck className="h-6 w-6" />
                                     </div>
-                                    <h3 className="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight font-sora italic underline decoration-emerald-500 underline-offset-8">Para quem é o GestãoFlex:</h3>
-                                    <p className="text-slate-500 font-medium text-sm sm:text-base">Se você se identifica com os pontos abaixo, este sistema foi feito sob medida para você:</p>
+                                    <h3 className="text-3xl font-black text-slate-950 tracking-tight font-sora italic underline decoration-emerald-500 underline-offset-8">Para quem é o GestãoFlex:</h3>
                                 </div>
                                 <div className="space-y-4">
                                     {[
@@ -563,9 +380,9 @@ export default function LandingPage() {
                                         "Agentes de crédito que usam M-Pesa ou E-Mola diariamente.",
                                         "Quem está cansado de perder prazos e esquecer cobranças no caderno.",
                                         "Professores ou funcionários que fazem empréstimos extra para complementar renda.",
-                                        "Quem quer profissionalizar o negócio e escalar sem contratar pessoal."
+                                        "Quem quer profissionalizar o negócio e escalar."
                                     ].map((text, i) => (
-                                        <div key={i} className="flex items-start gap-3 sm:gap-4 text-slate-700 font-bold text-sm sm:text-base">
+                                        <div key={i} className="flex items-start gap-4 text-slate-700 font-bold">
                                             <CheckCircle2 className="h-5 w-5 text-emerald-500 mt-0.5 flex-shrink-0" />
                                             <span>{text}</span>
                                         </div>
@@ -573,24 +390,22 @@ export default function LandingPage() {
                                 </div>
                             </FadeIn>
 
-                            {/* Para Quem NÃO É */}
-                            <FadeIn delay={200} className="bg-slate-950 p-6 sm:p-12 rounded-[2.5rem] sm:rounded-[3rem] shadow-2xl flex flex-col gap-6 sm:gap-8">
+                            <FadeIn delay={200} className="bg-slate-950 p-12 rounded-[3rem] shadow-2xl flex flex-col gap-8">
                                 <div className="space-y-4">
                                     <div className="h-12 w-12 rounded-2xl bg-rose-500/10 text-rose-500 flex items-center justify-center">
                                         <ShieldAlert className="h-6 w-6" />
                                     </div>
-                                    <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight font-sora">Quem <span className="text-rose-500">NÃO</span> deve usar:</h3>
-                                    <p className="text-slate-400 font-medium text-sm sm:text-base font-inter">Este sistema não é para todos. Por favor, NÃO use se:</p>
+                                    <h3 className="text-3xl font-black text-white tracking-tight font-sora">Quem <span className="text-rose-500">NÃO</span> deve usar:</h3>
                                 </div>
                                 <div className="space-y-4">
                                     {[
                                         "Você é um Banco Comercial ou Seguradora de grande porte.",
                                         "Você faz apenas 1 ou 2 empréstimos por ano para familiares.",
-                                        "Você busca um ERP complexo para gestão industrial ou estoque.",
-                                        "Você prefere continuar dependendo da sorte e da memória (ou do papel).",
-                                        "Você não tem interesse em organizar seu fluxo de caixa e lucros."
+                                        "Você quer um ERP complexo para gestão industrial.",
+                                        "Você prefere continuar dependendo da sorte ou do papel.",
+                                        "Você não tem interesse em organizar seu fluxo de caixa."
                                     ].map((text, i) => (
-                                        <div key={i} className="flex items-start gap-3 sm:gap-4 text-slate-400 font-bold text-sm sm:text-base">
+                                        <div key={i} className="flex items-start gap-4 text-slate-400 font-bold">
                                             <div className="h-1.5 w-1.5 rounded-full bg-rose-500 mt-2.5 flex-shrink-0" />
                                             <span>{text}</span>
                                         </div>
@@ -601,50 +416,142 @@ export default function LandingPage() {
                     </div>
                 </section>
 
-                {/* 2. PROBLEMA (Narrative Overhaul) */}
-                <section id="problema" className="py-20 md:py-32 bg-slate-950 px-6 relative overflow-hidden">
+                {/* 3. SHOWROOM SECTION (Visual System Tour) */}
+                <section className="py-32 bg-white overflow-hidden" id="demonstracao">
+                    <div className="max-w-7xl mx-auto px-6 space-y-32">
+                        
+                        {/* Showcase 1: Carteira de Crédito */}
+                        <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+                            <motion.div 
+                                initial={{ opacity: 0, x: -50 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 1 }}
+                                className="relative order-2 lg:order-1"
+                            >
+                                <div className="absolute -inset-10 bg-gradient-to-tr from-blue-600/15 via-purple-500/10 to-cyan-400/15 blur-[120px] rounded-full opacity-60 pointer-events-none" />
+                                <motion.div 
+                                    animate={{ y: [-15, 5, -15] }}
+                                    transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                                    className="relative group"
+                                >
+                                    <img
+                                        src="/mobile-loan-agent-v3.png"
+                                        alt="Gestor Acessando Carteira no Celular"
+                                        className="w-full h-auto drop-shadow-[0_45px_90px_rgba(37,99,235,0.2)] rounded-3xl transition-transform duration-700 hover:scale-[1.02]"
+                                    />
+                                </motion.div>
+                            </motion.div>
+                            
+                            <div className="space-y-8 order-1 lg:order-2">
+                                <FadeIn className="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-50 text-blue-700 rounded-full text-xs font-black tracking-widest uppercase font-sora">
+                                    Módulo de Crédito
+                                </FadeIn>
+                                <h3 className="text-4xl md:text-5xl lg:text-5xl font-black text-slate-950 tracking-tighter font-sora leading-tight">
+                                    Controlo Total da sua <span className="text-blue-600">Carteira de Clientes.</span>
+                                </h3>
+                                <p className="text-lg text-slate-600 font-medium leading-relaxed font-inter">
+                                    Visualize cada contrato, identifique riscos de inadimplência em tempo real e automatize a gestão de cobranças. O GestãoFlex dá-lhe a inteligência necessária para saber exatamente onde o seu capital está alocado.
+                                </p>
+                                <ul className="space-y-4">
+                                    {[
+                                        "Monitoramento de Risco da Carteira",
+                                        "Alertas automáticos de parcelas vencidas",
+                                        "Impressão de contratos e recibos profissionais",
+                                        "Histórico completo de cada beneficiário"
+                                    ].map((item, id) => (
+                                        <li key={id} className="flex items-center gap-3 text-slate-700 font-bold">
+                                            <div className="h-2 w-2 rounded-full bg-blue-600" />
+                                            {item}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
+
+                        {/* Showcase 2: Inteligência Financeira */}
+                        <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+                            <div className="space-y-8">
+                                <FadeIn className="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-50 text-emerald-700 rounded-full text-xs font-black tracking-widest uppercase font-sora">
+                                    Relatórios Estratégicos
+                                </FadeIn>
+                                <h3 className="text-4xl md:text-5xl lg:text-5xl font-black text-slate-950 tracking-tighter font-sora leading-tight">
+                                    Decisões Baseadas em <span className="text-emerald-600">Dados Reais.</span>
+                                </h3>
+                                <p className="text-lg text-slate-600 font-medium leading-relaxed font-inter">
+                                    Chega de adivinhações. Tenha relatórios detalhados de lucro líquido, ROI de cada empréstimo e fluxo de caixa consolidado. Entenda a performance da sua operação com gráficos intuitivos e profissionais.
+                                </p>
+                                <ul className="space-y-4">
+                                    {[
+                                        "Gráficos Dinâmicos de Receita vs Despesa",
+                                        "Cálculo automático de juros e mora",
+                                        "Relatórios prontos para exportação PDF/Excel",
+                                        "Visibilidade total de custos operacionais"
+                                    ].map((item, id) => (
+                                        <li key={id} className="flex items-center gap-3 text-slate-700 font-bold">
+                                            <div className="h-2 w-2 rounded-full bg-emerald-500" />
+                                            {item}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+
+                            <motion.div 
+                                initial={{ opacity: 0, x: 50 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 1 }}
+                                className="relative"
+                            >
+                                <div className="absolute -inset-10 bg-gradient-to-tr from-emerald-500/15 via-teal-400/10 to-cyan-500/15 blur-[120px] rounded-full opacity-60 pointer-events-none" />
+                                <motion.div 
+                                    animate={{ y: [-15, 5, -15] }}
+                                    transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+                                    className="relative group"
+                                >
+                                    <img
+                                        src="/desktop-data-analyst.png"
+                                        alt="Analista de Crédito Avaliando Gráficos"
+                                        className="w-full h-auto drop-shadow-[0_45px_90px_rgba(16,185,129,0.2)] rounded-3xl transition-transform duration-700 hover:scale-[1.02]"
+                                    />
+                                </motion.div>
+                            </motion.div>
+                        </div>
+
+                    </div>
+                </section>
+
+                {/* 3. O PROBLEMA (High Contrast Dark Mode) */}
+                <section id="problema" className="py-32 bg-slate-950 px-6 relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_50%,rgba(59,130,246,0.1),transparent_50%)]" />
                     <div className="max-w-7xl mx-auto relative z-10">
-                        <div className="grid lg:grid-cols-2 gap-12 md:gap-20 items-center">
-                            <FadeIn className="space-y-6 md:space-y-8">
+                        <div className="grid lg:grid-cols-2 gap-20 items-center">
+                            <FadeIn className="space-y-8">
                                 <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-rose-500/10 border border-rose-500/20 rounded-full text-[10px] font-black text-rose-500 uppercase tracking-[0.3em]">
                                     Cuidado com a sua Margem
                                 </div>
-                                <h2 className="text-4xl md:text-7xl font-[1000] text-white tracking-[-0.03em] leading-[1.1] md:leading-[1] font-sora">
-                                    CADERNO NÃO É <br />
-                                    <span className="text-slate-500 text-3xl md:text-7xl">FERRAMENTA DE GESTÃO.</span>
+                                <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tighter leading-[1.05] font-sora">
+                                    CADERNO NÃO É <span className="text-slate-500">FERRAMENTA DE GESTÃO.</span>
                                 </h2>
-                                <p className="text-lg md:text-xl text-slate-400 font-medium leading-relaxed max-w-xl font-inter">
+                                <p className="text-xl text-slate-400 font-medium leading-relaxed max-w-xl font-inter">
                                     Se você trabalha com crédito e ainda usa cadernos ou planilhas, a sua operação está em risco constante.
                                 </p>
-                                <div className="space-y-4 pt-4">
-                                    {[
-                                        "Inadimplência que você nem percebe",
-                                        "Horas perdidas com cálculos manuais",
-                                        "Erros humanos que custam caro",
-                                    ].map((text, i) => (
-                                        <div key={i} className="flex items-center gap-4 text-slate-300 font-bold text-sm md:text-base">
-                                            <div className="h-2 w-2 rounded-full bg-rose-500" />
-                                            {text}
-                                        </div>
-                                    ))}
-                                </div>
                             </FadeIn>
 
-                            <div className="grid gap-4">
+                            <div className="grid gap-6">
                                 {[
                                     { title: "Inadimplência Oculta", desc: "A cada dia que você não cobra, o risco de nunca receber sobe 15%.", icon: TriangleAlert, color: "bg-rose-500/10 text-rose-500" },
-                                    { title: "Cálculos Frágeis", desc: "Planilhas corrompem. Papeis somem. Seus lucros não deveriam ser tão voláteis.", icon: Calculator, color: "bg-blue-500/10 text-blue-500" },
-                                    { title: "Zero Escala", desc: "Você gasta 80% do tempo administrando e apenas 20% crescendo seu negócio.", icon: Zap, color: "bg-emerald-500/10 text-emerald-500" },
+                                    { title: "Cálculos Frágeis", desc: "Planilhas corrompem. Papeis somem. Seus lucros não podem ser voláteis.", icon: Calculator, color: "bg-blue-500/10 text-blue-500" },
+                                    { title: "Zero Escala", desc: "Você gasta 80% do tempo administrando e apenas 20% crescendo.", icon: Zap, color: "bg-emerald-500/10 text-emerald-500" },
                                 ].map((pain, i) => (
                                     <FadeIn key={i} delay={i * 100}>
-                                        <div className="bg-white/5 backdrop-blur-sm p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border border-white/5 flex items-start gap-4 md:gap-6 group hover:bg-white/10 transition-all">
-                                            <div className={cn("h-12 w-12 md:h-14 md:w-14 rounded-2xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110", pain.color)}>
-                                                <pain.icon className="h-6 w-6 md:h-8 md:w-8" />
+                                        <div className="bg-white/5 backdrop-blur-sm p-8 rounded-[2.5rem] border border-white/5 flex items-start gap-6 group hover:bg-white/10 transition-all">
+                                            <div className={cn("h-14 w-14 rounded-2xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110", pain.color)}>
+                                                <pain.icon className="h-8 w-8" />
                                             </div>
                                             <div className="space-y-1">
-                                                <h4 className="text-lg md:text-xl font-bold text-white tracking-tight">{pain.title}</h4>
-                                                <p className="text-slate-400 font-medium leading-relaxed text-xs md:text-sm">{pain.desc}</p>
+                                                <h4 className="text-xl font-bold text-white tracking-tight">{pain.title}</h4>
+                                                <p className="text-slate-400 font-medium leading-relaxed text-sm">{pain.desc}</p>
                                             </div>
                                         </div>
                                     </FadeIn>
@@ -654,467 +561,226 @@ export default function LandingPage() {
                     </div>
                 </section>
 
-                {/* 3. SOLUÇÃO (Premium Split Layout) */}
-                <section id="solucao" className="py-20 md:py-32 bg-white px-6 overflow-hidden">
-                    <div className="max-w-7xl mx-auto space-y-16 md:space-y-24">
+                {/* 4. A SOLUÇÃO */}
+                <section id="solucao" className="py-32 bg-white px-6 overflow-hidden">
+                    <div className="max-w-7xl mx-auto space-y-24">
                         <FadeIn className="text-center space-y-6 max-w-4xl mx-auto">
                             <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-[10px] font-black text-emerald-600 uppercase tracking-[0.4em] mb-4">
                                 A Solução Definitiva
                             </div>
-                            <h3 className="text-4xl md:text-7xl font-[1000] text-slate-950 tracking-[-0.03em] leading-[1.1] md:leading-[1] font-sora">
-                                Automatize sua <br />
-                                <span className="text-blue-600">cobrança e cálculos.</span>
+                            <h3 className="text-4xl md:text-5xl lg:text-6xl font-black text-slate-950 tracking-tighter leading-[1.05] font-sora">
+                                Automatize sua <span className="text-blue-600">cobrança e cálculos.</span>
                             </h3>
-                            <p className="text-lg md:text-2xl text-slate-500 font-medium max-w-3xl mx-auto leading-relaxed font-inter">
-                                O GestãoFlex cuida da parte burocrática para que você foque no que realmente importa: <span className="text-slate-950 font-black italic">fazer seu capital girar e seu lucro crescer.</span>
+                            <p className="text-xl md:text-3xl text-slate-500 font-medium max-w-3xl mx-auto leading-relaxed font-inter">
+                                O GestãoFlex cuida da burocracia para que você foque no que realmente importa: <span className="text-slate-950 font-black italic">fazer seu capital girar.</span>
                             </p>
                         </FadeIn>
                         
-                        <div className="grid lg:grid-cols-2 gap-12 md:gap-24 items-center">
-                            <FadeIn delay={200} className="relative group overflow-visible order-2 lg:order-1">
-                                <div className="absolute -inset-10 bg-blue-600/5 blur-[100px] rounded-full opacity-50 group-hover:opacity-100 transition-opacity -z-10" />
-                                <div className="p-2 sm:p-4 bg-slate-950 rounded-[2rem] sm:rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.4)] transform group-hover:scale-[1.02] transition-transform duration-700 border-4 sm:border-8 border-slate-900 relative mx-auto max-w-[500px] lg:max-w-none">
-                                    <img
-                                        src="/mockups/tablet-sharp.png"
-                                        alt="Interface de Empréstimos GestãoFlex Real"
-                                        className="w-full h-auto rounded-[1.5rem] sm:rounded-[2.2rem] shadow-2xl"
-                                    />
-                                    {/* Glass Reflection Overlay */}
-                                    <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
+                        <div className="grid lg:grid-cols-2 gap-24 items-center">
+                            <FadeIn delay={200} className="relative group">
+                                <div className="relative">
+                                    <div className="absolute -inset-10 bg-gradient-to-tr from-blue-600/15 via-indigo-500/10 to-emerald-400/15 blur-[120px] rounded-full opacity-60 pointer-events-none" />
+                                    <motion.div animate={{ y: [-15, 5, -15] }} transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}>
+                                        <img
+                                            src="/solucao-final.png"
+                                            alt="Solução GestãoFlex"
+                                            className="w-full h-auto drop-shadow-[0_45px_90px_rgba(37,99,235,0.2)] rounded-3xl transition-transform duration-700 hover:scale-[1.02] relative z-10"
+                                        />
+                                    </motion.div>
                                 </div>
-                                {/* Floating Metric Card */}
                                 <motion.div 
                                     animate={{ y: [0, -10, 0] }}
                                     transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                                    className="absolute -bottom-6 -right-6 md:-bottom-10 md:-right-10 bg-white p-4 md:p-6 rounded-[1.5rem] md:rounded-[2.5rem] shadow-2xl border border-slate-100 hidden sm:block z-20"
+                                    className="absolute -bottom-10 -right-10 bg-white p-6 rounded-[2.5rem] shadow-2xl border border-slate-100 hidden sm:block z-20"
                                 >
                                     <div className="flex items-center gap-4">
-                                        <div className="h-10 w-10 md:h-12 md:w-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                                            <TrendingUp className="h-5 w-5 md:h-6 md:w-6" />
+                                        <div className="h-12 w-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                                            <TrendingUp className="h-6 w-6" />
                                         </div>
                                         <div>
-                                            <p className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">Inadimplência</p>
-                                            <p className="text-xl md:text-2xl font-black text-slate-950">-42.5%</p>
+                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Inadimplência</p>
+                                            <p className="text-2xl font-black text-slate-950">-42.5%</p>
                                         </div>
                                     </div>
                                 </motion.div>
                             </FadeIn>
 
-                            <FadeIn delay={100} className="space-y-8 md:space-y-10 order-1 lg:order-2">
-                                <h4 className="text-xl md:text-2xl font-black text-slate-950 tracking-tight font-sora">Controle total, esforço zero.</h4>
-                                <div className="space-y-6 md:space-y-8">
-                                    {[
-                                        { title: "Registrar empréstimos em segundos", desc: "Criação rápida com taxas e juros personalizados.", icon: FileText, color: "bg-blue-500/10 text-blue-600" },
-                                        { title: "Acompanhar todos os pagamentos", desc: "Baixa automática de parcelas e alertas de vencimento.", icon: RefreshCw, color: "bg-emerald-500/10 text-emerald-600" },
-                                        { title: "Ver quem está em atraso", desc: "Histórico completo para evitar maus pagadores.", icon: Users, color: "bg-rose-500/10 text-rose-600" },
-                                        { title: "Alertas de vencimentos", desc: "Lembretes por WhatsApp sem que você precise mover um dedo.", icon: Zap, color: "bg-orange-500/10 text-orange-600" },
-                                    ].map((feat, i) => (
-                                        <div key={i} className="flex gap-4 md:gap-6 group">
-                                            <div className={cn("h-12 w-12 md:h-14 md:w-14 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-110 transition-transform", feat.color)}>
-                                                <feat.icon className="h-6 w-6 md:h-7 md:w-7" />
-                                            </div>
-                                            <div className="space-y-1 pt-1">
-                                                <h5 className="text-lg md:text-xl font-bold text-slate-950 tracking-tight font-sora">{feat.title}</h5>
-                                                <p className="text-slate-500 font-medium text-sm md:text-lg leading-snug">{feat.desc}</p>
-                                            </div>
+                            <div className="space-y-10">
+                                {[
+                                    { title: "Registrar empréstimos em segundos", desc: "Criação rápida com taxas e juros personalizados.", icon: FileText, color: "bg-blue-500/10 text-blue-600" },
+                                    { title: "Acompanhar todos os pagamentos", desc: "Baixa automática de parcelas e alertas de vencimento.", icon: RefreshCw, color: "bg-emerald-500/10 text-emerald-600" },
+                                    { title: "Ver quem está em atraso", desc: "Histórico completo para evitar maus pagadores.", icon: Users, color: "bg-rose-500/10 text-rose-600" },
+                                    { title: "Alertas de vencimentos", desc: "Lembretes automáticos sem que você precise mover um dedo.", icon: Zap, color: "bg-orange-500/10 text-orange-600" },
+                                ].map((feat, i) => (
+                                    <div key={i} className="flex gap-6 group">
+                                        <div className={cn("h-14 w-14 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-110 transition-transform", feat.color)}>
+                                            <feat.icon className="h-7 w-7" />
                                         </div>
-                                    ))}
-                                </div>
-                            </FadeIn>
+                                        <div className="space-y-1">
+                                            <h5 className="text-xl font-bold text-slate-950 tracking-tight font-sora">{feat.title}</h5>
+                                            <p className="text-slate-500 font-medium text-lg leading-snug">{feat.desc}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </section>
 
-                {/* 4. FUNCIONALIDADES (Master Bento Grid) */}
-                <section id="funcionalidades" className="py-20 md:py-32 bg-slate-50/50 px-6 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-blue-500/5 rounded-full blur-[120px] -z-10 translate-x-1/2 -translate-y-1/2" />
-                    
-                    <div className="max-w-7xl mx-auto space-y-16 md:space-y-20">
-                        <FadeIn className="text-center space-y-6 max-w-4xl mx-auto">
-                            <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-[10px] font-black text-blue-600 uppercase tracking-[0.4em] mb-4">
-                                Poder Sem Complexidade
+                {/* 5. SIMPLICIDADE BENTO GRID */}
+                <section className="py-24 bg-slate-50 relative overflow-hidden px-6">
+                    <div className="max-w-6xl mx-auto space-y-16 relative z-10">
+                        <FadeIn className="text-center space-y-6 max-w-3xl mx-auto">
+                            <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-[10px] font-black text-blue-600 uppercase tracking-[0.4em]">
+                                Poder sem Complexidade
                             </div>
-                            <h3 className="text-4xl md:text-7xl font-[1000] text-slate-950 tracking-[-0.03em] leading-[1.1] md:leading-[1] font-sora">
-                                Simplicidade que <br />
-                                <span className="text-blue-600">gera escala real.</span>
-                            </h3>
-                            <p className="text-lg md:text-xl text-slate-500 font-medium max-w-3xl mx-auto leading-relaxed font-inter">
+                            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-slate-950 tracking-tighter leading-[1.05] font-sora">
+                                Simplicidade que <span className="text-blue-600">gera escala real.</span>
+                            </h2>
+                            <p className="text-lg md:text-xl font-medium text-slate-500 font-inter max-w-2xl mx-auto">
                                 Tudo o que você precisa para gerenciar sua carteira de crédito sem complicações técnicas ou dashboards confusos.
                             </p>
                         </FadeIn>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 md:auto-rows-[300px]">
-                            {/* Card 1: WhatsApp (Large 2x2) */}
-                            <FadeIn className="md:col-span-2 md:row-span-2">
-                                <div className="h-full bg-slate-950 p-6 sm:p-12 rounded-[2.5rem] sm:rounded-[4rem] shadow-2xl group overflow-hidden relative flex flex-col justify-between border border-white/5">
-                                    <div className="relative z-10 space-y-4 sm:space-y-6">
-                                        <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/30">
-                                            <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8" />
-                                        </div>
-                                        <h4 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight font-sora">
-                                            Você Empresta, <br />
-                                            o Sistema <span className="text-emerald-500">Cobra.</span>
-                                        </h4>
-                                        <p className="text-sm sm:text-xl text-slate-400 font-medium max-w-md leading-relaxed font-inter">
-                                            Notificações automáticas de vencimento que eliminam falhas de comunicação e reduzem drasticamente a inadimplência na sua carteira.
-                                        </p>
+                        <div className="grid grid-cols-1 md:grid-cols-3 md:grid-rows-2 gap-6 max-w-5xl mx-auto">
+                            {/* Você Empresta, o Sistema Cobra */}
+                            <FadeIn delay={100} className="md:col-span-1 md:row-span-2 bg-[#0A0D14] rounded-[2.5rem] p-10 flex flex-col justify-between relative overflow-hidden group shadow-xl border border-white/5">
+                                <div className="absolute inset-0 bg-[url('/bento-collection.png')] bg-cover bg-center opacity-30 group-hover:opacity-50 transition-opacity duration-700" />
+                                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0A0D14]/80 to-[#0A0D14] mix-blend-multiply" />
+                                <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 blur-[80px] rounded-full" />
+                                <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-blue-600/10 blur-[100px] rounded-full" />
+                                
+                                <div className="space-y-6 relative z-10">
+                                    <div className="h-12 w-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center backdrop-blur-sm border border-emerald-500/20">
+                                        <TrendingUp className="h-6 w-6 text-emerald-400" />
                                     </div>
-                                    <div className="absolute -bottom-20 -right-20 w-[300px] sm:w-[400px] h-[300px] sm:h-[400px] bg-emerald-500/10 rounded-full blur-[80px] sm:blur-[100px] group-hover:bg-emerald-500/15 transition-all" />
-                                    <div className="relative z-10 flex flex-wrap items-center gap-3 sm:gap-4 pt-6 sm:pt-10">
-                                        <span className="px-4 sm:px-6 py-2 bg-white/5 border border-white/10 rounded-xl text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-emerald-400">ROI Imediato</span>
-                                        <span className="px-4 sm:px-6 py-2 bg-white/5 border border-white/10 rounded-xl text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-emerald-400">Zero Esforço</span>
-                                    </div>
+                                    <h3 className="text-2xl font-black text-white font-sora tracking-tight">Você Empresta, O Sistema Cobra.</h3>
+                                    <p className="text-slate-400 font-inter leading-relaxed drop-shadow-sm">
+                                        Notificações automáticas de vencimento que eliminam falhas de comunicação e reduzem drasticamente a inadimplência na sua carteira.
+                                    </p>
                                 </div>
                             </FadeIn>
 
-                            {/* Card 2: Security (Tall 1x2) */}
-                            <FadeIn delay={100} className="md:col-span-1 md:row-span-2">
-                                <div className="h-full bg-white p-10 rounded-[3.5rem] border border-slate-200/60 shadow-sm flex flex-col justify-between group hover:border-blue-500/30 transition-all">
-                                    <div className="space-y-6">
-                                        <div className="h-14 w-14 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-600/20">
-                                            <ShieldCheck className="h-7 w-7" />
-                                        </div>
-                                        <h4 className="text-2xl font-black text-slate-950 tracking-tight font-sora">Segurança <br />Bancária.</h4>
-                                        <p className="text-slate-500 font-medium leading-relaxed font-inter">
-                                            Infraestrutura de alta disponibilidade com backups em tempo real, garantindo que sua operação e dados financeiros estejam sempre protegidos.
-                                        </p>
-                                    </div>
-                                    <div className="pt-10 border-t border-slate-100 space-y-4">
-                                        <div className="flex items-center gap-3 text-slate-400 font-bold text-xs uppercase tracking-widest">
-                                            <Zap className="h-4 w-4 text-blue-600" />
-                                            Cloud Real-time
-                                        </div>
-                                        <div className="flex items-center gap-3 text-slate-400 font-bold text-xs uppercase tracking-widest">
-                                            <Zap className="h-4 w-4 text-blue-600" />
-                                            SSL 256-bit
-                                        </div>
-                                    </div>
+                            {/* Segurança Bancária */}
+                            <FadeIn delay={200} className="bg-white border text-center border-slate-100 rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-4 shadow-sm group hover:shadow-md transition-all">
+                                <div className="h-12 w-12 rounded-2xl bg-blue-50 flex items-center justify-center">
+                                    <ShieldCheck className="h-6 w-6 text-blue-600" />
                                 </div>
+                                <h3 className="text-xl font-black text-slate-950 font-sora tracking-tight">Segurança Bancária.</h3>
+                                <p className="text-sm text-slate-500 font-inter">Infraestrutura de alta disponibilidade com backups em tempo real.</p>
                             </FadeIn>
 
-                            {/* Card 3: Analytics (Wide 1x1 on Large) */}
-                            <FadeIn delay={200} className="md:col-span-1 md:row-span-1">
-                                <div className="h-full bg-blue-600 p-8 rounded-[3.5rem] shadow-2xl flex flex-col justify-between group">
-                                    <div className="h-12 w-12 rounded-xl bg-white/20 text-white flex items-center justify-center">
-                                        <LineChart className="h-6 w-6" />
-                                    </div>
-                                    <h4 className="text-xl font-black text-white tracking-tight font-sora leading-tight">Insight em Tempo Real.</h4>
+                            {/* Insight em Tempo Real */}
+                            <FadeIn delay={300} className="bg-blue-600 text-center rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-4 shadow-xl shadow-blue-600/20 relative overflow-hidden group">
+                                <div className="absolute inset-0 bg-[url('/bento-insight.png')] bg-cover bg-center opacity-60 group-hover:scale-105 transition-transform duration-700" />
+                                <div className="absolute inset-0 bg-gradient-to-tr from-blue-900/80 to-blue-600/30" />
+                                <div className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center relative z-10 backdrop-blur-md border border-white/20">
+                                    <LineChart className="h-6 w-6 text-white" />
                                 </div>
+                                <h3 className="text-xl font-black text-white font-sora tracking-tight mt-auto relative z-10 drop-shadow-md">Insight em Tempo Real.</h3>
                             </FadeIn>
 
-                            {/* Card 4: Reports (Large 1x2 on right or custom) */}
-                            <FadeIn delay={300} className="lg:col-span-2 lg:row-span-1">
-                                <div className="h-full bg-white p-8 rounded-[3.5rem] border border-slate-200/60 shadow-sm flex items-center gap-10 group overflow-hidden">
-                                    <div className="h-20 w-20 flex-shrink-0 rounded-[2rem] bg-slate-950 text-white flex items-center justify-center group-hover:scale-105 transition-transform duration-500">
-                                        <BarChart3 className="h-10 w-10" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <h4 className="text-2xl font-black text-slate-950 tracking-tight font-sora">Relatórios Prontos.</h4>
-                                        <p className="text-slate-500 font-medium font-inter">Saiba quanto lucrou com apenas um clique.</p>
-                                    </div>
+                            {/* Relatórios Prontos */}
+                            <FadeIn delay={400} className="bg-white text-center border border-slate-100 rounded-[2.5rem] p-8 flex flex-col items-center justify-center gap-4 shadow-sm group hover:shadow-md transition-all">
+                                <div className="h-12 w-12 rounded-2xl bg-slate-50 flex items-center justify-center">
+                                    <PieChart className="h-6 w-6 text-slate-900" />
                                 </div>
+                                <h3 className="text-xl font-black text-slate-950 font-sora tracking-tight">Relatórios Prontos.</h3>
+                                <p className="text-sm text-slate-500 font-inter">Saiba quanto lucrou com um clique.</p>
                             </FadeIn>
 
-                            {/* Card 5: Mobile (Wide bottom) */}
-                            <FadeIn delay={400} className="md:col-span-3 lg:col-span-1 lg:row-span-1">
-                                <div className="h-full bg-orange-500 rounded-[3.5rem] shadow-2xl shadow-orange-500/20 flex flex-col justify-center items-center text-center group overflow-hidden relative">
-                                    <img 
-                                        src="/mockups/mobile-hand-mockup.png" 
-                                        alt="Sistema na palma da mão" 
-                                        className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700"
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-orange-600/80 to-transparent" />
-                                    <div className="relative z-10 p-10">
-                                        <Smartphone className="h-12 w-12 text-white mb-4 mx-auto transform group-hover:-rotate-12 transition-transform" />
-                                        <h4 className="text-2xl font-black text-white tracking-tight font-sora">Na Palma da Mão.</h4>
-                                    </div>
+                            {/* Na Palma da Mão */}
+                            <FadeIn delay={500} className="bg-orange-500 rounded-[2.5rem] p-8 flex flex-col items-center justify-end text-center relative overflow-hidden shadow-xl shadow-orange-500/20 min-h-[220px] group border border-orange-400/30">
+                                <div className="absolute inset-0 bg-[url('/bento-mobile.png')] bg-[length:120%_auto] bg-[center_-20px] opacity-100 group-hover:scale-105 group-hover:bg-[center_-10px] transition-all duration-700" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-orange-950/90 via-orange-800/40 to-transparent" />
+                                <div className="h-10 w-10 text-white/50 mb-4 relative z-10 bg-white/10 rounded-xl backdrop-blur-md flex items-center justify-center shadow-inner border border-white/20">
+                                    <Smartphone className="h-5 w-5 text-white" />
                                 </div>
+                                <h3 className="text-xl font-black text-white font-sora tracking-tight relative z-10 drop-shadow-md">Na Palma da Mão.</h3>
                             </FadeIn>
                         </div>
                     </div>
                 </section>
 
-                {/* 5. DEPOIMENTOS (Wall of Love) */}
-                <section id="beneficios" className="py-32 bg-white px-6 relative overflow-hidden">
-                    <div className="max-w-7xl mx-auto space-y-24 relative z-10">
-                        <FadeIn className="text-center max-w-3xl mx-auto space-y-6">
-                            <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-[10px] font-black text-blue-600 uppercase tracking-[0.4em] mb-4">
-                                Feedback Real
+                {/* 6. VIDEO DEMO */}
+                <section className="py-32 bg-[#010309] relative overflow-hidden px-6 text-center">
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-600/10 blur-[150px] rounded-full pointer-events-none" />
+                    
+                    <div className="max-w-4xl mx-auto space-y-16 relative z-10">
+                        <FadeIn className="space-y-6">
+                            <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-[10px] font-black text-blue-400 uppercase tracking-[0.4em]">
+                                Demo Interativa
                             </div>
-                            <h3 className="text-5xl md:text-7xl font-[1000] text-slate-950 tracking-[-0.03em] font-sora leading-[1]">
-                                O mercado já <br />
-                                <span className="text-blue-600">está mudando.</span>
-                            </h3>
-                            <p className="text-xl text-slate-500 font-medium font-inter">
-                                Junte-se a dezenas de empreendedores que profissionalizaram sua gestão.
+                            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tighter leading-[1.05] font-sora">
+                                Veja o sistema <span className="text-blue-500">em ação real.</span>
+                            </h2>
+                            <p className="text-lg md:text-xl font-medium text-slate-400 font-inter max-w-2xl mx-auto">
+                                Interface simples, rápida e fácil de usar. (Clique para assistir)
                             </p>
                         </FadeIn>
 
-                        <div className="grid md:grid-cols-3 gap-8">
-                            {[
-                                {
-                                    quote: "Antes do GestãoFlex, eu perdia horas conferindo comprovantes do M-Pesa. Agora, as parcelas caem e o sistema já me avisa quem pagou. Minha carteira de 20 clientes virou 60 sem eu perder o controle.",
-                                    name: "Litos Tembe",
-                                    role: "Agente de Microcrédito - Maputo",
-                                    image: "/testimonials/joao.png",
-                                },
-                                {
-                                    quote: "O que eu mais gosto é a cobrança automática no WhatsApp. Mandar lembrete um por um era um sofrimento. Hoje o sistema faz o trabalho pesado e eu foco em analisar novos empréstimos com segurança.",
-                                    name: "Zaida Mucavele",
-                                    role: "Gestora Financeira - Beira",
-                                    image: "/testimonials/maria.png",
-                                },
-                                {
-                                    quote: "Trabalho com crédito há 10 anos e nunca vi algo tão adaptado à nossa realidade. O relatório de inadimplência é cirúrgico. Consigo ver onde meu capital está preso e agir antes do prejuízo.",
-                                    name: "Arlindo Mondlane",
-                                    role: "Consultor de Negócios - Nampula",
-                                    image: "/testimonials/antonio.png",
-                                },
-                            ].map((t, i) => (
-                                <FadeIn key={i} delay={i * 100}>
-                                    <div className="bg-slate-50 p-6 sm:p-10 rounded-[2.5rem] sm:rounded-[3rem] space-y-6 sm:space-y-8 flex flex-col h-full hover:shadow-2xl hover:shadow-blue-900/5 transition-all group border border-slate-100">
-                                        <div className="flex gap-1.5">
-                                            {[1, 2, 3, 4, 5].map(j => <Star key={j} className="h-4 w-4 sm:h-5 sm:w-5 fill-orange-400 text-orange-400" />)}
-                                        </div>
-                                        <p className="text-lg sm:text-xl text-slate-600 font-medium leading-relaxed italic font-inter">&quot;{t.quote}&quot;</p>
-                                        <div className="flex items-center gap-4 sm:gap-5 pt-6 sm:pt-8 mt-auto border-t border-slate-200/60">
-                                            <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-2xl sm:rounded-3xl border-2 border-white overflow-hidden shadow-lg flex-shrink-0">
-                                                <img src={t.image} alt={t.name} className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                                            </div>
-                                            <div>
-                                                <p className="font-black text-slate-950 text-base sm:text-lg leading-none font-sora tracking-tight">{t.name}</p>
-                                                <p className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">{t.role}</p>
-                                            </div>
-                                        </div>
+                        <FadeIn delay={200} className="relative rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl bg-black/50 p-2 group cursor-pointer max-w-3xl mx-auto">
+                            <img src="/hero-main.png" alt="Video Demo" className="w-full h-auto rounded-[1.5rem] opacity-70 group-hover:opacity-100 transition-opacity duration-500" />
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-transparent transition-all">
+                                <div className="flex flex-col items-center gap-4">
+                                    <div className="h-20 w-20 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-[0_0_40px_rgba(37,99,235,0.6)] group-hover:scale-110 transition-transform">
+                                        <Play className="h-8 w-8 ml-1" />
                                     </div>
-                                </FadeIn>
-                            ))}
-                        </div>
-                    </div>
-                </section>
-
-                {/* 6. DEMONSTRAÇÃO (Studio Aesthetic) */}
-                <section id="demonstracao" className="py-32 bg-slate-950 px-6 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1),transparent_70%)] opacity-50" />
-                    <div className="max-w-7xl mx-auto space-y-24 relative z-10">
-                        <FadeIn className="text-center space-y-6 max-w-4xl mx-auto">
-                            <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-[10px] font-black text-blue-500 uppercase tracking-[0.4em] mb-4">
-                                Demo Interativa
-                            </div>
-                            <h3 className="text-5xl md:text-7xl font-[1000] text-white tracking-[-0.03em] font-sora leading-[1]">
-                                Veja o sistema <br />
-                                <span className="text-slate-500">em ação real.</span>
-                            </h3>
-                            <p className="text-xl text-slate-400 font-medium font-inter">Interface simples, rápida e fácil de usar. (Clique para assistir)</p>
-                        </FadeIn>
-                        
-                        <FadeIn delay={200} className="relative group max-w-6xl mx-auto lg:perspective-[2000px]">
-                            <div className="absolute -inset-10 bg-blue-600/10 blur-[120px] rounded-full scale-110 opacity-30 group-hover:opacity-60 transition-opacity" />
-                            <div className="relative rounded-[3rem] border-x-[12px] border-t-[12px] border-b-[40px] border-slate-900 overflow-hidden shadow-[0_60px_100px_-20px_rgba(0,0,0,0.8)] bg-slate-950 aspect-video flex items-center justify-center cursor-pointer transform group-hover:rotate-x-2 transition-transform duration-1000">
-                                {/* Video Placeholder Content */}
-                                <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 to-black/80 group-hover:scale-105 transition-transform duration-1000" />
-                                <img
-                                    src="/mockups/video-poster.png"
-                                    alt="Demonstração GestãoFlex"
-                                    className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-90 transition-opacity duration-700"
-                                />
-                                <div className="relative z-10 flex flex-col items-center gap-8 text-center px-6">
-                                    <div className="h-28 w-28 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(37,99,235,0.6)] transform group-hover:scale-125 transition-transform duration-500">
-                                        <Play className="h-12 w-12 fill-current ml-2" />
-                                    </div>
-                                    <p className="text-white font-black uppercase tracking-[0.4em] text-sm bg-black/60 px-8 py-3 rounded-2xl backdrop-blur-md border border-white/10 group-hover:bg-blue-600 transition-colors">
-                                        Assistir Demonstração
-                                    </p>
+                                    <span className="text-white font-black tracking-widest text-sm uppercase px-6 py-2 bg-black/50 backdrop-blur-md rounded-full border border-white/10">Assistir Demonstração</span>
                                 </div>
-                                {/* Hardware Detail */}
-                                <div className="absolute bottom-[-32px] left-1/2 -translate-x-1/2 w-32 h-2 bg-slate-800 rounded-full opacity-50" />
                             </div>
                         </FadeIn>
-
-                        <div className="grid md:grid-cols-3 gap-12 max-w-6xl mx-auto pt-16">
-                            {[
-                                { title: "Interface Intuitiva", desc: "Desenvolvida para ser simples, mesmo para quem não entende de tecnologia.", icon: MonitorSmartphone, color: "bg-blue-500/10 text-blue-500" },
-                                { title: "Multi-Dispositivo", desc: "Acesse pelo telemóvel, tablet ou computador, de onde estiver.", icon: Smartphone, color: "bg-emerald-500/10 text-emerald-500" },
-                                { title: "Exportação Pro", desc: "PDFs prontos para imprimir ou enviar aos seus clientes em um clique.", icon: FileText, color: "bg-orange-500/10 text-orange-500" },
-                            ].map((item, i) => (
-                                <FadeIn key={i} delay={i * 100}>
-                                    <div className="space-y-6 text-center md:text-left group">
-                                        <div className={cn("h-16 w-16 mx-auto md:mx-0 rounded-[1.5rem] flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform", item.color)}>
-                                            <item.icon className="h-8 w-8" />
-                                        </div>
-                                        <h4 className="text-2xl font-black text-white tracking-tight font-sora">{item.title}</h4>
-                                        <p className="text-slate-400 font-medium leading-relaxed font-inter">{item.desc}</p>
-                                    </div>
-                                </FadeIn>
-                            ))}
-                        </div>
                     </div>
                 </section>
 
-                {/* 7. OFERTA (Stripe-Grade Pricing) */}
-                <section id="oferta" className="py-32 bg-slate-50/50 px-6">
-                    <div className="max-w-7xl mx-auto">
-                        <div className="bg-slate-950 rounded-[4rem] p-10 lg:p-24 text-white relative overflow-hidden shadow-2xl border border-white/5">
-                            <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-blue-600/10 rounded-full blur-[160px] -translate-y-1/2 translate-x-1/2" />
-                            <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-[140px] translate-y-1/2 -translate-x-1/2" />
-                            
-                            <div className="relative z-10 grid lg:grid-cols-2 gap-20 items-center">
-                                <div className="space-y-10 text-left">
-                                    <FadeIn className="space-y-6">
-                                        <div className="inline-flex items-center gap-3 px-4 py-2 bg-blue-500/20 border border-blue-500/30 rounded-2xl text-[10px] font-black uppercase tracking-widest text-blue-400 font-inter">
-                                            Acesso Imediato
-                                        </div>
-                                        <h2 className="text-5xl md:text-8xl font-[1000] tracking-[-0.04em] leading-[1] font-sora">
-                                            Recupere o <br />
-                                            <span className="text-blue-500">seu controle.</span>
-                                        </h2>
-                                        <p className="text-xl md:text-2xl text-slate-400 font-medium leading-relaxed font-inter">
-                                            Comece hoje sem riscos. Teste todas as funcionalidades por <span className="text-white font-black underline decoration-blue-500 underline-offset-8">45 dias totalmente grátis.</span>
-                                        </p>
-                                    </FadeIn>
-                                    <div className="space-y-6 pt-4">
-                                        {[
-                                            "Acesso total a todas as funcionalidades",
-                                            "Suporte prioritário via WhatsApp",
-                                            "Treinamento personalizado grátis",
-                                        ].map((item, i) => (
-                                            <div key={i} className="flex items-center gap-5 text-slate-300 font-bold font-inter group">
-                                                <div className="h-6 w-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0 group-hover:scale-125 transition-transform">
-                                                    <CheckCircle2 className="h-4 w-4" />
-                                                </div>
-                                                {item}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <FadeIn delay={200} className="bg-white p-6 sm:p-12 rounded-[2.5rem] sm:rounded-[3.5rem] space-y-8 sm:space-y-10 shadow-3xl transform lg:rotate-2 hover:rotate-0 transition-transform duration-700">
-                                    <div className="space-y-6">
-                                        <div className="inline-flex items-center gap-3 px-4 sm:px-6 py-2 sm:py-3 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl">
-                                            <div className="h-3 w-3 rounded-full bg-emerald-500 animate-pulse" />
-                                            <span className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.3em] font-inter">Promoção Ativa</span>
-                                        </div>
-                                        <div className="space-y-1">
-                                            <p className="text-slate-400 font-black uppercase tracking-widest text-[10px] font-inter">Acesso Vitalício + Free Trial</p>
-                                            <div className="flex items-baseline gap-2 sm:gap-4 pt-2">
-                                                <span className="text-6xl sm:text-9xl font-[1000] text-slate-950 tracking-tighter leading-none font-sora">ZERO</span>
-                                                <span className="text-slate-400 font-black uppercase text-sm sm:text-xl tracking-widest bg-slate-100 px-3 sm:px-5 py-1 sm:py-2 rounded-xl sm:rounded-2xl font-inter">MT</span>
-                                            </div>
-                                        </div>
-                                        <p className="text-rose-500 text-xs sm:text-sm font-black pt-4 uppercase tracking-[0.2em] flex items-center gap-3 bg-rose-500/5 p-4 sm:p-5 rounded-[1.5rem] sm:rounded-[2rem] border border-rose-500/10 font-sora">
-                                            <TriangleAlert className="h-5 w-5" />
-                                            Vagas limitadas para lançamento.
-                                        </p>
-                                    </div>
-                                    <Link href={user ? "/dashboard" : "/auth/signup"}>
-                                        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black h-16 sm:h-24 rounded-[1.5rem] sm:rounded-[2rem] shadow-[0_20px_40px_-12px_rgba(37,99,235,0.4)] text-lg sm:text-2xl transition-all active:scale-95 font-sora tracking-tight">
-                                            {user ? "Acessar Dashboard" : "Criar Conta Grátis"}
-                                            <ArrowRight className="ml-2 sm:ml-3 h-6 w-6 sm:h-8 sm:w-8" />
-                                        </Button>
-                                    </Link>
-                                    <p className="text-center text-slate-400 text-[8px] sm:text-[10px] font-black font-inter tracking-widest uppercase">
-                                        Sem cartão necessário • Cancele quando quiser
-                                    </p>
-                                </FadeIn>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* 8. SEGURANÇA (Industrial Trust) */}
-                <section id="seguranca" className="py-32 bg-white px-6 relative overflow-hidden">
-                    <div className="max-w-7xl mx-auto">
-                        <div className="grid lg:grid-cols-2 gap-24 items-center">
-                            <FadeIn className="space-y-10">
-                                <div className="space-y-6">
-                                    <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-[10px] font-black text-blue-600 uppercase tracking-[0.4em] mb-4 font-inter">
-                                        Industrial Strength
-                                    </div>
-                                    <h2 className="text-5xl md:text-7xl font-[1000] text-slate-950 tracking-[-0.03em] font-sora leading-[1]">
-                                        Seu capital, <br />
-                                        <span className="text-blue-600">totalmente blindado.</span>
-                                    </h2>
-                                    <p className="text-xl text-slate-500 font-medium leading-relaxed max-w-lg font-inter">
-                                        Sabemos que cada metical emprestado é fruto do seu trabalho. Protegemos seu histórico e seus lucros com criptografia de ponta a ponta.
-                                    </p>
-                                </div>
-                                <div className="grid sm:grid-cols-2 gap-8 pt-4">
-                                    {[
-                                        { title: "Criptografia SSL", desc: "Segurança ponta a ponta.", icon: ShieldCheck },
-                                        { title: "Backups 24/7", desc: "Seus dados sempre salvos.", icon: Cloud },
-                                        { title: "Redundância", desc: "Sistema sempre online.", icon: RefreshCw },
-                                        { title: "Privacidade", desc: "Isolamento total de dados.", icon: Lock },
-                                    ].map((s, i) => (
-                                        <div key={i} className="group flex items-start gap-5">
-                                            <div className="h-12 w-12 rounded-2xl bg-slate-50 text-slate-400 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-all duration-500 shadow-sm">
-                                                <s.icon className="h-6 w-6" />
-                                            </div>
-                                            <div className="space-y-1">
-                                                <p className="font-black text-slate-950 leading-tight font-sora tracking-tight uppercase text-sm">{s.title}</p>
-                                                <p className="text-xs font-bold text-slate-400 tracking-wide font-inter">{s.desc}</p>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </FadeIn>
-                            
-                            <FadeIn delay={200} className="relative group">
-                                <div className="absolute -inset-6 bg-slate-950 rounded-[4rem] group-hover:rotate-1 transition-transform duration-1000" />
-                                <div className="relative bg-slate-950 rounded-[3.5rem] p-12 lg:p-20 text-white space-y-10 overflow-hidden border border-white/5 shadow-3xl">
-                                    <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-[100px]" />
-                                    <div className="h-20 w-20 bg-blue-600 text-white rounded-3xl flex items-center justify-center shadow-[0_20px_40px_-10px_rgba(37,99,235,0.4)] transform group-hover:scale-110 transition-transform">
-                                        <ShieldCheck className="h-10 w-10" />
-                                    </div>
-                                    <div className="space-y-8">
-                                        <p className="text-3xl md:text-4xl font-[1000] tracking-tight leading-tight font-sora italic">
-                                            "Segurança não é opcional. Aplicamos padrões globais para que você foque apenas no seu lucro."
-                                        </p>
-                                        <div className="flex flex-wrap items-center gap-6 pt-10 border-t border-white/10">
-                                            <div className="flex items-center gap-3 text-[10px] font-black text-blue-400 uppercase tracking-[0.3em] font-inter">
-                                                <Lock className="h-4 w-4" />
-                                                Cloud Infrastructure
-                                            </div>
-                                            <div className="flex items-center gap-3 text-[10px] font-black text-emerald-400 uppercase tracking-[0.3em] font-inter">
-                                                <CheckCircle2 className="h-4 w-4" />
-                                                Verified Daily
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </FadeIn>
-                        </div>
-                    </div>
-                </section>
-
-                {/* 9. FAQ (Senior UI Accordion) */}
-                <section id="faq" className="py-32 bg-slate-50 px-6 overflow-hidden">
-                    <div className="max-w-4xl mx-auto space-y-20">
+                {/* 7. TESTIMONIALS (Wall of Trust) */}
+                <section className="py-32 bg-slate-50 px-6">
+                    <div className="max-w-7xl mx-auto space-y-20">
                         <FadeIn className="text-center space-y-6">
-                            <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-[10px] font-black text-blue-600 uppercase tracking-[0.4em] mb-4 font-inter">
-                                FAQ
+                            <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-[10px] font-black text-blue-600 uppercase tracking-[0.4em]">
+                                Feedback de quem usa
                             </div>
-                            <h3 className="text-5xl md:text-7xl font-[1000] text-slate-950 tracking-[-0.03em] font-sora leading-[1]">
-                                Tire suas <br />
-                                <span className="text-blue-600">dúvidas.</span>
+                            <h3 className="text-4xl md:text-5xl lg:text-6xl font-black text-slate-950 tracking-tighter leading-[1.05] font-sora">
+                                Aprovado por <span className="text-blue-600 italic">visionários.</span>
                             </h3>
                         </FadeIn>
-                        <div className="grid gap-4">
-                            {faqItems.map((item, i) => (
-                                <FadeIn key={i} delay={i * 50}>
-                                    <div className={cn("rounded-[1.5rem] sm:rounded-[2rem] border transition-all duration-500", activeFaq === i ? "bg-white border-blue-500/20 shadow-2xl shadow-blue-900/5" : "bg-white/50 border-slate-200/60 hover:border-blue-500/30")}>
-                                        <button
-                                            onClick={() => setActiveFaq(activeFaq === i ? null : i)}
-                                            className="w-full flex items-center justify-between p-5 sm:p-8 text-left"
-                                        >
-                                            <span className="text-base sm:text-xl font-black text-slate-950 pr-4 sm:pr-8 font-sora tracking-tight">{item.q}</span>
-                                            <div className={cn("h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 transition-all duration-500", activeFaq === i && "rotate-180 bg-blue-600 text-white shadow-lg shadow-blue-600/20")}>
-                                                <ChevronDown className="h-4 w-4 sm:h-5 sm:w-5" />
-                                            </div>
-                                        </button>
-                                        <div className={cn("overflow-hidden transition-all duration-500 ease-in-out", activeFaq === i ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0")}>
-                                            <div className="p-5 sm:p-8 pt-0 text-slate-500 font-medium text-sm sm:text-lg leading-relaxed font-inter border-t border-slate-50 mt-4">
-                                                {item.a}
-                                            </div>
+
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {[
+                                { 
+                                    name: "António Canija", 
+                                    role: "Agente Independente", 
+                                    text: "O GestãoFlex mudou o jogo para mim. Antes eu perdia horas conferindo quem pagou e quem não pagou. Agora, tudo está a um clique e os juros são calculados sozinhos. Profissionalismo puro!", 
+                                    rating: 5,
+                                    image: "/avatar-antonio.png"
+                                },
+                                { 
+                                    name: "Zaida Mucavele", 
+                                    role: "Gestora de Portfólio", 
+                                    text: "O que eu mais gosto é a cobrança automática. Mandar lembrete um por um era um sofrimento. Hoje o sistema faz o trabalho pesado e eu foco em analisar novos empréstimos com segurança.", 
+                                    rating: 5,
+                                    image: "/avatar-zaida.png"
+                                },
+                                { 
+                                    name: "Ricardo Matsinhe", 
+                                    role: "Micro-empreendedor", 
+                                    text: "A clareza dos relatórios é o que mais impressiona. Consigo ver meu lucro líquido real e projetar meu crescimento. Recomendo para qualquer um que leve o negócio de crédito a sério.", 
+                                    rating: 5,
+                                    image: "/avatar-ricardo.png"
+                                }
+                            ].map((testi, i) => (
+                                <FadeIn key={i} delay={i * 100} className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col justify-between group hover:shadow-xl transition-all">
+                                    <div className="space-y-6">
+                                        <div className="flex gap-1 text-blue-600">
+                                            {[...Array(testi.rating)].map((_, i) => <Star key={i} className="h-5 w-5 fill-current" />)}
+                                        </div>
+                                        <p className="text-slate-600 font-medium text-lg leading-relaxed italic">"{testi.text}"</p>
+                                    </div>
+                                    <div className="flex items-center gap-4 mt-10">
+                                        <img src={testi.image} alt={testi.name} className="h-14 w-14 rounded-2xl bg-slate-100 border border-slate-200" />
+                                        <div>
+                                            <p className="font-black text-slate-950 tracking-tight">{testi.name}</p>
+                                            <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">{testi.role}</p>
                                         </div>
                                     </div>
                                 </FadeIn>
@@ -1123,88 +789,223 @@ export default function LandingPage() {
                     </div>
                 </section>
 
-                {/* 10. CTA FINAL (Senior Aesthetic) */}
-                <section className="py-40 bg-white px-6 relative overflow-hidden">
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.08),transparent_70%)]" />
-                    <div className="max-w-5xl mx-auto text-center space-y-12 relative z-10">
+                {/* 8. SEGURANÇA TOTAL */}
+                <section className="py-32 bg-white px-6">
+                    <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-20 items-center">
+                        <div className="space-y-10 order-2 lg:order-1">
+                            <FadeIn>
+                                <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-slate-900/5 border border-slate-900/10 rounded-full text-[10px] font-black text-slate-600 uppercase tracking-[0.4em] mb-6">
+                                    Industrial Strength
+                                </div>
+                                <h2 className="text-4xl md:text-5xl lg:text-5xl font-black text-slate-950 tracking-tighter leading-[1.05] font-sora">
+                                    Seu capital, <span className="text-blue-600">totalmente blindado.</span>
+                                </h2>
+                                <p className="text-lg text-slate-500 font-medium font-inter mt-6 max-w-lg leading-relaxed">
+                                    Sabemos que cada metical emprestado é fruto do seu trabalho. Protegemos seu histórico e seus lucros com criptografia de ponta a ponta.
+                                </p>
+                            </FadeIn>
+                            
+                            <div className="grid grid-cols-2 gap-8 text-sm">
+                                <FadeIn delay={100} className="space-y-3">
+                                    <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-900">
+                                        <Lock className="h-5 w-5" />
+                                    </div>
+                                    <h5 className="font-black text-slate-950 uppercase tracking-widest text-[10px]">Criptografia SSL</h5>
+                                    <p className="text-slate-500">Segurança ponta a ponta.</p>
+                                </FadeIn>
+                                <FadeIn delay={200} className="space-y-3">
+                                    <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-900">
+                                        <Cloud className="h-5 w-5" />
+                                    </div>
+                                    <h5 className="font-black text-slate-950 uppercase tracking-widest text-[10px]">Backups 24/7</h5>
+                                    <p className="text-slate-500">Seus dados sempre salvos.</p>
+                                </FadeIn>
+                                <FadeIn delay={300} className="space-y-3">
+                                    <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-900">
+                                        <RefreshCw className="h-5 w-5" />
+                                    </div>
+                                    <h5 className="font-black text-slate-950 uppercase tracking-widest text-[10px]">Redundância</h5>
+                                    <p className="text-slate-500">Sistema sempre online.</p>
+                                </FadeIn>
+                                <FadeIn delay={400} className="space-y-3">
+                                    <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-900">
+                                        <ShieldCheck className="h-5 w-5" />
+                                    </div>
+                                    <h5 className="font-black text-slate-950 uppercase tracking-widest text-[10px]">Privacidade</h5>
+                                    <p className="text-slate-500">Isolamento total de dados.</p>
+                                </FadeIn>
+                            </div>
+                        </div>
+
+                        <FadeIn delay={200} className="order-1 lg:order-2 bg-[#0A0D14] p-12 rounded-[3rem] relative overflow-hidden shadow-2xl">
+                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.15),transparent_60%)] pointer-events-none" />
+                            <div className="relative z-10 space-y-12 h-full flex flex-col justify-center">
+                                <div className="h-14 w-14 bg-blue-600/20 rounded-2xl flex items-center justify-center">
+                                    <ShieldCheck className="h-7 w-7 text-blue-500" />
+                                </div>
+                                <p className="text-2xl md:text-3xl text-white font-sora font-black tracking-tight leading-snug">
+                                    "Segurança não é opcional. Aplicamos padrões globais para que você foque apenas no seu lucro."
+                                </p>
+                                <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-[0.3em] text-blue-500">
+                                    <span className="flex items-center gap-2"><Lock className="h-3 w-3" /> Cloud Infrastructure</span>
+                                    <span className="flex items-center gap-2"><CheckCircle2 className="h-3 w-3" /> Verified Daily</span>
+                                </div>
+                            </div>
+                        </FadeIn>
+                    </div>
+                </section>
+
+                {/* 9. PRE-FOOTER FINAL CTA */}
+                <section className="py-40 bg-white relative overflow-hidden px-6 text-center">
+                    <div className="max-w-3xl mx-auto space-y-12 relative z-10">
                         <FadeIn className="space-y-6">
-                            <h2 className="text-4xl md:text-8xl font-[1000] text-slate-950 tracking-[-0.04em] leading-[1.2] md:leading-[1] font-sora">
-                                Chega de <span className="text-blue-600">perder dinheiro.</span> <br className="hidden md:block" />
-                                Profissionalize-se hoje.
+                            <h2 className="text-5xl md:text-6xl lg:text-[4rem] font-black text-slate-950 tracking-tighter leading-[1.05] font-sora">
+                                Chega de <span className="text-blue-600">perder dinheiro.</span> Profissionalize-se hoje.
                             </h2>
-                            <p className="text-lg md:text-2xl text-slate-500 font-medium max-w-3xl mx-auto italic font-inter leading-relaxed">
+                            <p className="text-lg text-slate-400 font-medium italic">
                                 "Organizei meus empréstimos em 10 minutos e nunca mais dormi preocupado com o caderno."
                             </p>
                         </FadeIn>
                         
-                        <FadeIn delay={200} className="flex flex-col items-center gap-10">
-                            <Link href="/auth/signup" className="w-full sm:w-auto">
-                                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white font-black h-20 sm:h-24 px-8 sm:px-16 text-xl sm:text-2xl rounded-[1.5rem] sm:rounded-[2.5rem] shadow-[0_30px_60px_-15px_rgba(37,99,235,0.4)] transition-all hover:scale-105 active:scale-95 font-sora tracking-tight uppercase w-full">
-                                    Começar agora gratuitamente
+                        <FadeIn delay={200}>
+                            <Link href="/auth/signup" className="text-white hover:text-white">
+                                <Button className="h-16 px-10 rounded-full font-black text-sm uppercase tracking-widest bg-blue-600 hover:bg-blue-700 !text-white shadow-xl shadow-blue-600/20 transition-all hover:-translate-y-1">
+                                    COMEÇAR AGORA GRATUITAMENTE
                                 </Button>
                             </Link>
-                            <div className="flex items-center gap-6">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] font-inter">
-                                    Trusted by 50+ lenders nationwide
-                                </p>
+                            <div className="mt-8 flex justify-center items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                <ShieldCheck className="h-4 w-4 text-emerald-500" />
+                                Trusted by 50+ lenders nationwide
                             </div>
                         </FadeIn>
                     </div>
                 </section>
+
+                {/* 10. FAQ */}
+                <section id="faq" className="py-32 bg-slate-50 px-6">
+                    <div className="max-w-4xl mx-auto space-y-16">
+                        <FadeIn className="text-center space-y-4">
+                            <h3 className="text-4xl md:text-6xl font-black text-slate-950 tracking-tight font-sora">Dúvidas Frequentes</h3>
+                            <p className="text-slate-500 font-bold uppercase tracking-widest text-sm italic">Respostas diretas para as suas perguntas</p>
+                        </FadeIn>
+
+                        <div className="space-y-4">
+                            {faqItems.map((item, i) => (
+                                <FadeIn key={i} delay={i * 50}>
+                                    <div 
+                                        className="bg-white rounded-3xl border border-slate-100 overflow-hidden cursor-pointer group"
+                                        onClick={() => setActiveFaq(activeFaq === i ? null : i)}
+                                    >
+                                        <div className="p-8 flex items-center justify-between">
+                                            <p className="font-black text-slate-900 text-lg tracking-tight pr-8">{item.q}</p>
+                                            <div className={cn("h-10 w-10 rounded-xl bg-slate-50 flex items-center justify-center transition-transform", activeFaq === i ? "rotate-45 bg-blue-50 text-blue-600" : "group-hover:bg-slate-100")}>
+                                                <Plus className="h-6 w-6" />
+                                            </div>
+                                        </div>
+                                        <motion.div
+                                            initial={false}
+                                            animate={{ height: activeFaq === i ? "auto" : 0 }}
+                                            className="overflow-hidden"
+                                        >
+                                            <div className="px-8 pb-8 pt-0">
+                                                <p className="text-slate-500 font-medium text-lg leading-relaxed">{item.a}</p>
+                                            </div>
+                                        </motion.div>
+                                    </div>
+                                </FadeIn>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                {/* 8. FOOTER */}
+                <footer className="bg-slate-950 text-white py-24 px-6 relative overflow-hidden">
+                    <div className="max-w-7xl mx-auto">
+                        <div className="grid grid-cols-1 md:grid-cols-5 gap-12 mb-20">
+                            <div className="col-span-1 md:col-span-2 space-y-8">
+                                <Link href="/" className="flex items-center gap-3">
+                                    <div className="h-10 w-10 bg-white rounded-xl flex items-center justify-center">
+                                        <img src="/logo.png" alt="Logo" className="h-full w-full object-cover rounded-xl" />
+                                    </div>
+                                    <span className="text-2xl font-black tracking-tight font-sora">Gestão<span className="text-blue-500">Flex</span></span>
+                                </Link>
+                                <p className="text-slate-400 font-medium max-w-sm text-lg leading-relaxed">
+                                    Transformando a gestão de microcrédito com tecnologia acessível, segura e focada em resultados reais em Moçambique.
+                                </p>
+                            </div>
+                            
+                            <div className="space-y-6">
+                                <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-500 font-sora">Produto</h4>
+                                <ul className="space-y-3 text-lg text-slate-400 font-bold">
+                                    <li><Link href="#problema" className="hover:text-white transition-colors">O Problema</Link></li>
+                                    <li><Link href="#solucao" className="hover:text-white transition-colors">A Solução</Link></li>
+                                </ul>
+                            </div>
+                            
+                            <div className="space-y-6">
+                                <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-500 font-sora">Links Úteis</h4>
+                                <ul className="space-y-3 text-lg text-slate-400 font-bold">
+                                    <li><Link href="#faq" className="hover:text-white transition-colors">FAQ</Link></li>
+                                    <li><Link href="/auth/login" className="hover:text-white transition-colors">Entrar</Link></li>
+                                    <li><Link href="/auth/signup" className="hover:text-white transition-colors">Criar Conta</Link></li>
+                                </ul>
+                            </div>
+
+                            <div className="space-y-6">
+                                <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-500 font-sora">Contactos</h4>
+                                <ul className="space-y-4 font-inter">
+                                    <li>
+                                        <a href="tel:+258834646942" className="flex items-center gap-4 group">
+                                            <div className="h-10 w-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center group-hover:bg-emerald-500/10 group-hover:border-emerald-500/30 transition-all shadow-inner">
+                                                <Phone className="h-4 w-4 text-slate-400 group-hover:text-emerald-500 transition-colors" />
+                                            </div>
+                                            <span className="text-sm font-bold text-slate-400 group-hover:text-white transition-colors tracking-wide">(+258) 83 464 6942</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="mailto:gestaoflexmoz@gmail.com" className="flex items-center gap-4 group">
+                                            <div className="h-10 w-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center group-hover:bg-blue-500/10 group-hover:border-blue-500/30 transition-all shadow-inner">
+                                                <Mail className="h-4 w-4 text-slate-400 group-hover:text-blue-500 transition-colors" />
+                                            </div>
+                                            <span className="text-sm font-bold text-slate-400 group-hover:text-white transition-colors tracking-wide">gestaoflexmoz@gmail.com</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 text-[11px] font-black text-slate-600 uppercase tracking-[0.4em] font-sora">
+                            <p>© {new Date().getFullYear()} GestãoFlex. Todos os direitos reservados.</p>
+                            <div className="flex gap-8">
+                                <span>Design Premium para Credores</span>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
             </main>
 
-            {/* FOOTER (Professional & Clean) */}
-            <footer className="bg-slate-950 text-white py-16 px-6 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-                <div className="max-w-7xl mx-auto">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-                        <div className="col-span-1 md:col-span-2 space-y-6">
-                            <div className="flex items-center gap-3">
-                                <div className="h-10 w-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-600/20">
-                                    <Zap className="h-6 w-6 fill-white" />
-                                </div>
-                                <span className="text-xl font-[800] tracking-tight">Gestão<span className="text-blue-500">Flex</span></span>
-                            </div>
-                            <p className="text-slate-500 font-medium max-w-sm text-sm">
-                                Transformando a gestão de microcrédito com tecnologia acessível, segura e focada em resultados reais.
-                            </p>
-                            <div className="flex gap-4 pt-2">
-                                <div className="h-10 w-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10 hover:bg-blue-600/20 transition-all cursor-pointer">
-                                    <Phone className="h-4 w-4 text-blue-400" />
-                                </div>
-                                <div className="h-10 w-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10 hover:bg-blue-600/20 transition-all cursor-pointer">
-                                    <Mail className="h-4 w-4 text-blue-400" />
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div className="space-y-4">
-                            <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-blue-500">Produto</h4>
-                            <ul className="space-y-2 text-sm text-slate-400 font-medium">
-                                <li><Link href="#beneficios" className="hover:text-white transition-colors">Benefícios</Link></li>
-                                <li><Link href="#funcionalidades" className="hover:text-white transition-colors">Funcionalidades</Link></li>
-                                <li><Link href="#seguranca" className="hover:text-white transition-colors">Segurança</Link></li>
-                            </ul>
-                        </div>
-                        
-                        <div className="space-y-4">
-                            <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-blue-500">Links Úteis</h4>
-                            <ul className="space-y-2 text-sm text-slate-400 font-medium">
-                                <li><Link href="#faq" className="hover:text-white transition-colors">FAQ</Link></li>
-                                <li><Link href="#oferta" className="hover:text-white transition-colors">Preços</Link></li>
-                                <li><Link href="/auth/signup" className="hover:text-white transition-colors">Teste Grátis</Link></li>
-                            </ul>
-                        </div>
+            {/* FLOATING CTA BAR (Bottom - Full Width) */}
+            <motion.div
+                initial={{ opacity: 0, y: 100 }}
+                animate={{ opacity: showFloatingCTA ? 1 : 0, y: showFloatingCTA ? 0 : 100 }}
+                className="fixed bottom-0 left-0 right-0 z-[100] w-full pointer-events-none"
+            >
+                <div className="bg-white/95 backdrop-blur-2xl border-t border-slate-200/60 p-4 sm:p-5 flex items-center justify-between sm:px-12 text-sm w-full mx-auto pointer-events-auto">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-10">
+                        <span className="text-lg sm:text-xl font-black text-slate-950 font-sora">
+                            Gestão<span className="text-blue-600">Flex</span>
+                        </span>
+                        <span className="font-black text-slate-500 hidden md:block uppercase tracking-widest text-[11px]">
+                            Não perca mais dinheiro: Garanta hoje mesmo o controle da sua operação.
+                        </span>
                     </div>
-                    
-                    <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-bold text-slate-600 uppercase tracking-widest">
-                        <p>© {new Date().getFullYear()} GestãoFlex. Todos os direitos reservados.</p>
-                        <div className="flex gap-6">
-                            <span>Sistemas Financeiros Inteligentes</span>
-                        </div>
-                    </div>
+                    <Link href="/auth/signup" className="w-full sm:w-auto text-white hover:text-white">
+                        <Button className="bg-blue-600 hover:bg-blue-700 !text-white font-black rounded-xl px-8 h-12 sm:h-14 shadow-lg shadow-blue-600/20 text-xs sm:text-[11px] uppercase tracking-widest w-full font-sora border-none">
+                            Começar Agora Gratuitamente
+                        </Button>
+                    </Link>
                 </div>
-            </footer>
+            </motion.div>
         </div>
     );
 }

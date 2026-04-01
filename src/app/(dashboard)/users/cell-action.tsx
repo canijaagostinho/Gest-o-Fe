@@ -50,7 +50,10 @@ export function CellAction({ data, roles, currentUserRole }: CellActionProps) {
     }
   };
 
-  const isGlobalAdmin = currentUserRole === "admin_geral";
+  const isManager =
+    currentUserRole === "admin_geral" ||
+    currentUserRole === "gestor" ||
+    currentUserRole === "admin";
 
   return (
     <>
@@ -95,7 +98,7 @@ export function CellAction({ data, roles, currentUserRole }: CellActionProps) {
             <Edit className="mr-2 h-4 w-4" /> Editar
           </DropdownMenuItem>
 
-          {isGlobalAdmin && (
+          {isManager && (
             <DropdownMenuItem
               onClick={() => setResetOpen(true)}
               className="rounded-xl cursor-pointer font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 mb-1"

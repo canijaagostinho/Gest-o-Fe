@@ -9,6 +9,19 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { History, User, Database, Clock, Terminal } from "lucide-react";
 
+interface AuditLogRecord {
+  id: string;
+  action: string;
+  table_name: string;
+  created_at: string;
+  new_data?: Record<string, unknown>;
+  old_data?: Record<string, unknown>;
+  user?: {
+    full_name: string | null;
+    email: string | null;
+  } | null;
+}
+
 export default async function AuditLogsPage() {
   const supabase = await createClient();
 
@@ -21,7 +34,7 @@ export default async function AuditLogsPage() {
         `,
     )
     .order("created_at", { ascending: false })
-    .limit(50);
+    .limit(50) as { data: AuditLogRecord[] | null };
 
   return (
     <div className="flex-1 space-y-10 p-4 md:p-8 pt-6 max-w-7xl mx-auto">
@@ -90,13 +103,13 @@ export default async function AuditLogsPage() {
                           <User className="h-4 w-4 text-slate-500" />
                         </div>
                         <div className="flex flex-col">
-                          <span className="text-sm font-bold text-slate-900">
-                            {(log.user as any)?.full_name || "Sistema"}
-                          </span>
-                          <span className="text-[10px] font-medium text-slate-400">
-                            {(log.user as any)?.email || "Automático"}
-                          </span>
-                        </div>
+                           <span className="text-sm font-bold text-slate-900">
+                             {log.user?.full_name || "Sistema"}
+                           </span>
+                           <span className="text-[10px] font-medium text-slate-400">
+                             {log.user?.email || "Automático"}
+                           </span>
+                         </div>
                       </div>
                     </td>
                     <td className="px-8 py-6">

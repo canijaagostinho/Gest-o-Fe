@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { insertOperationLog } from "@/utils/operation-logger";
 import { ActionResponse, LoanCreateData } from "@/types";
 import { PostgrestError } from "@supabase/supabase-js";
+import { translateSupabaseError } from "@/lib/error-handler";
 
 /**
  * Marks an installment as paid.
@@ -60,7 +61,7 @@ export async function payInstallmentAction(
     console.error("Payment Process Error:", error);
     return {
       success: false,
-      error: error.message || "Erro ao processar pagamento.",
+      error: translateSupabaseError(error),
     };
   }
 }
@@ -119,7 +120,7 @@ export async function cancelLoanAction(loanId: string): Promise<ActionResponse> 
   } catch (error: any) {
     return {
       success: false,
-      error: error.message || "Erro ao cancelar empréstimo.",
+      error: translateSupabaseError(error),
     };
   }
 }

@@ -5,6 +5,8 @@ import { createClient as createSupabaseAdmin } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 import { ActionResponse, UserCreateData, UserUpdateData, RoleName } from "@/types";
 import { PostgrestError } from "@supabase/supabase-js";
+import { translateSupabaseError } from "@/lib/error-handler";
+import { insertOperationLog } from "@/utils/operation-logger";
 
 export async function createUserAction(data: UserCreateData): Promise<ActionResponse> {
   try {
@@ -128,29 +130,9 @@ export async function createUserAction(data: UserCreateData): Promise<ActionResp
 
     if (createError) {
       console.error("Supabase Admin CreateUser Error:", createError);
-
-      // Handle "User already registered"
-      if (
-        createError.message.includes("already registered") ||
-        createError.message.includes("exists")
-      ) {
-        // Fetch user by email to get ID
-        // Note: listUsers is paginated, but we can filter or just limit.
-        // Unfortunately supabaseAdmin.auth.admin.listUsers doesn't filter by email directly in all versions,
-        // but checking generic methods.
-        // Better approach: try signIn or just fail if we want to be strict.
-        // But typically for "Create User", we might want to say "Email already in use".
-
-        // For now, let's return the specific error so the UI knows.
-        return {
-          success: false,
-          error: "Este email já está cadastrado no sistema.",
-        };
-      }
-
       return {
         success: false,
-        error: "Erro ao criar conta: " + createError.message,
+        error: "Erro ao criar conta: " + translateSupabaseError(createError),
       };
     }
 
@@ -188,9 +170,20 @@ export async function createUserAction(data: UserCreateData): Promise<ActionResp
 
       return {
         success: false,
-        error: "Erro ao configurar perfil do usuário: " + profileError.message,
+        error: "Erro ao configurar perfil do usuário: " + translateSupabaseError(profileError),
       };
     }
+
+    // 5. Log Operation
+    await insertOperationLog({
+      institution_id: targetInstitutionId,
+      user_id: currentUser.id,
+      operation_id: userId,
+      type: "Outro",
+      status: "success",
+      observations: `Criação de novo usuário: ${data.full_name} (${data.email})`,
+      metadata: { role_id: targetRoleId },
+    });
 
     revalidatePath("/users");
     return { success: true };
@@ -199,7 +192,7 @@ export async function createUserAction(data: UserCreateData): Promise<ActionResp
     console.error("CRITICAL SERVER ACTION EXCEPTION:", error);
     return {
       success: false,
-      error: "Exceção no Servidor: " + (error.message || JSON.stringify(error)),
+      error: "Exceção no Servidor: " + translateSupabaseError(error),
     };
   }
 }
@@ -234,18 +227,36 @@ export async function updateUserAction(data: UserUpdateData): Promise<ActionResp
 
     const { data: requesterProfile } = await supabase
       .from("users")
-      .select("role:roles(name)")
+      .select("*, role:roles(name)")
       .eq("id", currentUser.id)
       .single();
 
-    const roleName = (requesterProfile?.role as unknown as { name: RoleName })?.name;
-    const isManager =
-      roleName === "admin_geral" ||
-      roleName === "gestor" ||
-      roleName === "admin";
+    if (!requesterProfile) return { success: false, error: "Perfil do requisitante não encontrado." };
 
-    if (!isManager) {
-      return { success: false, error: "Permissão negada." };
+    const roleName = (requesterProfile.role as unknown as { name: RoleName })?.name;
+    const isGlobalAdmin = roleName === "admin_geral";
+    const isLocalManager = roleName === "gestor" || roleName === "admin";
+
+    if (!isGlobalAdmin && !isLocalManager) {
+      return { success: false, error: "Permissão negada. Apenas administradores podem atualizar usuários." };
+    }
+
+    // 2. Security Check: Same Institution (unless Global Admin)
+    if (!isGlobalAdmin) {
+      const { data: targetUser, error: targetError } = await supabase
+        .from("users")
+        .select("institution_id")
+        .eq("id", data.id)
+        .single();
+
+      if (targetError || !targetUser) {
+        return { success: false, error: "Utilizador alvo não encontrado." };
+      }
+
+      const requesterInstitutionId = requesterProfile.institution_id;
+      if (targetUser.institution_id !== requesterInstitutionId) {
+        return { success: false, error: "Permissão negada. Você só pode gerir utilizadores da sua própria instituição." };
+      }
     }
 
     // Update Profile
@@ -260,7 +271,7 @@ export async function updateUserAction(data: UserUpdateData): Promise<ActionResp
       })
       .eq("id", data.id);
 
-    if (profileError) return { success: false, error: profileError.message };
+    if (profileError) return { success: false, error: translateSupabaseError(profileError) };
 
     // Update Auth (Email and/or Password)
     const authUpdates: Record<string, any> = {
@@ -277,16 +288,26 @@ export async function updateUserAction(data: UserUpdateData): Promise<ActionResp
       if (authError)
         return {
           success: false,
-          error: "Erro ao atualizar autenticação: " + authError.message,
+          error: "Erro ao atualizar autenticação: " + translateSupabaseError(authError),
         };
     }
+
+    // 3. Log Operation
+    await insertOperationLog({
+      institution_id: requesterProfile.institution_id,
+      user_id: currentUser.id,
+      operation_id: data.id,
+      type: "Atualização",
+      status: "success",
+      observations: `Atualização de dados do usuário: ${data.full_name}`,
+    });
 
     revalidatePath("/users");
     return { success: true };
   } catch (e: unknown) {
     const error = e as Error;
     console.error("UPDATE USER EXCEPTION:", error);
-    return { success: false, error: "Erro ao atualizar: " + error.message };
+    return { success: false, error: "Erro ao atualizar: " + translateSupabaseError(error) };
   }
 }
 
@@ -320,28 +341,42 @@ export async function revokeUserAccessAction(userId: string): Promise<ActionResp
 
     const { data: requesterProfile } = await supabase
       .from("users")
-      .select("role:roles(name)")
+      .select("*, role:roles(name)")
       .eq("id", currentUser.id)
       .single();
 
-    const roleName = (requesterProfile?.role as unknown as { name: RoleName })?.name;
-    const isManager =
-      roleName === "admin_geral" ||
-      roleName === "gestor" ||
-      roleName === "admin";
+    if (!requesterProfile) return { success: false, error: "Perfil do requisitante não encontrado." };
 
-    if (!isManager) {
+    const roleName = (requesterProfile.role as unknown as { name: RoleName })?.name;
+    const isGlobalAdmin = roleName === "admin_geral";
+    const isLocalManager = roleName === "gestor" || roleName === "admin";
+
+    if (!isGlobalAdmin && !isLocalManager) {
       return {
         success: false,
-        error: "Permissão negada. Apenas gestores podem revogar acessos.",
+        error: "Permissão negada. Apenas administradores podem revogar acessos.",
       };
+    }
+
+    // Security Check: Same Institution
+    if (!isGlobalAdmin) {
+      const { data: targetUser } = await supabase
+        .from("users")
+        .select("institution_id")
+        .eq("id", userId)
+        .single();
+      
+      const requesterInstitutionId = requesterProfile.institution_id;
+      if (targetUser?.institution_id !== requesterInstitutionId) {
+        return { success: false, error: "Permissão negada. Você só pode revogar acessos de utilizadores da sua própria instituição." };
+      }
     }
 
     // Prevent self-revocation
     if (currentUser.id === userId) {
       return {
         success: false,
-        error: "Você não pode revogar seu próprio acesso.",
+        error: "Você não pode revogar o seu próprio acesso administrativo.",
       };
     }
 
@@ -352,7 +387,7 @@ export async function revokeUserAccessAction(userId: string): Promise<ActionResp
       console.error("Auth Delete Error:", authError);
       return {
         success: false,
-        error: "Erro ao remover usuário da autenticação: " + authError.message,
+        error: "Erro ao remover usuário da autenticação: " + translateSupabaseError(authError),
       };
     }
 
@@ -367,11 +402,21 @@ export async function revokeUserAccessAction(userId: string): Promise<ActionResp
       // Auth is already gone, so we just log this
     }
 
+    // 4. Log Operation
+    await insertOperationLog({
+      institution_id: requesterProfile.institution_id,
+      user_id: currentUser.id,
+      operation_id: userId,
+      type: "Cancelamento",
+      status: "success",
+      observations: `Revogação de acesso do usuário ID: ${userId}`,
+    });
+
     revalidatePath("/users");
     return { success: true };
   } catch (e: unknown) {
     const error = e as Error;
     console.error("REVOKE ACCESS EXCEPTION:", error);
-    return { success: false, error: "Erro ao revogar acesso: " + error.message };
+    return { success: false, error: "Erro ao revogar acesso: " + translateSupabaseError(error) };
   }
 }

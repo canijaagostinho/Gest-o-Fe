@@ -11,17 +11,16 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-    ShieldCheck,
-    Lock,
-    Activity,
     Bell,
     Plus,
+    Activity,
+    ShieldCheck,
+    Lock,
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { formatCurrency, cn } from "@/lib/utils";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
 
 // New Dashboard Components
 import { SmartAlerts } from "@/components/dashboard/smart-alerts";
@@ -31,11 +30,58 @@ import { ActionCenter } from "@/components/dashboard/action-center";
 import { PriorityLists } from "@/components/dashboard/priority-lists";
 
 import { GlobalDashboard } from "@/components/dashboard/global-dashboard";
+import type { UserProfile } from "@/types";
+
+interface DashboardItem {
+    id: string;
+    name: string;
+    amount: number;
+    date: string;
+    status: "overdue" | "upcoming";
+}
+
+interface ChartDataPoint {
+    name: string;
+    value: number;
+    [key: string]: string | number;
+}
+
+interface UserWithInstitution extends UserProfile {
+    institution_details?: {
+        nuit: string;
+        address_line: string;
+        phone: string;
+        email: string;
+        logo_url: string;
+        primary_color: string;
+    };
+}
+
+interface KPIData {
+    totalLent: number;
+    totalReceived: number;
+    receivables: number;
+    receivables30D: number;
+    delinquencyRate: number;
+    growthRate: number;
+    efficiencyRate: number;
+    overdueCount: number;
+    delinquencyAmount: number;
+    pendingApprovals: number;
+    totalBalance: number;
+    chartData: ChartDataPoint[];
+    overdueItems: DashboardItem[];
+    upcomingItems: DashboardItem[];
+    totalLoansCount: number;
+    lentCount: number;
+    receivablesCount: number;
+    totalDisbursed: number;
+}
 
 export default function DashboardPage() {
-    const [user, setUser] = useState<any>(null);
+    const [user, setUser] = useState<UserWithInstitution | null>(null);
     const [loading, setLoading] = useState(true);
-    const [kpiData, setKpiData] = useState({
+    const [kpiData, setKpiData] = useState<KPIData>({
         totalLent: 0,
         totalReceived: 0,
         receivables: 0,
@@ -47,9 +93,9 @@ export default function DashboardPage() {
         delinquencyAmount: 0,
         pendingApprovals: 0,
         totalBalance: 0,
-        chartData: [] as any[],
-        overdueItems: [] as any[],
-        upcomingItems: [] as any[],
+        chartData: [],
+        overdueItems: [],
+        upcomingItems: [],
         totalLoansCount: 0,
         lentCount: 0,
         receivablesCount: 0,
@@ -65,7 +111,7 @@ export default function DashboardPage() {
     useEffect(() => {
         const saved = localStorage.getItem("dashboard_privacy_mode");
         if (saved === "true") setPrivacyMode(true);
-    }, []);
+    }, [todayStr]);
 
     const togglePrivacyMode = () => {
         const newVal = !privacyMode;
@@ -78,7 +124,7 @@ export default function DashboardPage() {
         return value;
     };
 
-    const isGlobalAdmin = (user?.role as any)?.name === "admin_geral";
+    const isGlobalAdmin = user?.role && typeof user.role === 'object' && 'name' in user.role && (user.role as any).name === "admin_geral";
 
     useEffect(() => {
         const fetchData = async () => {
@@ -198,20 +244,20 @@ export default function DashboardPage() {
                             totalLoansCount: allLoans?.length || 0,
                             lentCount: lentCountVal,
                             receivablesCount: receivablesCountVal,
-                            overdueItems: (realOverdueItems as any)?.map((i: any) => ({
-                                id: i.id,
-                                name: i.loans?.clients?.full_name || "Cliente",
-                                amount: i.amount,
-                                date: Math.floor((now.getTime() - new Date(i.due_date).getTime()) / (1000 * 60 * 60 * 24)).toString(),
-                                status: "overdue"
-                            })) || [],
-                            upcomingItems: (realUpcomingItems as any)?.map((i: any) => ({
-                                id: i.id,
-                                name: i.loans?.clients?.full_name || "Cliente",
-                                amount: i.amount,
-                                date: i.due_date,
-                                status: "upcoming"
-                            })) || [],
+                            overdueItems: (realOverdueItems || []).map((i: any) => ({
+                                id: String(i.id),
+                                name: String(i.loans?.clients?.full_name || "Cliente"),
+                                amount: Number(i.amount),
+                                date: Math.floor((now.getTime() - new Date(String(i.due_date)).getTime()) / (1000 * 60 * 60 * 24)).toString(),
+                                status: "overdue" as const
+                            })),
+                            upcomingItems: (realUpcomingItems || []).map((i: any) => ({
+                                id: String(i.id),
+                                name: String(i.loans?.clients?.full_name || "Cliente"),
+                                amount: Number(i.amount),
+                                date: String(i.due_date),
+                                status: "upcoming" as const
+                            })),
                             totalDisbursed: totalDisbursedVal,
                         });
                     }
@@ -240,14 +286,23 @@ export default function DashboardPage() {
 
     if (isGlobalAdmin) return <GlobalDashboard />;
 
-    const alerts = [];
+    interface AlertItem {
+        type: "error" | "warning" | "success";
+        message: string;
+        href: string;
+        count: number;
+        detail?: string;
+        subDetail?: string;
+    }
+
+    const alerts: AlertItem[] = [];
     
     // 1. Critical Overdue Alerts (Max 3 individual, else consolidated)
     if (kpiData.overdueCount > 0) {
         if (kpiData.overdueCount <= 3) {
-            kpiData.overdueItems.forEach((item: any) => {
+            kpiData.overdueItems.forEach((item) => {
                 alerts.push({ 
-                    type: "error" as const, 
+                    type: "error" as const,
                     detail: item.name,
                     subDetail: `${formatCurrency(item.amount)} • ATRASO CRÍTICO`,
                     message: "atraso crítico", 
@@ -266,10 +321,10 @@ export default function DashboardPage() {
     }
 
     // 2. Payments Due Today (Max 3 individual, else consolidated)
-    const paymentsToday = kpiData.upcomingItems.filter((i: any) => i.date.split("T")[0] === todayStr);
+    const paymentsToday = kpiData.upcomingItems.filter((i) => i.date.split("T")[0] === todayStr);
     if (paymentsToday.length > 0) {
         if (paymentsToday.length <= 3) {
-            paymentsToday.forEach((item: any) => {
+            paymentsToday.forEach((item) => {
                 alerts.push({ 
                     type: "warning" as const, 
                     detail: item.name,
@@ -280,7 +335,7 @@ export default function DashboardPage() {
                 });
             });
         } else {
-            const totalToday = paymentsToday.reduce((acc: number, i: any) => acc + Number(i.amount), 0);
+            const totalToday = paymentsToday.reduce((acc: number, i) => acc + Number(i.amount), 0);
             alerts.push({ 
                 type: "warning" as const, 
                 message: "pagamentos vencem hoje", 
@@ -325,7 +380,11 @@ export default function DashboardPage() {
                             <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-2 px-2">
                                 <Activity className="h-4 w-4 text-blue-600" /> Histórico de Carteira
                             </h3>
-                            <ChartsSection overviewData={kpiData.chartData} delinquencyData={kpiData.delinquencyRate} />
+                            <ChartsSection 
+                                overviewData={kpiData.chartData} 
+                                delinquencyData={kpiData.delinquencyRate} 
+                                userRole={user?.role && typeof user.role === 'object' && 'name' in user.role ? (user.role as any).name : 'operador'}
+                            />
                         </section>
 
                         <section className="space-y-6">

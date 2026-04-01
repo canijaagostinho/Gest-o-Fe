@@ -2,10 +2,20 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 import * as XLSX from "xlsx";
 
+interface AutoTableOptions {
+  startY?: number;
+  head: string[][];
+  body: (string | number | undefined)[][];
+  theme?: string;
+  headStyles?: Record<string, unknown>;
+  alternateRowStyles?: Record<string, unknown>;
+  margin?: Record<string, number>;
+}
+
 // Extend jsPDF with autotable types
 declare module "jspdf" {
   interface jsPDF {
-    autoTable: (options: any) => jsPDF;
+    autoTable: (options: AutoTableOptions) => jsPDF;
   }
 }
 
@@ -15,7 +25,7 @@ declare module "jspdf" {
 export const exportToPDF = (
   title: string,
   headers: string[],
-  data: any[][],
+  data: (string | number | undefined)[][],
   fileName: string = "relatorio.pdf",
 ) => {
   const doc = new jsPDF();
@@ -47,7 +57,7 @@ export const exportToPDF = (
  * Export data to an Excel file with basic formatting
  */
 export const exportToExcel = (
-  data: any[],
+  data: Array<Record<string, unknown>>,
   fileName: string = "relatorio.xlsx",
   sheetName: string = "Relatório",
 ) => {
@@ -59,7 +69,7 @@ export const exportToExcel = (
   const objectMaxLength: number[] = [];
   data.forEach((row) => {
     Object.values(row).forEach((val, i) => {
-      const columnValue = val ? val.toString() : "";
+      const columnValue = val ? String(val) : "";
       objectMaxLength[i] = Math.max(
         objectMaxLength[i] || 10,
         columnValue.length + 2,

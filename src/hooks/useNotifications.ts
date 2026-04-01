@@ -3,6 +3,10 @@ import { createClient } from "@/utils/supabase/client";
 import { Notification } from "@/types/database";
 import { toast } from "sonner";
 
+interface NotificationPayload {
+  new: Notification;
+}
+
 export function useNotifications(userId: string) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
@@ -23,8 +27,8 @@ export function useNotifications(userId: string) {
           table: "notifications",
           filter: `user_id=eq.${userId}`,
         },
-        (payload: any) => {
-          const newNotification = payload.new as Notification;
+        (payload: NotificationPayload) => {
+          const newNotification = payload.new;
           setNotifications((prev) => [newNotification, ...prev]);
           toast(newNotification.title, {
             description: newNotification.message,

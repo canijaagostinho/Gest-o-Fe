@@ -3,9 +3,10 @@ import { colors } from './src/styles/colors.ts'
 import { radius } from './src/styles/radius.ts'
 import { spacing } from './src/styles/spacing.ts'
 import { shadows } from './src/styles/shadows.ts'
-import { typography } from './src/styles/typography.ts'
+// typography is imported but not used in extend section
+import animatePlugin from 'tailwindcss-animate'
 
-const config = {
+const config: Config = {
     darkMode: ["class"],
     content: [
         './pages/**/*.{ts,tsx}',
@@ -100,7 +101,7 @@ const config = {
             },
         },
     },
-    plugins: [require("tailwindcss-animate")],
-} satisfies Config
+    plugins: [animatePlugin],
+}
 
 export default config

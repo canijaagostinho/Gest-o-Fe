@@ -4,21 +4,7 @@ import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import {
   ChevronLeft,
-  User,
   CreditCard,
-  Banknote,
-  FileText,
-  History,
-  MoreHorizontal,
-  Plus,
-  Mail,
-  Phone,
-  MapPin,
-  Calendar,
-  Briefcase,
-  BadgeCheck,
-  AlertTriangle,
-  CheckCircle2,
   Download,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -35,6 +21,19 @@ import {
 import { createClient } from "@/utils/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { Client, Loan, Payment } from "@/types";
+
+interface ClientData extends Client {
+  institution_id?: string;
+}
+
+interface LoanData extends Loan {
+  installments: Array<{ status: string; due_date: string }>;
+}
+
+interface PaymentData extends Payment {
+  loans: { id: string };
+}
 
 export default function ClientProfilePage({
   params,
@@ -42,9 +41,9 @@ export default function ClientProfilePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const [client, setClient] = useState<any>(null);
-  const [loans, setLoans] = useState<any[]>([]);
-  const [payments, setPayments] = useState<any[]>([]);
+  const [client, setClient] = useState<ClientData | null>(null);
+  const [loans, setLoans] = useState<LoanData[]>([]);
+  const [payments, setPayments] = useState<PaymentData[]>([]);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
 
@@ -87,7 +86,7 @@ export default function ClientProfilePage({
       data: l,
     })),
     ...payments.map((p) => ({
-      type: "payment",
+      type: "payment" as const,
       date: new Date(p.payment_date),
       data: p,
     })),
@@ -111,7 +110,7 @@ export default function ClientProfilePage({
   };
 
   // Determine dynamic status
-  const getDynamicStatus = (loan: any) => {
+  const getDynamicStatus = (loan: LoanData) => {
     if (!loan) return "pending";
     if (loan.status === "cancelled" || loan.status === "completed") {
       return loan.status;
@@ -119,7 +118,7 @@ export default function ClientProfilePage({
     if (loan.installments && Array.isArray(loan.installments)) {
       const today = new Date().toISOString().split("T")[0];
       const hasOverdue = loan.installments.some(
-        (i: any) => i.status !== "paid" && i.due_date < today,
+        (i) => i.status !== "paid" && i.due_date < today,
       );
       if (hasOverdue) return "delinquent";
     }
@@ -128,7 +127,7 @@ export default function ClientProfilePage({
 
   const initials = client.full_name
     .split(" ")
-    .map((n: string) => n[0])
+    .map((n) => n[0])
     .slice(0, 2)
     .join("")
     .toUpperCase();

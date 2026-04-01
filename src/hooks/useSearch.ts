@@ -1,8 +1,14 @@
 import { useState } from "react";
 // import { createClient } from '@/utils/supabase/client'
 
+interface SearchResults {
+  loans: Array<Record<string, unknown>>;
+  clients: Array<Record<string, unknown>>;
+  payments: Array<Record<string, unknown>>;
+}
+
 export function useSearch() {
-  const [results, setResults] = useState<any>(null);
+  const [results, setResults] = useState<SearchResults | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const search = async (query: string) => {

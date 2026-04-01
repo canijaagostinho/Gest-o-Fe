@@ -19,6 +19,7 @@ import {
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
+import { translateSupabaseError } from "@/lib/error-handler";
 
 function LoginContent() {
   const [email, setEmail] = useState("");
@@ -70,17 +71,9 @@ function LoginContent() {
       });
 
       if (error) {
-        // Specific error: Incorrect credentials
-        if (error.message.includes("Invalid login credentials")) {
-          toast.error("Acesso Negado", {
-            description:
-              "E-mail ou senha incorretos. Verifique suas credenciais.",
-          });
-        } else {
-          toast.error("Erro ao entrar", {
-            description: error.message,
-          });
-        }
+        toast.error("Erro ao entrar", {
+          description: translateSupabaseError(error),
+        });
         return;
       }
 

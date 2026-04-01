@@ -11,7 +11,7 @@ export interface UserProfile extends User {
     };
 }
 
-export interface ActionResponse<T = any> {
+export interface ActionResponse<T = unknown> {
     success: boolean;
     data?: T;
     error?: string;
@@ -39,6 +39,19 @@ export interface LoanCreateData {
     agent_id?: string;
     late_fee_rate?: number;
     mora_rate?: number;
+}
+
+export interface AuditLog {
+    id: string;
+    entity_type: string;
+    entity_id: string;
+    action: string;
+    changes: Record<string, unknown>;
+    created_at: string;
+    user: {
+        full_name: string | null;
+        email: string | null;
+    } | null;
 }
 
 export interface UserCreateData {

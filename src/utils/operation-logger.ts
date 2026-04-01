@@ -16,7 +16,7 @@ export interface OperationLogData {
   amount?: number;
   status?: OperationStatus;
   observations?: string;
-  metadata?: any;
+  metadata?: Record<string, unknown>;
 }
 
 export async function insertOperationLog(data: OperationLogData) {

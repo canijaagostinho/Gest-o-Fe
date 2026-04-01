@@ -4,49 +4,56 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { OverviewChart } from "@/components/dashboard/overview-chart";
 import { RiskChart } from "@/components/dashboard/risk-chart";
 import { TrendingUp, BarChart3, Activity } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface ChartsSectionProps {
   overviewData: any[];
   delinquencyData?: any;
+  userRole?: string;
 }
 
-export function ChartsSection({ overviewData, delinquencyData }: ChartsSectionProps) {
+export function ChartsSection({ overviewData, delinquencyData, userRole }: ChartsSectionProps) {
+  const isRestricted = ["operador", "agente", "cliente"].includes(userRole || "");
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
-      {/* Main Evolution Chart */}
-      <Card className="lg:col-span-2 border-none shadow-xl bg-white rounded-[2.5rem] p-6 md:p-10 relative overflow-hidden group">
-        <CardHeader className="p-0 mb-8 flex flex-row items-center justify-between">
-          <div>
-            <div className="flex items-center gap-3 mb-1">
-              <div className="p-2 bg-blue-50 rounded-xl text-blue-600">
-                <TrendingUp className="h-5 w-5" />
+      {/* Main Evolution Chart - Restricted */}
+      {!isRestricted && (
+        <Card className="lg:col-span-2 border-none shadow-xl bg-white rounded-[2.5rem] p-6 md:p-10 relative overflow-hidden group">
+          <CardHeader className="p-0 mb-8 flex flex-row items-center justify-between">
+            <div>
+              <div className="flex items-center gap-3 mb-1">
+                <div className="p-2 bg-blue-50 rounded-xl text-blue-600">
+                  <TrendingUp className="h-5 w-5" />
+                </div>
+                <CardTitle className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">Fluxo de Caixa</CardTitle>
               </div>
-              <CardTitle className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">Fluxo de Caixa</CardTitle>
+              <CardDescription className="text-xs font-bold text-slate-400 ml-10">Entradas vs. Saídas operacionais</CardDescription>
             </div>
-            <CardDescription className="text-xs font-bold text-slate-400 ml-10">Entradas vs. Saídas operacionais</CardDescription>
-          </div>
-          <div className="hidden sm:flex items-center gap-4 bg-slate-50 p-2 rounded-2xl border border-slate-100/50">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Emprestado</span>
+            <div className="hidden sm:flex items-center gap-4 bg-slate-50 p-2 rounded-2xl border border-slate-100/50">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Emprestado</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Recebido</span>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Recebido</span>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="h-[350px] w-full">
+              <OverviewChart data={overviewData} />
             </div>
-          </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="h-[350px] w-full">
-            <OverviewChart data={overviewData} />
-          </div>
-        </CardContent>
-        {/* Abstract Background */}
-        <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-slate-500/5 rounded-full blur-3xl" />
-      </Card>
+          </CardContent>
+          <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-slate-500/5 rounded-full blur-3xl" />
+        </Card>
+      )}
 
       {/* Distribution/Risk Chart */}
-      <Card className="border-none shadow-xl bg-white rounded-[2.5rem] p-6 md:p-10 relative overflow-hidden group">
+      <Card className={cn(
+        "border-none shadow-xl bg-white rounded-[2.5rem] p-6 md:p-10 relative overflow-hidden group",
+        isRestricted ? "lg:col-span-3" : ""
+      )}>
         <CardHeader className="p-0 mb-8">
             <div className="flex items-center gap-3 mb-1">
               <div className="p-2 bg-rose-50 rounded-xl text-rose-600">
