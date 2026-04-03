@@ -36,15 +36,15 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div>
-      <div className="rounded-md border overflow-x-auto">
+    <div className="w-full">
+      <div className="rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 overflow-hidden bg-white shadow-sm">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className="hover:bg-transparent">
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead key={header.id} className="h-14">
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -63,6 +63,7 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className="h-16"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -78,32 +79,39 @@ export function DataTable<TData, TValue>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-32 text-center text-slate-400 font-medium"
                 >
-                  Sem resultados.
+                  Sem resultados encontrados.
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          Anterior
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          Próximo
-        </Button>
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6 px-2">
+        <div className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest order-2 sm:order-1">
+          Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount()}
+        </div>
+        <div className="flex items-center space-x-2 w-full sm:w-auto order-1 sm:order-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1 sm:flex-none h-10 sm:h-9 rounded-xl font-bold px-4"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            Anterior
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1 sm:flex-none h-10 sm:h-9 rounded-xl font-bold px-4"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            Próximo
+          </Button>
+        </div>
       </div>
     </div>
   );

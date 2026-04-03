@@ -59,7 +59,7 @@ export function MetricsGrid({ data, privacyMode, maskValue }: MetricsGridProps) 
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16 px-2">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-16 px-1">
       {cards.map((card, i) => {
         const theme = {
           blue: "border-blue-100 bg-blue-50/30 text-blue-600",
@@ -78,37 +78,37 @@ export function MetricsGrid({ data, privacyMode, maskValue }: MetricsGridProps) 
             className="group relative h-full"
           >
             <div className={cn(
-               "p-8 rounded-[2rem] bg-white transition-all flex flex-col h-full relative overflow-hidden shadow-sm border border-slate-100 hover:shadow-md",
+               "p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] bg-white transition-all flex flex-col h-full relative overflow-hidden shadow-sm border border-slate-100 hover:shadow-md",
             )}>
               
               {/* Top Row: Icon and Trend */}
-              <div className="flex items-start justify-between mb-8 relative z-10">
+              <div className="flex items-start justify-between mb-6 sm:mb-8 relative z-10">
                 <div className={cn(
-                  "p-4 rounded-2xl border transition-all shadow-sm",
+                  "p-3 sm:p-4 rounded-xl sm:rounded-2xl border transition-all shadow-sm",
                   theme
                 )}>
-                  <card.icon className="h-6 w-6" />
+                  <card.icon className="h-5 w-5 sm:h-6 sm:w-6" />
                 </div>
                 {card.trend !== "neutral" && (
                   <div className={cn(
-                    "flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold tracking-tight border shadow-sm",
+                    "flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold tracking-tight border shadow-sm",
                     card.trend === "up" ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-white text-slate-400 border-slate-100"
                   )}>
-                    {card.trend === "up" ? <ArrowUpRight className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
+                    {card.trend === "up" ? <ArrowUpRight className="w-3 sm:h-3.5 sm:w-3.5" /> : <TrendingDown className="w-3 sm:h-3.5 sm:w-3.5" />}
                     {card.trend === "up" ? "Alta" : "Risco"}
                   </div>
                 )}
               </div>
 
               {/* Middle Row: Title and Value */}
-              <div className="space-y-4 relative z-10 flex-1">
+              <div className="space-y-2 sm:space-y-4 relative z-10 flex-1">
                 <div>
-                  <p className="text-[10px] font-bold text-slate-400 mb-1">
+                  <p className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
                     {card.title}
                   </p>
                   <AutoScalingAmount
                     amount={typeof card.value === 'number' ? card.value : 0}
-                    baseSize="4xl"
+                    baseSize="3xl"
                     className="text-slate-900 font-black tracking-tighter leading-none"
                     showCurrency={!privacyMode}
                   />
@@ -116,8 +116,8 @@ export function MetricsGrid({ data, privacyMode, maskValue }: MetricsGridProps) 
               </div>
 
               {/* Bottom Row: Subtitle and Visual Accent */}
-              <div className="pt-6 mt-6 border-t border-slate-50 relative z-10">
-                <p className="text-xs font-medium text-slate-400 flex items-center gap-2">
+              <div className="pt-4 sm:pt-6 mt-4 sm:mt-6 border-t border-slate-50 relative z-10">
+                <p className="text-[10px] sm:text-xs font-medium text-slate-400 flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-slate-200" />
                   {card.subValue}
                 </p>

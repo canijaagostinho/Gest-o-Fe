@@ -267,15 +267,15 @@ export function InstitutionForm({
           </div>
         </div>
 
-        <div className="pt-4">
+        <div className="pt-2 sm:pt-4">
           <Button
             type="submit"
-            className="w-full h-16 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black text-lg shadow-xl shadow-blue-100 transition-all hover:-translate-y-1 active:scale-[0.98]"
+            className="w-full h-14 sm:h-16 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black text-base sm:text-lg shadow-xl shadow-blue-100 transition-all hover:-translate-y-1 active:scale-[0.98]"
             disabled={isLoading}
           >
             {isLoading ? (
               <>
-                <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+                <Loader2 className="mr-2 h-5 w-5 sm:h-6 sm:w-6 animate-spin" />
                 Processando...
               </>
             ) : (

@@ -185,6 +185,9 @@ export default function DashboardLayout({
 
   return (
     <div className="h-full relative bg-[#F8FAFC]">
+      <SubscriptionCountdownBanner role={role} />
+      <InstitutionCompletionBanner role={role} />
+      
       <div className="hidden h-full md:flex md:w-72 md:flex-col md:fixed md:inset-y-0 z-40 shadow-2xl">
         <Sidebar />
       </div>
@@ -197,9 +200,7 @@ export default function DashboardLayout({
 
       <main className="md:pl-72 flex flex-col min-h-screen">
         <Header onMenuClick={() => setIsSidebarOpen(true)} role={role} />
-        <SubscriptionCountdownBanner role={role} />
-        <InstitutionCompletionBanner role={role} />
-        <div className="flex-1 p-4 md:p-8 pt-6 max-w-7xl mx-auto w-full overflow-hidden">
+        <div className="flex-1 w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 pt-4">
           {children}
         </div>
       </main>

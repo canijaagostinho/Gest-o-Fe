@@ -84,7 +84,7 @@ export const WalletCard: React.FC<WalletCardProps> = ({ data, userRole, totalBal
         transition={{ type: "spring", stiffness: 300 }}
       >
         <Card className={cn(
-            "flex flex-col justify-between overflow-hidden border-2 rounded-[2.5rem] transition-all duration-500 group bg-white shadow-xl relative bg-gradient-to-br ring-4",
+            "flex flex-col justify-between overflow-hidden border-2 rounded-[2rem] sm:rounded-[2.5rem] transition-all duration-500 group bg-white shadow-xl relative bg-gradient-to-br ring-4",
             colors.borderThick,
             colors.ring,
             colors.shadow,
@@ -92,80 +92,80 @@ export const WalletCard: React.FC<WalletCardProps> = ({ data, userRole, totalBal
             data.is_default && "ring-blue-500/10 border-blue-500/50 shadow-blue-500/10"
         )}>
           {/* Top Info Bar */}
-          <div className="px-6 pt-6 flex items-center justify-between">
-            <div className="flex items-center gap-2">
+          <div className="px-5 sm:px-6 pt-5 sm:pt-6 flex items-center justify-between">
+            <div className="flex items-center gap-1.5 sm:gap-2">
                 <div className={cn(
-                    "w-2.5 h-2.5 rounded-full ring-4 ring-offset-2",
+                    "w-2 sm:h-2.5 h-2 sm:w-2.5 rounded-full ring-4 ring-offset-2",
                     balanceNum > 0 ? "bg-emerald-500 ring-emerald-50" : "bg-rose-500 ring-rose-50"
                 )} />
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                <span className="text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-widest">
                     {balanceNum > 0 ? "Disponível" : "Sem Saldo"}
                 </span>
             </div>
             {data.is_default && (
-                <Badge className="bg-blue-600 text-white border-none font-black text-[9px] px-3 py-1.5 rounded-full uppercase tracking-tighter shadow-lg shadow-blue-500/20">
-                    <Zap className="w-2.5 h-2.5 mr-1 fill-white" /> Principal
+                <Badge className="bg-blue-600 text-white border-none font-black text-[8px] sm:text-[9px] px-2 sm:px-3 py-1 sm:py-1.5 rounded-full uppercase tracking-tighter shadow-lg shadow-blue-500/20">
+                    <Zap className="w-2 sm:h-2.5 h-2 sm:w-2.5 mr-1 fill-white" /> Principal
                 </Badge>
             )}
           </div>
 
-          <CardHeader className="flex flex-row items-center gap-4 pb-2 pt-4 px-6">
+          <CardHeader className="flex flex-row items-center gap-3 sm:gap-4 pb-2 pt-4 px-5 sm:px-6">
             <div className={cn(
-                "w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 border-2 shadow-sm transition-transform group-hover:scale-110",
+                "w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0 border-2 shadow-sm transition-transform group-hover:scale-110 relative",
                 colors.badge,
                 data.is_default ? "bg-white" : ""
             )}>
               {provider !== "outro" && provider !== "cash" ? (
                 <Image
-                  src={`/logos/providers/${provider}.webp`}
+                  src={`/logos/providers/${provider}.png`}
                   alt={`Logotipo da conta ${provider}`}
                   fill
                   className="object-contain p-2"
                 />
               ) : null}
               <div className={cn(provider !== "outro" && provider !== "cash" ? "hidden" : "block")}>
-                <Wallet className="w-6 h-6 opacity-40 text-slate-900" />
+                <Wallet className="w-5 h-5 sm:h-6 sm:w-6 opacity-40 text-slate-900" />
               </div>
             </div>
             
             <div className="flex flex-col min-w-0">
-              <h3 className="text-xl font-black text-slate-900 leading-[1.1] tracking-tight">
+              <h3 className="text-lg sm:text-xl font-black text-slate-900 leading-[1.1] tracking-tight truncate">
                 {data.name}
               </h3>
-              <div className="flex items-center gap-2 mt-1">
-                <span className={cn("text-[10px] font-black uppercase tracking-widest bg-white/50 px-2 py-0.5 rounded-lg border", colors.text, colors.border)}>
+              <div className="flex items-center gap-1.5 sm:gap-2 mt-1">
+                <span className={cn("text-[9px] sm:text-[10px] font-black uppercase tracking-widest bg-white/50 px-1.5 sm:px-2 py-0.5 rounded-lg border", colors.text, colors.border)}>
                     {provider}
                 </span>
                 <div className="w-1 h-1 bg-slate-200 rounded-full" />
-                <span className={cn("text-[11px] font-black px-2 py-0.5 rounded-lg border bg-white/50", colors.text, colors.border)}>
-                    {participation.toFixed(1)}% da carteira
+                <span className={cn("text-[10px] sm:text-[11px] font-black px-1.5 sm:px-2 py-0.5 rounded-lg border bg-white/50", colors.text, colors.border)}>
+                    {participation.toFixed(1)}%
                 </span>
               </div>
             </div>
           </CardHeader>
 
-          <CardContent className="px-6 py-6">
+          <CardContent className="px-5 sm:px-6 py-4 sm:py-6">
             <div className="space-y-1">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Saldo em Meticais</p>
+                <p className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Saldo em Meticais</p>
                 <AutoScalingAmount 
                   amount={balanceNum} 
-                  baseSize="5xl"
+                  baseSize="3xl"
                   className="text-slate-900"
                 />
             </div>
             
             {/* Liquidness Bar */}
-            <div className="mt-6 space-y-2">
-                <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
-                    <span className="text-slate-400">Tipo de Liquidez</span>
+            <div className="mt-4 sm:mt-6 space-y-1.5 sm:space-y-2">
+                <div className="flex justify-between text-[9px] sm:text-[10px] font-black uppercase tracking-widest">
+                    <span className="text-slate-400">Liquidez</span>
                     <span className={cn(
-                        "px-2 rounded bg-slate-50",
+                        "px-1.5 sm:px-2 rounded bg-slate-50",
                         isMobileMoney ? "text-rose-600" : isCash ? "text-slate-600" : "text-blue-600"
                     )}>
-                        {isMobileMoney ? "Móvel" : isCash ? "Papel Moeda" : "Bancária"}
+                        {isMobileMoney ? "Móvel" : isCash ? "Física" : "Bancária"}
                     </span>
                 </div>
-                <div className="h-2 w-full bg-white/50 rounded-full overflow-hidden border border-slate-100">
+                <div className="h-1.5 sm:h-2 w-full bg-white/50 rounded-full overflow-hidden border border-slate-100">
                     <motion.div 
                         initial={{ width: 0 }}
                         animate={{ width: `${Math.min(participation * 5, 100)}%` }}
@@ -178,52 +178,53 @@ export const WalletCard: React.FC<WalletCardProps> = ({ data, userRole, totalBal
             </div>
           </CardContent>
 
-          <div className="px-6 pb-6 space-y-4">
-            <div className="grid grid-cols-2 gap-3">
+          <div className="px-5 sm:px-6 pb-5 sm:pb-6 space-y-3 sm:space-y-4">
+            <div className="grid grid-cols-1 xs:grid-cols-2 gap-2 sm:gap-3">
               <Button
                 variant="outline"
-                className="rounded-2xl border-slate-100 font-black text-[10px] uppercase h-11 tracking-wider hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                className="rounded-xl sm:rounded-2xl border-slate-100 font-black text-[9px] sm:text-[10px] uppercase h-10 sm:h-11 tracking-wider hover:bg-blue-600 hover:text-white transition-all shadow-sm"
                 onClick={() => router.push(`/finance/accounts/${data.id}?action=transfer`)}
               >
                 Transferir
               </Button>
               <Button
                 variant="outline"
-                className="rounded-2xl bg-blue-50 border-none text-blue-600 font-black text-[10px] uppercase h-11 tracking-wider hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                className="rounded-xl sm:rounded-2xl bg-blue-50 border-none text-blue-600 font-black text-[9px] sm:text-[10px] uppercase h-10 sm:h-11 tracking-wider hover:bg-blue-600 hover:text-white transition-all shadow-sm"
                 onClick={() => router.push(`/finance/accounts/${data.id}?action=deposit`)}
               >
                 Adicionar
               </Button>
             </div>
             
-            <div className="flex items-center justify-between pt-2">
+            <div className="flex items-center justify-between pt-1 sm:pt-2">
                 <Button
                     variant="ghost"
                     size="sm"
-                    className="h-8 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 px-2"
+                    className="h-7 sm:h-8 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 px-1 sm:px-2"
                     onClick={() => router.push(`/finance/accounts/${data.id}`)}
                 >
-                    <Eye className="w-3.5 h-3.5 mr-2" />
-                    Gerenciar
+                    <Eye className="w-3 sm:h-3.5 sm:w-3.5 mr-1.5 sm:mr-2" />
+                    <span className="xs:inline">Gerenciar</span>
+                    <span className="xs:hidden">Ver</span>
                 </Button>
 
                 {userRole !== "operador" && (
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-0.5 sm:gap-1">
                          <Button 
                             variant="ghost" 
                             size="icon" 
-                            className="h-8 w-8 text-slate-300 hover:text-blue-600 rounded-xl"
+                            className="h-7 w-7 sm:h-8 sm:w-8 text-slate-300 hover:text-blue-600 rounded-lg sm:rounded-xl"
                             onClick={() => router.push(`/finance/accounts/${data.id}/edit`)}
                         >
-                            <Edit className="h-3.5 w-3.5" />
+                            <Edit className="h-3 sm:h-3.5 sm:w-3.5" />
                         </Button>
                         <Button 
                             variant="ghost" 
                             size="icon" 
-                            className="h-8 w-8 text-slate-300 hover:text-rose-600 rounded-xl"
+                            className="h-7 w-7 sm:h-8 sm:w-8 text-slate-300 hover:text-rose-600 rounded-lg sm:rounded-xl"
                             onClick={() => setOpen(true)}
                         >
-                            <Trash className="h-3.5 w-3.5" />
+                            <Trash className="h-3 sm:h-3.5 sm:w-3.5" />
                         </Button>
                     </div>
                 )}

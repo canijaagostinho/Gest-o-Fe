@@ -109,17 +109,17 @@ export function InstitutionCompletionBanner({ role }: Props) {
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: -100, opacity: 0 }}
-        className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] w-[95%] max-w-2xl px-4"
+        className="fixed top-4 left-2 right-2 md:left-1/2 md:right-auto md:-translate-x-1/2 z-[100] w-auto md:w-[95%] md:max-w-2xl"
       >
-        <div className="bg-white/95 backdrop-blur-xl border border-blue-100 shadow-[0_20px_50px_rgba(59,130,246,0.15)] rounded-3xl p-5 md:p-6 overflow-hidden relative group">
+        <div className="bg-white/95 backdrop-blur-xl border border-blue-100 shadow-[0_20px_50px_rgba(59,130,246,0.15)] rounded-2xl md:rounded-3xl p-4 md:p-6 overflow-hidden relative group">
           {/* Background Highlight */}
           <div className="absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 bg-blue-50/50 rounded-full blur-3xl group-hover:bg-blue-100/50 transition-all duration-700 pointer-events-none" />
           <div className="absolute bottom-0 left-0 -mb-8 -ml-8 w-24 h-24 bg-emerald-50/50 rounded-full blur-3xl pointer-events-none" />
 
           <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
-            <div className="flex items-start md:items-center gap-3 md:gap-4 flex-1 w-full">
-              <div className="h-12 w-12 md:h-14 md:w-14 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200 flex-shrink-0 animate-pulse-slow mt-1 md:mt-0">
-                <Sparkles className="h-5 w-5 md:h-7 md:w-7 text-white" />
+            <div className="flex items-start md:items-center gap-3 md:gap-4 flex-1">
+              <div className="h-10 w-10 md:h-14 md:w-14 bg-blue-600 rounded-xl md:rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200 flex-shrink-0 animate-pulse-slow mt-1 md:mt-0">
+                <Building2 className="h-5 w-5 md:h-7 md:w-7 text-white" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-2 mb-1">
@@ -130,27 +130,27 @@ export function InstitutionCompletionBanner({ role }: Props) {
                     Configuração Inicial
                   </span>
                 </div>
-                <h3 className="text-sm md:text-base font-black text-slate-900 tracking-tight leading-tight truncate md:whitespace-normal">
+                <h3 className="text-sm md:text-base font-black text-slate-900 tracking-tight leading-tight whitespace-normal break-words">
                   Complete o Perfil da sua Instituição
                 </h3>
-                <p className="text-[11px] md:text-xs font-medium text-slate-500 mt-1 line-clamp-1 md:line-clamp-2">
+                <p className="text-[11px] md:text-xs font-medium text-slate-500 mt-1 whitespace-normal break-words">
                   Dados obrigatórios estão em falta. Preencha o NUIT, endereço e contatos.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 w-full md:w-auto justify-end pt-2 md:pt-0 border-t border-slate-100/50 md:border-0 mt-2 md:mt-0">
+            <div className="flex items-center gap-2 w-full md:w-auto justify-end pt-3 md:pt-0 border-t md:border-t-0 border-slate-100 mt-1 md:mt-0">
               <Button
                 onClick={() => router.push("/settings/institution")}
-                className="bg-slate-900 hover:bg-blue-600 text-white font-black text-[10px] md:text-xs uppercase tracking-widest rounded-2xl h-10 md:h-11 px-4 md:px-6 shadow-xl shadow-slate-100 group transition-all flex-1 md:flex-none"
+                className="bg-slate-900 hover:bg-blue-600 text-white font-black text-[9px] md:text-xs uppercase tracking-[0.15em] md:tracking-widest rounded-xl md:rounded-2xl h-9 md:h-11 px-4 md:px-6 shadow-xl shadow-slate-100 group transition-all flex-1 md:flex-none"
               >
-                Completar <ArrowRight className="h-3 w-3 ml-2 group-hover:translate-x-1 transition-transform" />
+                Completar <ArrowRight className="h-3 w-3 ml-2 group-hover:translate-x-1 transition-transform hidden xs:block" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={handleDismiss}
-                className="rounded-2xl hover:bg-slate-100 text-slate-400 h-10 w-10 md:h-11 md:w-11 flex-shrink-0"
+                className="rounded-xl md:rounded-2xl hover:bg-slate-100 text-slate-400 h-9 w-9 md:h-11 md:w-11 flex-shrink-0"
               >
                 <X className="h-4 w-4 md:h-5 md:w-5" />
               </Button>
