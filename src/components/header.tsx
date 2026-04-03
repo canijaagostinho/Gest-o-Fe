@@ -52,7 +52,7 @@ export function Header({
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200/60 bg-white/80 backdrop-blur-xl shadow-sm dark:bg-slate-950/80 dark:border-slate-800 transition-all duration-300">
-      <div className="h-16 md:h-20 px-4 sm:px-6 lg:px-8 flex items-center gap-4 md:gap-6 max-w-7xl mx-auto">
+      <div className="h-16 md:h-20 px-4 sm:px-6 lg:px-10 flex items-center gap-4 md:gap-6 max-w-[1800px] mx-auto">
         {/* Mobile Menu Trigger */}
         <Button
           variant="ghost"
