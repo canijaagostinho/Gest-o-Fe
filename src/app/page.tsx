@@ -146,7 +146,7 @@ export default function LandingPage() {
         },
         {
             q: "Posso testar antes de assinar?",
-            a: "Com certeza. Oferecemos um período de teste gratuito com acesso a todas as funcionalidades para você ver os resultados antes de investir.",
+            a: "Com certeza. Oferecemos 45 dias de teste gratuito com acesso total a todas as funcionalidades para você validar o sistema na sua operação real sem qualquer custo inicial.",
             icon: Zap,
             color: "text-orange-600 bg-orange-50"
         },
@@ -294,11 +294,19 @@ export default function LandingPage() {
                         <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
                             {/* Left Content Column (Balanced 6/12) */}
                             <div className="space-y-10 max-w-2xl flex flex-col items-start text-left order-2 lg:order-1">
-                                <FadeIn className="inline-flex items-center gap-3 px-5 py-2 bg-blue-50/50 border border-blue-100/50 rounded-full shadow-sm">
-                                    <span className="flex h-1.5 w-1.5 rounded-full bg-blue-600 animate-pulse" />
-                                    <span className="text-[10px] font-black text-blue-700 uppercase tracking-[0.2em] font-sora">
-                                        SISTEMA PREMIUM PARA MICROCRÉDITO
-                                    </span>
+                                <FadeIn className="flex flex-col items-start gap-4">
+                                    <div className="inline-flex items-center gap-3 px-5 py-2 bg-blue-50/50 border border-blue-100/50 rounded-full shadow-sm">
+                                        <span className="flex h-1.5 w-1.5 rounded-full bg-blue-600 animate-pulse" />
+                                        <span className="text-[10px] font-black text-blue-700 uppercase tracking-[0.2em] font-sora">
+                                            SISTEMA PREMIUM PARA MICROCRÉDITO
+                                        </span>
+                                    </div>
+                                    <div className="inline-flex items-center gap-2 px-4 py-1 bg-emerald-50 border border-emerald-100 rounded-lg shadow-sm">
+                                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                                        <span className="text-[11px] font-black text-emerald-700 uppercase tracking-wider font-sora">
+                                            45 DIAS GRÁTIS PARA TESTES
+                                        </span>
+                                    </div>
                                 </FadeIn>
 
                                 <motion.div
@@ -898,13 +906,16 @@ export default function LandingPage() {
                             </p>
                         </FadeIn>
                         
-                        <FadeIn delay={200}>
+                        <FadeIn delay={200} className="flex flex-col items-center gap-4">
                             <Link href="/auth/signup" className="text-white hover:text-white">
                                 <Button className="h-16 px-10 rounded-full font-black text-sm uppercase tracking-widest bg-blue-600 hover:bg-blue-700 !text-white shadow-xl shadow-blue-600/20 transition-all hover:-translate-y-1">
                                     COMEÇAR AGORA GRATUITAMENTE
                                 </Button>
                             </Link>
-                            <div className="mt-8 flex justify-center items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                            <span className="text-[11px] font-black text-blue-600 uppercase tracking-[0.2em] font-sora">
+                                45 DIAS DE TESTE TOTALMENTE GRÁTIS
+                            </span>
+                            <div className="mt-4 flex justify-center items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                 <ShieldCheck className="h-4 w-4 text-emerald-500" />
                                 Trusted by 50+ lenders nationwide
                             </div>
@@ -1034,7 +1045,7 @@ export default function LandingPage() {
                             Gestão<span className="text-blue-600">Flex</span>
                         </span>
                         <span className="font-black text-slate-500 hidden md:block uppercase tracking-widest text-[11px]">
-                            Não perca mais dinheiro: Garanta hoje mesmo o controle da sua operação.
+                            Aproveite 45 dias de teste grátis e garanta o controle da sua operação hoje.
                         </span>
                     </div>
                     <Link href="/auth/signup" className="w-full sm:w-auto text-white hover:text-white">
