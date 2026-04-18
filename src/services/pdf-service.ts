@@ -76,9 +76,11 @@ export class PDFService {
     const { name, nuit, address, phone, email, website, logo_url } =
       this.institution;
 
-    // Logo
-    if (logo_url) {
-      const base64Img = await this.loadImage(logo_url);
+    // Logo Fallback to Premium System Logo if institution logo is missing
+    const finalLogoUrl = logo_url || "/logo-premium.png";
+
+    if (finalLogoUrl) {
+      const base64Img = await this.loadImage(finalLogoUrl);
       if (base64Img) {
         // Add Image (x, y, w, h)
         try {
@@ -162,7 +164,7 @@ export class PDFService {
 
     // Left
     doc.text(
-      `Gerado em ${new Date().toLocaleString("pt-MZ")}`,
+      `Gerado por GestãoFlex em ${new Date().toLocaleString("pt-MZ")}`,
       15,
       pageHeight - 10,
     );
@@ -228,11 +230,11 @@ export class PDFService {
       body: [
         ["Valor Pago", formatCurrency(safeAmount)],
         [
-          "Data",
+          "Data de Pagamento",
           `${payment.date.toLocaleDateString("pt-MZ")} ${payment.date.toLocaleTimeString("pt-MZ", { hour: "2-digit", minute: "2-digit" })}`,
         ],
-        ["Método", payment.method],
-        ["Referência", payment.reference || "-"],
+        ["Método de Recebimento", payment.method],
+        ["Referência do Sistema", payment.reference || "-"],
       ],
       theme: "grid",
       headStyles: {

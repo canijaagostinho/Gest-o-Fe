@@ -173,10 +173,16 @@ export default function LandingPage() {
                     {/* LEFT: Logo */}
                     <div className="flex-1 flex items-center">
                         <Link href="/" className="flex items-center gap-3 group">
-                            <div className="h-9 w-9 bg-blue-600 rounded-xl flex items-center justify-center overflow-hidden shadow-lg shadow-blue-600/10 group-hover:scale-105 transition-transform border border-slate-100">
-                                <Landmark className="h-5 w-5 text-white" />
+                            <div className="h-10 w-10 relative flex items-center justify-center overflow-hidden transition-transform group-hover:scale-105 active:scale-95">
+                                <Image 
+                                    src="/logo-premium.png" 
+                                    alt="GestãoFlex Logo" 
+                                    fill 
+                                    className="object-contain"
+                                    priority
+                                />
                             </div>
-                            <span className="text-lg font-black text-slate-950 tracking-tight font-sora">
+                            <span className="text-xl font-black text-slate-950 tracking-tight font-sora">
                                 Gestão<span className="text-blue-600">Flex</span>
                             </span>
                         </Link>
@@ -193,7 +199,7 @@ export default function LandingPage() {
                                 <Link
                                     key={item.label}
                                     href={item.href}
-                                    className="text-[10px] font-black text-slate-600 hover:text-blue-600 transition-colors uppercase tracking-[0.3em] font-sora"
+                                    className="text-[13px] font-black text-slate-600 hover:text-blue-600 transition-colors uppercase tracking-[0.1em] font-sora"
                                 >
                                     {item.label}
                                 </Link>
@@ -205,12 +211,12 @@ export default function LandingPage() {
                     <div className="hidden lg:flex flex-1 items-center justify-end gap-6">
                         <Link 
                             href="/auth/login" 
-                            className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 hover:text-blue-600 transition-colors font-sora"
+                            className="text-[13px] font-black uppercase tracking-[0.1em] text-slate-500 hover:text-blue-600 transition-colors font-sora"
                         >
                             ENTRAR
                         </Link>
                         <Link href="/auth/signup">
-                            <Button className="bg-blue-600 hover:bg-blue-700 text-white font-black px-8 h-12 rounded-xl text-[11px] uppercase tracking-[0.2em] shadow-lg shadow-blue-600/20 transition-all font-sora border-none">
+                            <Button className="bg-blue-600 hover:bg-blue-700 text-white font-black px-8 h-12 rounded-xl text-[13px] uppercase tracking-[0.1em] shadow-lg shadow-blue-600/20 transition-all font-sora border-none">
                                 Criar Conta Grátis
                             </Button>
                         </Link>
@@ -229,8 +235,8 @@ export default function LandingPage() {
                                     <SheetHeader className="p-6 border-b border-slate-100">
                                         <SheetTitle className="text-left">
                                             <div className="flex items-center gap-3">
-                                                <div className="h-8 w-8 bg-white rounded-lg flex items-center justify-center overflow-hidden border border-slate-100 shadow-sm relative">
-                                                    <Image src="/logo.webp" alt="GestãoFlex Logotipo" fill className="object-cover" />
+                                                <div className="h-10 w-10 relative overflow-hidden">
+                                                    <Image src="/logo-premium.png" alt="GestãoFlex Logotipo" fill className="object-contain" />
                                                 </div>
                                                 <span className="text-lg font-black text-slate-950 font-sora">
                                                     Gestão<span className="text-blue-600">Flex</span>
@@ -297,13 +303,13 @@ export default function LandingPage() {
                                 <FadeIn className="flex flex-col items-start gap-4">
                                     <div className="inline-flex items-center gap-3 px-5 py-2 bg-blue-50/50 border border-blue-100/50 rounded-full shadow-sm">
                                         <span className="flex h-1.5 w-1.5 rounded-full bg-blue-600 animate-pulse" />
-                                        <span className="text-[10px] font-black text-blue-700 uppercase tracking-[0.2em] font-sora">
+                                        <span className="text-xs font-black text-blue-700 uppercase tracking-[0.1em] font-sora">
                                             SISTEMA PREMIUM PARA MICROCRÉDITO
                                         </span>
                                     </div>
                                     <div className="inline-flex items-center gap-2 px-4 py-1 bg-emerald-50 border border-emerald-100 rounded-lg shadow-sm">
                                         <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-                                        <span className="text-[11px] font-black text-emerald-700 uppercase tracking-wider font-sora">
+                                        <span className="text-xs font-black text-emerald-700 uppercase tracking-wider font-sora">
                                             45 DIAS GRÁTIS PARA TESTES
                                         </span>
                                     </div>
@@ -474,7 +480,7 @@ export default function LandingPage() {
                             
                             <div className="space-y-10 order-1 lg:order-2">
                                 <div className="space-y-6">
-                                    <FadeIn className="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-50 text-blue-700 rounded-full text-[10px] font-black tracking-[0.2em] uppercase font-sora border border-blue-100">
+                                    <FadeIn className="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-50 text-blue-700 rounded-full text-xs font-black tracking-[0.15em] uppercase font-sora border border-blue-100">
                                         Módulo de Crédito
                                     </FadeIn>
                                     <h3 className="text-4xl md:text-5xl lg:text-6xl font-black text-slate-950 tracking-tighter font-sora leading-[1.1]">
@@ -504,7 +510,7 @@ export default function LandingPage() {
                         <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
                             <div className="space-y-10">
                                 <div className="space-y-6">
-                                    <FadeIn className="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-50 text-emerald-700 rounded-full text-[10px] font-black tracking-[0.2em] uppercase font-sora border border-emerald-100">
+                                    <FadeIn className="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-50 text-emerald-700 rounded-full text-xs font-black tracking-[0.15em] uppercase font-sora border border-emerald-100">
                                         Relatórios Estratégicos
                                     </FadeIn>
                                     <h3 className="text-4xl md:text-5xl lg:text-6xl font-black text-slate-950 tracking-tighter font-sora leading-[1.1]">
@@ -562,7 +568,7 @@ export default function LandingPage() {
                     <div className="max-w-[1800px] mx-auto relative z-10">
                         <div className="grid lg:grid-cols-2 gap-20 items-center">
                             <FadeIn className="space-y-8">
-                                <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-rose-500/10 border border-rose-500/20 rounded-full text-[10px] font-black text-rose-500 uppercase tracking-[0.3em]">
+                                <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-rose-500/10 border border-rose-500/20 rounded-full text-xs font-black text-rose-500 uppercase tracking-[0.2em]">
                                     Cuidado com a sua Margem
                                 </div>
                                 <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tighter leading-[1.05] font-sora">
@@ -600,7 +606,7 @@ export default function LandingPage() {
                 <section id="solucao" className="py-32 bg-white px-6 overflow-hidden">
                     <div className="max-w-[1800px] mx-auto space-y-24">
                         <FadeIn className="text-center space-y-6 max-w-7xl mx-auto">
-                            <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-[10px] font-black text-emerald-600 uppercase tracking-[0.4em] mb-4">
+                            <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-xs font-black text-emerald-600 uppercase tracking-[0.3em] mb-4">
                                 A Solução Definitiva
                             </div>
                             <h3 className="text-4xl md:text-5xl lg:text-7xl font-black text-slate-950 tracking-tighter leading-[1.05] font-sora">
@@ -668,7 +674,7 @@ export default function LandingPage() {
                 <section id="solucao" className="py-24 bg-slate-50 relative overflow-hidden px-6">
                     <div className="max-w-6xl mx-auto space-y-16 relative z-10 w-full">
                         <FadeIn className="text-center space-y-6 max-w-3xl mx-auto">
-                            <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-[10px] font-black text-blue-600 uppercase tracking-[0.4em] font-sora">
+                            <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-xs font-black text-blue-600 uppercase tracking-[0.3em] font-sora">
                                 Poder sem Complexidade
                             </div>
                             <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-slate-950 tracking-tighter leading-[1.05] font-sora">
@@ -745,7 +751,7 @@ export default function LandingPage() {
                     
                     <div className="max-w-4xl mx-auto space-y-16 relative z-10">
                         <FadeIn className="space-y-6">
-                            <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-[10px] font-black text-blue-400 uppercase tracking-[0.4em]">
+                            <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-xs font-black text-blue-400 uppercase tracking-[0.3em]">
                                 Demo Interativa
                             </div>
                             <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tighter leading-[1.05] font-sora">
@@ -774,7 +780,7 @@ export default function LandingPage() {
                 <section className="py-32 bg-slate-50 px-6">
                     <div className="max-w-[1800px] mx-auto space-y-20">
                         <FadeIn className="text-center space-y-6">
-                            <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-[10px] font-black text-blue-600 uppercase tracking-[0.4em]">
+                            <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-xs font-black text-blue-600 uppercase tracking-[0.3em]">
                                 Feedback de quem usa
                             </div>
                             <h3 className="text-4xl md:text-5xl lg:text-6xl font-black text-slate-950 tracking-tighter leading-[1.05] font-sora">
@@ -833,7 +839,7 @@ export default function LandingPage() {
                     <div className="max-w-[1800px] mx-auto grid lg:grid-cols-2 gap-20 items-center">
                         <div className="space-y-10 order-2 lg:order-1">
                             <FadeIn>
-                                <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-slate-900/5 border border-slate-900/10 rounded-full text-[10px] font-black text-slate-600 uppercase tracking-[0.4em] mb-6">
+                                <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-slate-900/5 border border-slate-900/10 rounded-full text-xs font-black text-slate-600 uppercase tracking-[0.2em] mb-6">
                                     Industrial Strength
                                 </div>
                                 <h2 className="text-4xl md:text-5xl lg:text-5xl font-black text-slate-950 tracking-tighter leading-[1.05] font-sora">
@@ -849,28 +855,28 @@ export default function LandingPage() {
                                     <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-900 shadow-inner">
                                         <Lock className="h-5 w-5" />
                                     </div>
-                                    <h5 className="font-black text-slate-950 uppercase tracking-widest text-[10px]">Criptografia SSL</h5>
+                                    <h5 className="font-black text-slate-950 uppercase tracking-widest text-xs">Criptografia SSL</h5>
                                     <p className="text-slate-500">Segurança ponta a ponta.</p>
                                 </FadeIn>
                                 <FadeIn delay={200} className="space-y-3">
                                     <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-900 shadow-inner">
                                         <Cloud className="h-5 w-5" />
                                     </div>
-                                    <h5 className="font-black text-slate-950 uppercase tracking-widest text-[10px]">Backups 24/7</h5>
+                                    <h5 className="font-black text-slate-950 uppercase tracking-widest text-xs">Backups 24/7</h5>
                                     <p className="text-slate-500">Seus dados sempre salvos.</p>
                                 </FadeIn>
                                 <FadeIn delay={300} className="space-y-3">
                                     <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-900 shadow-inner">
                                         <RefreshCw className="h-5 w-5" />
                                     </div>
-                                    <h5 className="font-black text-slate-950 uppercase tracking-widest text-[10px]">Redundância</h5>
+                                    <h5 className="font-black text-slate-950 uppercase tracking-widest text-xs">Redundância</h5>
                                     <p className="text-slate-500">Sistema sempre online.</p>
                                 </FadeIn>
                                 <FadeIn delay={400} className="space-y-3">
                                     <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-900 shadow-inner">
                                         <ShieldCheck className="h-5 w-5" />
                                     </div>
-                                    <h5 className="font-black text-slate-950 uppercase tracking-widest text-[10px]">Privacidade</h5>
+                                    <h5 className="font-black text-slate-950 uppercase tracking-widest text-xs">Privacidade</h5>
                                     <p className="text-slate-500">Isolamento total de dados.</p>
                                 </FadeIn>
                             </div>
@@ -885,7 +891,7 @@ export default function LandingPage() {
                                 <p className="text-2xl md:text-3xl text-white font-sora font-black tracking-tight leading-snug">
                                     "Segurança não é opcional. Aplicamos padrões globais para que você foque apenas no seu lucro."
                                 </p>
-                                <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-[0.3em] text-blue-500">
+                                <div className="flex items-center gap-4 text-xs font-black uppercase tracking-[0.1em] text-blue-500">
                                     <span className="flex items-center gap-2"><Lock className="h-3 w-3" /> Cloud Infrastructure</span>
                                     <span className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5" /> Verified Daily</span>
                                 </div>
@@ -912,7 +918,7 @@ export default function LandingPage() {
                                     COMEÇAR AGORA GRATUITAMENTE
                                 </Button>
                             </Link>
-                            <span className="text-[11px] font-black text-blue-600 uppercase tracking-[0.2em] font-sora">
+                            <span className="text-xs font-black text-blue-600 uppercase tracking-[0.1em] font-sora">
                                 45 DIAS DE TESTE TOTALMENTE GRÁTIS
                             </span>
                             <div className="mt-4 flex justify-center items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
@@ -928,7 +934,7 @@ export default function LandingPage() {
                     <div className="max-w-[1400px] mx-auto space-y-20">
                         <FadeIn className="text-center space-y-6">
                             <h3 className="text-4xl md:text-5xl lg:text-7xl font-black text-slate-950 tracking-tighter font-sora leading-tight">Dúvidas Frequentes</h3>
-                            <p className="text-slate-500 font-bold uppercase tracking-[0.3em] text-[10px] italic">Respostas diretas para as suas perguntas</p>
+                            <p className="text-slate-500 font-bold uppercase tracking-[0.2em] text-xs italic">Respostas diretas para as suas perguntas</p>
                         </FadeIn>
 
                         <div className="grid gap-6">
@@ -972,9 +978,14 @@ export default function LandingPage() {
                     <div className="max-w-[1800px] mx-auto">
                         <div className="grid grid-cols-1 md:grid-cols-5 gap-12 mb-20">
                             <div className="col-span-1 md:col-span-2 space-y-8">
-                                <Link href="/" className="flex items-center gap-3">
-                                    <div className="h-10 w-10 bg-white rounded-xl flex items-center justify-center">
-                                        <img src="/logo.png" alt="Logo" className="h-full w-full object-cover rounded-xl" />
+                                <Link href="/" className="flex items-center gap-3 group">
+                                    <div className="h-10 w-10 relative overflow-hidden bg-white/10 rounded-xl p-1 group-hover:bg-white/20 transition-colors">
+                                        <Image 
+                                            src="/logo-premium.png" 
+                                            alt="Logo GestãoFlex" 
+                                            fill 
+                                            className="object-contain"
+                                        />
                                     </div>
                                     <span className="text-2xl font-black tracking-tight font-sora">Gestão<span className="text-blue-500">Flex</span></span>
                                 </Link>
@@ -984,7 +995,7 @@ export default function LandingPage() {
                             </div>
                             
                             <div className="space-y-6">
-                                <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-500 font-sora">Produto</h4>
+                                <h4 className="text-xs font-black uppercase tracking-[0.1em] text-blue-500 font-sora">Produto</h4>
                                 <ul className="space-y-3 text-lg text-slate-400 font-bold">
                                     <li><Link href="#problema" className="hover:text-white transition-colors">O Problema</Link></li>
                                     <li><Link href="#solucao" className="hover:text-white transition-colors">A Solução</Link></li>
@@ -992,7 +1003,7 @@ export default function LandingPage() {
                             </div>
                             
                             <div className="space-y-6">
-                                <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-500 font-sora">Links Úteis</h4>
+                                <h4 className="text-xs font-black uppercase tracking-[0.1em] text-blue-500 font-sora">Links Úteis</h4>
                                 <ul className="space-y-3 text-lg text-slate-400 font-bold">
                                     <li><Link href="#faq" className="hover:text-white transition-colors">FAQ</Link></li>
                                     <li><Link href="/auth/login" className="hover:text-white transition-colors">Entrar</Link></li>
@@ -1001,7 +1012,7 @@ export default function LandingPage() {
                             </div>
 
                             <div className="space-y-6">
-                                <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-500 font-sora">Contactos</h4>
+                                <h4 className="text-xs font-black uppercase tracking-[0.1em] text-blue-500 font-sora">Contactos</h4>
                                 <ul className="space-y-4 font-inter">
                                     <li>
                                         <a href="tel:+258834646942" className="flex items-center gap-4 group">
@@ -1023,7 +1034,7 @@ export default function LandingPage() {
                             </div>
                         </div>
                         
-                        <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 text-[11px] font-black text-slate-600 uppercase tracking-[0.4em] font-sora">
+                        <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 text-xs font-black text-slate-600 uppercase tracking-[0.2em] font-sora">
                             <p>© {new Date().getFullYear()} GestãoFlex. Todos os direitos reservados.</p>
                             <div className="flex gap-8">
                                 <span>Design Premium para Credores</span>
@@ -1044,7 +1055,7 @@ export default function LandingPage() {
                         <span className="text-lg sm:text-xl font-black text-slate-950 font-sora">
                             Gestão<span className="text-blue-600">Flex</span>
                         </span>
-                        <span className="font-black text-slate-500 hidden md:block uppercase tracking-widest text-[11px]">
+                        <span className="font-black text-slate-500 hidden md:block uppercase tracking-widest text-xs">
                             Aproveite 45 dias de teste grátis e garanta o controle da sua operação hoje.
                         </span>
                     </div>

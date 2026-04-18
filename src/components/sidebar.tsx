@@ -223,13 +223,14 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
             .single();
 
           if (profile) {
-            const profileWithRole = profile as { role: { name: string } | null; institution?: Record<string, unknown> };
+            type InstitutionType = { name: string; acronym?: string; logo_url?: string; primary_color?: string };
+            const profileWithRole = profile as { role: { name: string } | null; institution?: InstitutionType };
             const role = profileWithRole.role?.name || "gestor";
             setUserRole(role);
 
             // Set institution data if available and not admin_geral
             if (role !== "admin_geral" && profileWithRole.institution) {
-              setInstitutionData(profileWithRole.institution as Record<string, unknown>);
+              setInstitutionData(profileWithRole.institution);
             }
           }
         }
@@ -309,7 +310,7 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
   // Determine what to display in header
   const displayName = institutionData?.name || "Gestão Flex";
   const displaySubtitle = institutionData?.acronym || "";
-  const displayLogo = institutionData?.logo_url || "/logo.png";
+  const displayLogo = institutionData?.logo_url || "/logo-premium.png";
   const displayColor = institutionData?.primary_color || "#1E3A8A"; // Default deep corporate blue
   const firstLetter = displayName.charAt(0).toUpperCase();
 
@@ -324,10 +325,10 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
             <div className="relative">
               <div className="relative h-10 w-10 rounded-xl flex items-center justify-center overflow-hidden shadow-2xl group-hover:shadow-blue-500/30 transition-all duration-300 ring-1 ring-white/20 bg-white">
                 <Image
-                  src={displayLogo.replace('.png', '.webp')}
+                  src={displayLogo}
                   alt={`Logotipo da instituição ${displayName}`}
                   fill
-                  className="object-contain p-1.5"
+                  className="object-contain p-1"
                 />
               </div>
               <div className="absolute -bottom-1 -right-1 h-3.5 w-3.5 bg-emerald-500 rounded-full border-2 border-[#0F172A] shadow-lg shadow-emerald-500/20" />
