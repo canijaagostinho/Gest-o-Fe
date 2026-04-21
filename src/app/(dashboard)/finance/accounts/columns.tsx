@@ -16,7 +16,7 @@ export type AccountColumn = {
   created_at: string;
 };
 
-export const columns: ColumnDef<AccountColumn>[] = [
+export const getColumns = (userRole?: string): ColumnDef<AccountColumn>[] => [
   {
     accessorKey: "name",
     header: "Nome da Caixa",
@@ -26,10 +26,10 @@ export const columns: ColumnDef<AccountColumn>[] = [
 
       return (
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0 border border-slate-100">
+          <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0 border border-slate-100 relative">
             {provider !== "outro" ? (
               <Image
-                src={`/logos/providers/${provider}.webp`}
+                src={`/logos/providers/${provider}.png`}
                 alt={`Logotipo do provedor de pagamento ${provider}`}
                 fill
                 className="object-contain"
@@ -65,6 +65,6 @@ export const columns: ColumnDef<AccountColumn>[] = [
   },
   {
     id: "actions",
-    cell: ({ row }) => <CellAction data={row.original} />,
+    cell: ({ row }) => <CellAction data={row.original} userRole={userRole} />,
   },
 ];

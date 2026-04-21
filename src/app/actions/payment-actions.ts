@@ -4,12 +4,13 @@ import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { insertOperationLog } from "@/utils/operation-logger";
 import { translateSupabaseError } from "@/lib/error-handler";
+import { ActionResponse } from "@/types";
 
 /**
  * Voids a payment transaction.
  * Updates the payment status and re-opens the loan installments if necessary.
  */
-export async function voidPaymentAction(paymentId: string) {
+export async function voidPaymentAction(paymentId: string): Promise<ActionResponse> {
   try {
     const supabase = await createClient();
 
@@ -58,6 +59,7 @@ export async function voidPaymentAction(paymentId: string) {
 
     return { success: true };
   } catch (error: any) {
+    console.error("VOID_PAYMENT_EXCEPTION:", error);
     return {
       success: false,
       error: translateSupabaseError(error),
@@ -76,7 +78,7 @@ export async function createPaymentAction(data: {
   installment_id?: string; // Optional, for specific installment payment
   payment_method?: string;
   notes?: string;
-}) {
+}): Promise<ActionResponse<{ paymentId: string }>> {
   try {
     const supabase = await createClient();
 

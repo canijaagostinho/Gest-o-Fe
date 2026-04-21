@@ -129,7 +129,7 @@ export async function cancelLoanAction(loanId: string): Promise<ActionResponse> 
  * Placeholder for Renegotiation.
  * For now, just updates status to 'active' (or leaves it) but could be extended.
  */
-export async function renegotiateLoanAction(loanId: string) {
+export async function renegotiateLoanAction(loanId: string): Promise<ActionResponse> {
   // TODO: Implement full renegotiation logic (re-calculating installments, etc.)
   return { success: true, message: "Funcionalidade de renegociação em breve." };
 }
@@ -229,7 +229,13 @@ export async function createLoanAction(data: LoanCreateData): Promise<ActionResp
     }
 
     // 3. Create Installments
-    const installmentsData = installments.map((inst: { number?: number; installment_number?: number; dueDate?: string; due_date?: string; amount: number }) => ({
+    const installmentsData = installments.map((inst: { 
+      number?: number; 
+      installment_number?: number; 
+      dueDate?: string; 
+      due_date?: string; 
+      amount: number 
+    }) => ({
       loan_id: loan.id,
       institution_id: data.institution_id,
       installment_number: inst.number || inst.installment_number,
@@ -312,23 +318,11 @@ export async function createLoanAction(data: LoanCreateData): Promise<ActionResp
     revalidatePath("/finance/accounts");
 
     return { success: true, data: { loanId: loan.id } };
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("CRITICAL ERROR in createLoanAction:", error);
-    let errorMessage = error instanceof Error ? error.message : "Erro ao criar empréstimo.";
-
-    // Provide more detailed context for the error
-    if (typeof error === "object" && error !== null) {
-      const err = error as any;
-      const details = {
-        message: err.message,
-        code: err.code,
-        detail: err.detail,
-        hint: err.hint,
-        stack: err.stack?.substring(0, 300), // First 300 chars of stack
-      };
-      errorMessage = `Erro Detalhado: ${JSON.stringify(details)}`;
-    }
-
-    return { success: false, error: errorMessage };
+    return {
+      success: false,
+      error: translateSupabaseError(error),
+    };
   }
 }

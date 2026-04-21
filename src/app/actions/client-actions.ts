@@ -4,11 +4,12 @@ import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { insertOperationLog } from "@/utils/operation-logger";
 import { translateSupabaseError } from "@/lib/error-handler";
+import { ActionResponse } from "@/types";
 
 /**
  * Deletes a client if they have no active or completed loans.
  */
-export async function deleteClientAction(clientId: string) {
+export async function deleteClientAction(clientId: string): Promise<ActionResponse> {
   try {
     const supabase = await createClient();
 
@@ -56,9 +57,10 @@ export async function deleteClientAction(clientId: string) {
     revalidatePath("/clients");
     return { success: true };
   } catch (error: any) {
+    console.error("DELETE_CLIENT_EXCEPTION:", error);
     return {
       success: false,
-      error: error.message || "Erro ao eliminar cliente.",
+      error: translateSupabaseError(error),
     };
   }
 }
@@ -66,7 +68,14 @@ export async function deleteClientAction(clientId: string) {
 /**
  * Updates an existing client.
  */
-export async function updateClientAction(clientId: string, data: any) {
+export async function updateClientAction(clientId: string, data: {
+  full_name: string;
+  email?: string;
+  phone: string;
+  id_number: string;
+  address?: string;
+  code?: string;
+}): Promise<ActionResponse> {
   try {
     const supabase = await createClient();
 
@@ -105,9 +114,10 @@ export async function updateClientAction(clientId: string, data: any) {
 
     return { success: true };
   } catch (error: any) {
+    console.error("UPDATE_CLIENT_EXCEPTION:", error);
     return {
       success: false,
-      error: error.message || "Erro ao atualizar cliente.",
+      error: translateSupabaseError(error),
     };
   }
 }

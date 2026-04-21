@@ -28,9 +28,10 @@ import {
 
 interface CellActionProps {
   data: any;
+  userRole?: string;
 }
 
-export function CellAction({ data }: CellActionProps) {
+export function CellAction({ data, userRole }: CellActionProps) {
   const [open, setOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -100,15 +101,19 @@ export function CellAction({ data }: CellActionProps) {
           <DropdownMenuItem onClick={() => setHistoryOpen(true)}>
             <History className="mr-2 h-4 w-4" /> Ver Extrato
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setEditOpen(true)}>
-            <Edit className="mr-2 h-4 w-4" /> Atualizar
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => setOpen(true)}
-            className="text-red-600 focus:text-red-600 focus:bg-red-50"
-          >
-            <Trash className="mr-2 h-4 w-4" /> Eliminar
-          </DropdownMenuItem>
+          {userRole !== "operador" && (
+            <>
+              <DropdownMenuItem onClick={() => setEditOpen(true)}>
+                <Edit className="mr-2 h-4 w-4" /> Atualizar
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setOpen(true)}
+                className="text-red-600 focus:text-red-600 focus:bg-red-50"
+              >
+                <Trash className="mr-2 h-4 w-4" /> Eliminar
+              </DropdownMenuItem>
+            </>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
     </>

@@ -1,27 +1,59 @@
 import { createClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
+import crypto from "node:crypto";
 
 /**
- * Webhook handler for National/Local Payment Gateways (e.g. M-Pesa API, Simpllo, etc.)
- * This route should be registered as the "Callback URL" or "Webhook URL" in the payment provider's portal.
+ * Webhook handler for M-Pesa / Simpllo / National Gateways
+ * URL: [DOMAIN]/api/webhooks/payments
  */
 export async function POST(req: Request) {
+  const requestId = crypto.randomUUID().slice(0, 8);
+  console.log(`[${requestId}] Webhook Payment Received`);
+
   try {
-    const body = await req.json();
-    const supabase = await createClient();
+    const rawBody = await req.text();
+    const body = JSON.parse(rawBody);
+    const signature = req.headers.get("x-mpesa-signature"); // Or generic 'x-webhook-signature'
 
     // 1. Verify Signature (Security)
-    // This depends on the specific provider. Usually involves a shared secret or public key.
-    // Example: const signature = req.headers.get('x-gateway-signature')
+    // IMPORTANT: To enable this, set PAYMENT_WEBHOOK_SECRET in your environment
+    const secret = process.env.PAYMENT_WEBHOOK_SECRET;
 
-    console.log("Payment Webhook received:", body);
+    if (secret) {
+      const hmac = crypto.createHmac("sha256", secret);
+      const digest = hmac.update(rawBody).digest("hex");
+
+      if (signature !== digest) {
+        console.warn(`[${requestId}] Invalid webhook signature detected`);
+        return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+      }
+    } else {
+      console.warn(
+        `[${requestId}] Webhook received but PAYMENT_WEBHOOK_SECRET is not set. Skipping verification (INSECURE).`,
+      );
+    }
+
+    console.log(`[${requestId}] Body:`, JSON.stringify(body, null, 2));
 
     // 2. Identify the payment and institution
-    // Usually providers send a 'reference' or 'metadata' we supplied during checkout.
-    const { paymentId, status, transactionId } = body;
+    // M-Pesa standard fields: input_ThirdPartyReference (our paymentId)
+    // output_ResponseCode: "INS-0" (Success)
+    const paymentId = body.input_ThirdPartyReference || body.paymentId;
+    const responseCode = body.output_ResponseCode || body.status;
+    const transactionId = body.output_TransactionID || body.transactionId;
+
+    const isSuccess = responseCode === "INS-0" || responseCode === "SUCCESS" || responseCode === "COMPLETED";
+
+    if (!paymentId) {
+      return NextResponse.json({ error: "Missing paymentId" }, { status: 400 });
+    }
+
+    const supabase = await createClient();
 
     // 3. Handle successful payment
-    if (status === "SUCCESS" || status === "COMPLETED") {
+    if (isSuccess) {
+      console.log(`[${requestId}] Processing success for Payment: ${paymentId}`);
+
       // Fetch payment details to get subscription ID
       const { data: payment, error: fetchErr } = await supabase
         .from("subscription_payments")
@@ -30,11 +62,13 @@ export async function POST(req: Request) {
         .single();
 
       if (fetchErr || !payment) {
-        console.error("Payment not found for webhook:", paymentId);
-        return NextResponse.json(
-          { error: "Payment not found" },
-          { status: 404 },
-        );
+        console.error(`[${requestId}] Payment record not found: ${paymentId}`);
+        return NextResponse.json({ error: "Payment not found" }, { status: 404 });
+      }
+
+      // Avoid double processing
+      if (payment.status === "approved") {
+        return NextResponse.json({ success: true, message: "Already processed" });
       }
 
       // A. Update Payment Record
@@ -42,16 +76,16 @@ export async function POST(req: Request) {
         .from("subscription_payments")
         .update({
           status: "approved",
-          transaction_id: transactionId, // Optional: add this column if needed
+          transaction_id: transactionId,
           processed_at: new Date().toISOString(),
+          metadata: body, // Store the full response for audit
         })
         .eq("id", paymentId);
 
-      // B. Update Subscription (Restore Access)
+      // B. Update Subscription (Restore/Extend Access)
       const months = payment.plan.interval_months || 1;
       const nextEndDate = new Date();
       nextEndDate.setMonth(nextEndDate.getMonth() + months);
-      // Enforce 22:00 expiration time
       nextEndDate.setUTCHours(22, 0, 0, 0);
 
       const { error: subErr } = await supabase
@@ -66,24 +100,24 @@ export async function POST(req: Request) {
 
       if (subErr) throw subErr;
 
-      // C. Create Success Notification for the User
+      // C. Create Success Notification
       await supabase.from("system_notifications").insert({
         institution_id: payment.institution_id,
         title: "Acesso Restaurado!",
-        message:
-          "O seu pagamento foi confirmado automaticamente pelo gateway. O bloqueio foi removido e a sua subscrição está ativa.",
+        message: "O pagamento foi confirmado via M-Pesa. A sua subscrição está ativa novamente.",
         type: "success",
       });
 
-      return NextResponse.json({
-        success: true,
-        message: "Subscription activated",
-      });
+      console.log(`[${requestId}] Payment ${paymentId} fully processed and subscription updated.`);
+      return NextResponse.json({ success: true, message: "Payment processed" });
     }
 
-    return NextResponse.json({ success: true, message: "Webhook processed" });
+    // Handle Failure
+    console.warn(`[${requestId}] Payment failed or rejected by gateway. Code: ${responseCode}`);
+    return NextResponse.json({ success: true, message: "Failure logged" });
+
   } catch (error: any) {
-    console.error("Webhook Error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error(`[${requestId}] Webhook Critical Error:`, error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

@@ -4,6 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { ActionResponse, AccountCreateData, AccountUpdateData, RoleName, Account } from "@/types";
 import { insertOperationLog } from "@/utils/operation-logger";
+import { translateSupabaseError } from "@/lib/error-handler";
 
 export async function getAccountsAction(): Promise<ActionResponse<Account[]>> {
   try {
@@ -17,9 +18,9 @@ export async function getAccountsAction(): Promise<ActionResponse<Account[]>> {
 
     if (error) throw error;
     return { success: true, data };
-  } catch (error: unknown) {
-    const err = error as Error;
-    return { success: false, error: err.message };
+  } catch (error: any) {
+    console.error("GET_ACCOUNTS_EXCEPTION:", error);
+    return { success: false, error: translateSupabaseError(error) };
   }
 }
 
@@ -194,15 +195,27 @@ export async function deleteAccountAction(id: string): Promise<ActionResponse> {
     }
 
     // 4. Delete the account
-    const { error } = await supabase.from("accounts").delete().eq("id", id);
-
-    if (error) throw error;
+    // 5. Log Operation
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
+    if (currentUser) {
+        const { data: profile } = await supabase.from("users").select("institution_id").eq("id", currentUser.id).single();
+        if (profile) {
+            await insertOperationLog({
+                institution_id: profile.institution_id,
+                user_id: currentUser.id,
+                operation_id: id,
+                type: "Cancelamento",
+                status: "success",
+                observations: `Eliminação de conta/caixa ID: ${id}`,
+            });
+        }
+    }
 
     revalidatePath("/finance/accounts");
     return { success: true };
-  } catch (error: unknown) {
-    const err = error as Error;
-    return { success: false, error: err.message };
+  } catch (error: any) {
+    console.error("DELETE_ACCOUNT_EXCEPTION:", error);
+    return { success: false, error: translateSupabaseError(error) };
   }
 }
 
@@ -219,8 +232,8 @@ export async function getAccountTransactionsAction(accountId: string): Promise<A
 
     if (error) throw error;
     return { success: true, data };
-  } catch (error: unknown) {
-    const err = error as Error;
-    return { success: false, error: err.message };
+  } catch (error: any) {
+    console.error("GET_ACCOUNT_TX_EXCEPTION:", error);
+    return { success: false, error: translateSupabaseError(error) };
   }
 }

@@ -130,15 +130,15 @@ export function CellAction({ data, userRole }: CellActionProps) {
             </LinkNext>
           </DropdownMenuItem>
 
-          <DropdownMenuItem
-            onClick={() => setEditOpen(true)}
-            className="rounded-xl flex items-center font-bold text-slate-700 cursor-pointer hover:bg-slate-50"
-          >
-            <Edit className="mr-2 h-4 w-4 text-amber-500" /> Editar Dados
-          </DropdownMenuItem>
-
           {userRole !== "operador" && (
             <>
+              <DropdownMenuItem
+                onClick={() => setEditOpen(true)}
+                className="rounded-xl flex items-center font-bold text-slate-700 cursor-pointer hover:bg-slate-50"
+              >
+                <Edit className="mr-2 h-4 w-4 text-amber-500" /> Editar Dados
+              </DropdownMenuItem>
+
               <DropdownMenuSeparator className="bg-slate-50 my-1" />
               <DropdownMenuItem
                 onClick={() => setOpen(true)}

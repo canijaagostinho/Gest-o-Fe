@@ -91,29 +91,29 @@ export function CellAction({ data, roles, currentUserRole }: CellActionProps) {
           <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-3 py-2">
             Gestão de Acesso
           </DropdownMenuLabel>
-          <DropdownMenuItem
-            onClick={() => setOpen(true)}
-            className="rounded-xl cursor-pointer font-bold text-slate-700"
-          >
-            <Edit className="mr-2 h-4 w-4" /> Editar
-          </DropdownMenuItem>
-
           {isManager && (
-            <DropdownMenuItem
-              onClick={() => setResetOpen(true)}
-              className="rounded-xl cursor-pointer font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 mb-1"
-            >
-              <RotateCcw className="mr-2 h-4 w-4" /> Redefinir Senha
-            </DropdownMenuItem>
+            <>
+              <DropdownMenuItem
+                onClick={() => setOpen(true)}
+                className="rounded-xl cursor-pointer font-bold text-slate-700"
+              >
+                <Edit className="mr-2 h-4 w-4" /> Editar
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setResetOpen(true)}
+                className="rounded-xl cursor-pointer font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 mb-1"
+              >
+                <RotateCcw className="mr-2 h-4 w-4" /> Redefinir Senha
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-slate-50" />
+              <DropdownMenuItem
+                onClick={() => setRevokeOpen(true)}
+                className="rounded-xl cursor-pointer text-red-600 font-bold focus:text-red-600 focus:bg-red-50"
+              >
+                <Trash className="mr-2 h-4 w-4" /> Revogar Acesso
+              </DropdownMenuItem>
+            </>
           )}
-
-          <DropdownMenuSeparator className="bg-slate-50" />
-          <DropdownMenuItem
-            onClick={() => setRevokeOpen(true)}
-            className="rounded-xl cursor-pointer text-red-600 font-bold focus:text-red-600 focus:bg-red-50"
-          >
-            <Trash className="mr-2 h-4 w-4" /> Revogar Acesso
-          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </>

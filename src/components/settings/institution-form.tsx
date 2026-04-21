@@ -110,6 +110,7 @@ const formSchema = z.object({
 });
 
 type InstitutionFormValues = z.infer<typeof formSchema>;
+import { RoleName } from "@/types";
 
 export function InstitutionForm() {
   const [loading, setLoading] = useState(false);
@@ -197,7 +198,7 @@ export function InstitutionForm() {
           .eq("id", user.id)
           .single();
 
-        const role = (profile?.role as any)?.name;
+        const role = (profile?.role as unknown as { name: RoleName })?.name;
         setUserRole(role);
 
         const targetInstitutionId = profile?.institution_id;
@@ -213,7 +214,7 @@ export function InstitutionForm() {
               name: inst.name || "",
               trade_name: inst.trade_name || "",
               acronym: inst.acronym || "",
-              type: (inst.type as any) || "Microfinanceira",
+              type: (inst.type as typeof institutionTypeEnum[number]) || "Microfinanceira",
               type_other_desc: inst.type_other_desc || "",
               foundation_date: inst.foundation_date || "",
               number_of_employees: inst.number_of_employees || 0,

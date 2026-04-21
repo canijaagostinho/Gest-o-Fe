@@ -1,6 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import { DataTable } from "@/components/ui/data-table";
-import { columns } from "./columns";
+import { getColumns } from "./columns";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { InstitutionsHeaderActions } from "@/components/institutions/institutions-header-actions";
@@ -22,6 +22,20 @@ export default async function InstitutionsPage() {
     .from("institutions")
     .select("*")
     .order("created_at", { ascending: false });
+
+  // Get user role for UI restrictions
+  const { data: { user } } = await supabase.auth.getUser();
+  let userRole = "operador";
+  if (user) {
+    const { data: profile } = await supabase
+      .from("users")
+      .select("role:roles(name)")
+      .eq("id", user.id)
+      .single();
+    userRole = (profile?.role as any)?.name || "operador";
+  }
+
+  const columns = getColumns(userRole);
 
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">

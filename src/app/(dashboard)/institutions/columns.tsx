@@ -33,7 +33,7 @@ export type Institution = {
   created_at: string;
 };
 
-export const columns: ColumnDef<Institution>[] = [
+export const getColumns = (userRole?: string): ColumnDef<Institution>[] => [
   {
     accessorKey: "name",
     header: ({ column }) => {
@@ -78,9 +78,8 @@ export const columns: ColumnDef<Institution>[] = [
           institution.status,
         );
         if (result.success) {
-          toast.success(
-            `Status atualizado para ${result.newStatus === "active" ? "Ativo" : "Inativo"}`,
-          );
+          const newStatus = institution.status === "active" ? "Inativo" : "Ativo";
+          toast.success(`Status atualizado para ${newStatus}`);
           router.refresh();
         } else {
           toast.error("Erro ao atualizar status", {
@@ -88,6 +87,11 @@ export const columns: ColumnDef<Institution>[] = [
           });
         }
       };
+
+      // Only allow actions for global admin
+      if (userRole !== "admin_geral") {
+        return null;
+      }
 
       return (
         <DropdownMenu>
