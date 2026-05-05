@@ -108,6 +108,8 @@ export function RegulatoryReport({
         address: reportData.institution.address,
         email: reportData.institution.email,
         phone: reportData.institution.phone,
+        logo_url: reportData.institution.logo_url,
+        primary_color: reportData.institution.primary_color,
       });
       await pdfService.generateRegulatoryReport(reportData);
       toast.success("PDF gerado com sucesso!");

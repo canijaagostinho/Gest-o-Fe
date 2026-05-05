@@ -15,6 +15,8 @@ export interface RegulatoryReportData {
     province: string;
     district: string;
     neighborhood: string;
+    logo_url?: string;
+    primary_color?: string;
   };
   portfolio: {
     total_clients: number;
@@ -314,7 +316,7 @@ export async function getRegulatoryData(
     institution: {
       name: institution.name,
       nuit: institution.nuit || "N/A",
-      address: institution.address || "N/A",
+      address: institution.address || institution.address_line || "N/A",
       email: institution.email || "N/A",
       phone: institution.phone || "N/A",
       employees: institution.number_of_employees || 0,
@@ -323,6 +325,8 @@ export async function getRegulatoryData(
       province: institution.province || "N/A",
       district: institution.district || "N/A",
       neighborhood: institution.neighborhood || "",
+      logo_url: institution.logo_url || undefined,
+      primary_color: institution.primary_color || undefined,
     },
     portfolio: {
       total_clients: totalClients || 0,

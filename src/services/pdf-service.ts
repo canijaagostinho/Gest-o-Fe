@@ -76,41 +76,48 @@ export class PDFService {
     const { name, nuit, address, phone, email, website, logo_url } =
       this.institution;
 
-    // Logo Fallback to Premium System Logo if institution logo is missing
-    const finalLogoUrl = logo_url || "/logo-premium.png";
+    const LOGO_X = 15;
+    const LOGO_Y = 10;
+    const LOGO_W = 28;
+    const LOGO_H = 28;
+    const TEXT_X_WITH_LOGO = LOGO_X + LOGO_W + 5; // 48
+    const TEXT_X_NO_LOGO = 15;
 
-    if (finalLogoUrl) {
-      const base64Img = await this.loadImage(finalLogoUrl);
+    let hasLogo = false;
+
+    // Only render institution logo — no system logo fallback
+    if (logo_url) {
+      const base64Img = await this.loadImage(logo_url);
       if (base64Img) {
-        // Add Image (x, y, w, h)
         try {
-          doc.addImage(base64Img, "PNG", 15, 10, 25, 25);
+          doc.addImage(base64Img, "PNG", LOGO_X, LOGO_Y, LOGO_W, LOGO_H);
+          hasLogo = true;
         } catch (e) {
-          console.warn("Could not add image", e);
+          console.warn("Could not add institution logo", e);
         }
       }
     }
 
-    // Institution Info (Aligned to Logo or Left)
-    const textX = logo_url ? 45 : 15;
+    // Text starts to the right of the logo (if present) or at left margin
+    const textX = hasLogo ? TEXT_X_WITH_LOGO : TEXT_X_NO_LOGO;
 
-    // Name
+    // Institution name
     const safeName = (name || "Instituição").toUpperCase();
-    doc.setFontSize(18);
+    doc.setFontSize(16);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(
       this.primaryColor[0],
       this.primaryColor[1],
       this.primaryColor[2],
     );
-    doc.text(safeName, textX, 20);
+    doc.text(safeName, textX, 18);
 
     // Sub-details
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(71, 85, 105); // Slate-600
 
-    let currentY = 26;
+    let currentY = 24;
 
     if (nuit) {
       doc.text(`NUIT: ${nuit}`, textX, currentY);
@@ -119,7 +126,8 @@ export class PDFService {
 
     if (address) {
       const safeAddress = String(address);
-      const splitAddress = doc.splitTextToSize(safeAddress, 100);
+      const maxWidth = hasLogo ? 140 : 170;
+      const splitAddress = doc.splitTextToSize(safeAddress, maxWidth);
       doc.text(splitAddress, textX, currentY);
       currentY += 5 * splitAddress.length;
     }
@@ -139,16 +147,20 @@ export class PDFService {
       currentY += 5;
     }
 
-    // Design Line
+    // Ensure we clear the logo area (min Y after logo)
+    const minAfterLogo = hasLogo ? LOGO_Y + LOGO_H + 4 : 0;
+    currentY = Math.max(currentY, minAfterLogo);
+
+    // Separator line
     doc.setDrawColor(
       this.primaryColor[0],
       this.primaryColor[1],
       this.primaryColor[2],
     );
     doc.setLineWidth(0.5);
-    doc.line(15, currentY + 5, 195, currentY + 5);
+    doc.line(15, currentY + 3, 195, currentY + 3);
 
-    return currentY + 15; // Return formatted Y position for next content
+    return currentY + 12; // Return Y for content start
   }
 
   private drawFooter() {
