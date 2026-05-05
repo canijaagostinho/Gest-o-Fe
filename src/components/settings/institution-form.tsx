@@ -20,6 +20,7 @@ import {
 import { toast } from "sonner";
 import { createClient } from "@/utils/supabase/client";
 import { MOZAMBIQUE_LOCATIONS } from "@/lib/mozambique-locations";
+import { updateMyInstitutionAction } from "@/app/actions/institution-actions";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -251,29 +252,39 @@ export function InstitutionForm() {
   const onSubmit = async (values: InstitutionFormValues) => {
     try {
       setLoading(true);
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) throw new Error("Não autenticado");
 
-      const { data: profile } = await supabase
-        .from("users")
-        .select("institution_id")
-        .eq("id", user.id)
-        .single();
+      // Call server action — validates permissions and maps only valid DB columns
+      const result = await updateMyInstitutionAction({
+        name: values.name,
+        trade_name: values.trade_name,
+        acronym: values.acronym,
+        type: values.type,
+        type_other_desc: values.type_other_desc,
+        foundation_date: values.foundation_date,
+        number_of_employees: values.number_of_employees,
+        logo_url: values.logo_url,
+        stamp_url: values.stamp_url,
+        primary_color: values.primary_color,
+        secondary_color: values.secondary_color,
+        nuit: values.nuit,
+        reg_number: values.reg_number,
+        tax_regime: values.tax_regime,
+        province: values.province,
+        district: values.district,
+        neighborhood: values.neighborhood,
+        address_line: values.address_line,
+        phone: values.phone,
+        email: values.email,
+        website: values.website,
+        responsible_name: values.responsible_name,
+        responsible_role: values.responsible_role,
+        responsible_phone: values.responsible_phone,
+        responsible_email: values.responsible_email,
+      });
 
-      if (!profile?.institution_id)
-        throw new Error("Instituição não encontrada");
-
-      const { error } = await supabase
-        .from("institutions")
-        .update({
-          ...values,
-          // Supabase will handle the filtering by ID via RLS or explicit ID
-        })
-        .eq("id", profile.institution_id);
-
-      if (error) throw error;
+      if (!result.success) {
+        throw new Error(result.error || "Erro desconhecido");
+      }
 
       toast.success("Perfil institucional atualizado com sucesso!");
     } catch (error: any) {
