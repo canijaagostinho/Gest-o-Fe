@@ -156,6 +156,38 @@ export async function createLoanAction(data: LoanCreateData): Promise<ActionResp
       };
     }
 
+    // 1b. Validate Installments
+    const totalInstallmentsAmount = data.installments.reduce(
+      (sum, inst) => sum + Number(inst.amount),
+      0
+    );
+
+    // Check if sum matches (with small tolerance for rounding)
+    if (Math.abs(totalInstallmentsAmount - data.loan_amount) > 0.01) {
+      return {
+        success: false,
+        error: `A soma das parcelas (${totalInstallmentsAmount.toFixed(2)} MZN) não corresponde ao valor total do empréstimo (${data.loan_amount.toFixed(2)} MZN).`,
+      };
+    }
+
+    // Check for positive amounts and decimal places
+    for (const [index, inst] of data.installments.entries()) {
+      if (Number(inst.amount) <= 0) {
+        return {
+          success: false,
+          error: `A parcela ${index + 1} deve ter um valor superior a zero.`,
+        };
+      }
+
+      const decimals = (inst.amount.toString().split(".")[1] || "").length;
+      if (decimals > 2) {
+        return {
+          success: false,
+          error: `A parcela ${index + 1} possui mais de 2 casas decimais (${inst.amount}).`,
+        };
+      }
+    }
+
     // 2. Create Loan
     // Exclude unnecessary fields from data object if needed, but we can destruct
     const {

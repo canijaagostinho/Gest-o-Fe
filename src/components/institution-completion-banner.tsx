@@ -7,8 +7,7 @@ import { createClient } from "@/utils/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
-// Note: Next.js standard is next/navigation
-import { useRouter as useNextRouter, usePathname as useNextPathname } from "next/navigation";
+import { Badge } from "@/components/ui/badge";
 
 interface Props {
   role?: string | null;
@@ -20,8 +19,8 @@ export function InstitutionCompletionBanner({ role }: Props) {
   const [dismissed, setDismissed] = useState(false);
   const [isReady, setIsReady] = useState(false);
   
-  const router = useNextRouter();
-  const pathname = useNextPathname();
+  const router = useRouter();
+  const pathname = usePathname();
 
   // Show for gestor (admin of institution) or admin_geral
   const isAdmin = role === "gestor" || role === "admin_geral";
@@ -162,10 +161,3 @@ export function InstitutionCompletionBanner({ role }: Props) {
   );
 }
 
-function Badge({ children, className }: { children: React.ReactNode; className?: string }) {
-    return (
-        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${className}`}>
-            {children}
-        </span>
-    );
-}

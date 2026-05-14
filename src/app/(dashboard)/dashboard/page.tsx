@@ -188,7 +188,14 @@ export default function DashboardPage() {
 
                         const mtdVol = allLoans?.filter(l => l.created_at >= startOfMonth && l.created_at <= endOfMTD).reduce((acc, l) => acc + Number(l.loan_amount), 0) || 0;
                         const splmVol = allLoans?.filter(l => l.created_at >= startOfLastMonth && l.created_at <= endOfSPLM).reduce((acc, l) => acc + Number(l.loan_amount), 0) || 0;
-                        const growth = splmVol > 0 ? ((mtdVol - splmVol) / splmVol) * 100 : (mtdVol > 0 ? 100 : 0);
+                        
+                        // Robust growth calculation
+                        let growth = 0;
+                        if (splmVol > 0) {
+                            growth = ((mtdVol - splmVol) / splmVol) * 100;
+                        } else if (mtdVol > 0) {
+                            growth = 100; // First month growth or recovery
+                        }
 
                         const pendingItems = installments?.filter(i => i.status === "pending") || [];
                         const overdueItems = pendingItems.filter(i => i.due_date.split("T")[0] < todayStr);

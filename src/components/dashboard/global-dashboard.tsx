@@ -180,9 +180,11 @@ export function GlobalDashboard() {
               Últimas adesões à rede de microcrédito.
             </CardDescription>
           </div>
-          <Button variant="ghost" className="hidden sm:flex rounded-2xl font-black text-sm uppercase tracking-widest text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-6 h-12">
-            Ver Todas
-          </Button>
+          <Link href="/institutions">
+            <Button variant="ghost" className="hidden sm:flex rounded-2xl font-black text-sm uppercase tracking-widest text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-6 h-12">
+              Ver Todas
+            </Button>
+          </Link>
         </CardHeader>
         <CardContent className="px-4 sm:px-12 pb-8 sm:pb-12">
           <div className="grid gap-3 sm:gap-6">

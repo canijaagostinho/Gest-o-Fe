@@ -236,7 +236,13 @@ export default function LandingPage() {
                                         <SheetTitle className="text-left">
                                             <div className="flex items-center gap-3">
                                                 <div className="h-10 w-10 relative overflow-hidden">
-                                                    <Image src="/logo-premium.png" alt="GestãoFlex Logotipo" fill className="object-contain" />
+                                                    <Image 
+                                                        src="/logo-premium.png" 
+                                                        alt="GestãoFlex Logotipo" 
+                                                        fill 
+                                                        className="object-contain" 
+                                                        loading="lazy"
+                                                    />
                                                 </div>
                                                 <span className="text-lg font-black text-slate-950 font-sora">
                                                     Gestão<span className="text-blue-600">Flex</span>
@@ -474,6 +480,7 @@ export default function LandingPage() {
                                         width={800}
                                         height={1200}
                                         className="w-full h-auto drop-shadow-[0_45px_90px_rgba(37,99,235,0.2)] rounded-3xl transition-transform duration-700 hover:scale-[1.01] border border-white/40"
+                                        loading="lazy"
                                     />
                                 </motion.div>
                             </motion.div>
@@ -554,6 +561,7 @@ export default function LandingPage() {
                                         width={1200}
                                         height={800}
                                         className="w-full h-auto drop-shadow-[0_45px_90px_rgba(16,185,129,0.2)] rounded-3xl transition-transform duration-700 hover:scale-[1.01] border border-white/40"
+                                        loading="lazy"
                                     />
                                 </motion.div>
                             </motion.div>
@@ -628,6 +636,7 @@ export default function LandingPage() {
                                             width={1200}
                                             height={800}
                                             className="w-full h-auto drop-shadow-[0_45px_90px_rgba(37,99,235,0.2)] rounded-3xl transition-transform duration-700 hover:scale-[1.02] relative z-10"
+                                            loading="lazy"
                                         />
                                     </motion.div>
                                 </div>
@@ -763,7 +772,14 @@ export default function LandingPage() {
                         </FadeIn>
 
                         <FadeIn delay={200} className="relative rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl bg-black/50 p-2 group cursor-pointer max-w-3xl mx-auto">
-                            <Image src="/hero-final.webp" alt="Demonstração em vídeo das principais funcionalidades do sistema GestãoFlex" width={1000} height={600} className="w-full h-auto rounded-[1.5rem] opacity-70 group-hover:opacity-100 transition-opacity duration-500" />
+                            <Image 
+                                src="/hero-final.webp" 
+                                alt="Demonstração em vídeo das principais funcionalidades do sistema GestãoFlex" 
+                                width={1000} 
+                                height={600} 
+                                className="w-full h-auto rounded-[1.5rem] opacity-70 group-hover:opacity-100 transition-opacity duration-500" 
+                                loading="lazy"
+                            />
                             <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-transparent transition-all">
                                 <div className="flex flex-col items-center gap-4">
                                     <div className="h-20 w-20 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-[0_0_40px_rgba(37,99,235,0.6)] group-hover:scale-110 transition-transform">

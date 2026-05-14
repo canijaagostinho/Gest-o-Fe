@@ -31,7 +31,13 @@ import { Wallet, Loader2 } from "lucide-react";
 const formSchema = z.object({
   amount: z.preprocess(
     (val) => (val === "" ? undefined : Number(val)),
-    z.number().min(1, "O valor deve ser superior a zero")
+    z.number()
+      .min(0.01, "O valor deve ser superior a zero")
+      .max(1000000000, "Valor máximo excedido (1 Bilhão MZN)")
+      .refine(
+        (val) => (val.toString().split(".")[1] || "").length <= 2,
+        { message: "Apenas 2 casas decimais permitidas" }
+      )
   ),
   description: z.string().min(3, "A descrição deve ter pelo menos 3 caracteres"),
 });

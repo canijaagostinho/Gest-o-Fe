@@ -99,17 +99,82 @@ export async function transferAction(
 
     if (!userData?.institution_id) throw new Error("Instituição não encontrada.");
 
-    // 2. Perform Atomic Transfer via RPC
-    const { data: result, error: rpcError } = await supabase.rpc("handle_account_transfer", {
-      p_source_account_id: sourceAccountId,
-      p_target_account_id: targetAccountId,
-      p_amount: amount,
-      p_institution_id: userData.institution_id,
-      p_description: description,
-    });
-        
-    if (rpcError) throw new Error("Erro crítico no banco de dados: " + rpcError.message);
-    if (!result.success) throw new Error(result.error);
+    // 2. Perform Manual Transaction (Best Effort Atomicity)
+    // PASSO 1: Validar saldo (read-only)
+    const { data: source, error: srcError } = await supabase
+      .from("accounts")
+      .select("balance")
+      .eq("id", sourceAccountId)
+      .single();
+
+    if (srcError || !source) throw new Error("Conta origem não encontrada.");
+    if (Number(source.balance) < amount) {
+      return { success: false, error: "Saldo insuficiente na conta de origem." };
+    }
+
+    // PASSO 2: Debitar conta origem
+    const newSourceBalance = Number(source.balance) - amount;
+    const { error: debitError } = await supabase
+      .from("accounts")
+      .update({ balance: newSourceBalance })
+      .eq("id", sourceAccountId);
+
+    if (debitError) throw new Error("Falha ao debitar conta origem.");
+
+    // PASSO 3: Creditar conta destino
+    const { data: target, error: tgtError } = await supabase
+      .from("accounts")
+      .select("balance")
+      .eq("id", targetAccountId)
+      .single();
+
+    if (tgtError || !target) {
+      // REVERTER: Restaurar saldo da conta origem
+      await supabase
+        .from("accounts")
+        .update({ balance: source.balance })
+        .eq("id", sourceAccountId);
+      throw new Error("Conta destino não encontrada. Transação revertida.");
+    }
+
+    const newTargetBalance = Number(target.balance) + amount;
+    const { error: creditError } = await supabase
+      .from("accounts")
+      .update({ balance: newTargetBalance })
+      .eq("id", targetAccountId);
+
+    if (creditError) {
+      // REVERTER: Restaurar saldo da conta origem
+      await supabase
+        .from("accounts")
+        .update({ balance: source.balance })
+        .eq("id", sourceAccountId);
+      throw new Error("Falha ao creditar conta destino. Transação revertida.");
+    }
+
+    // PASSO 4: Registar transações no histórico
+    const transferId = `TRF_${Date.now()}`;
+    
+    await supabase.from("transactions").insert([
+      {
+        account_id: sourceAccountId,
+        type: "debit",
+        amount: amount,
+        description: `Transferência (Saída): ${description}`,
+        reference_type: "transfer",
+        reference_id: transferId,
+        institution_id: userData.institution_id,
+      },
+      {
+        account_id: targetAccountId,
+        type: "credit",
+        amount: amount,
+        description: `Transferência (Entrada): ${description}`,
+        reference_type: "transfer",
+        reference_id: transferId,
+        institution_id: userData.institution_id,
+      }
+    ]);
 
     // 3. Invalidate Caches
     revalidatePath("/finance/accounts");

@@ -1,13 +1,19 @@
 import { createClient } from "@/utils/supabase/server";
-import { DataTable } from "@/components/ui/data-table";
-import { getColumns } from "./columns";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import { InstitutionsHeaderActions } from "@/components/institutions/institutions-header-actions";
+import { InstitutionsClient } from "./institutions-client";
+import { Institution } from "./columns";
 
 export default async function InstitutionsPage() {
   const supabase = await createClient();
 
+  const { data: authData } = await supabase.auth.getUser();
+  const user = authData?.user;
+
+  if (!user) {
+      return <div>Acesso negado. Por favor, faça login.</div>;
+  }
+
+  // Fetch institutions for header actions
   const { data: institutions, error } = await supabase
     .from("institutions")
     .select("id, name")
@@ -24,18 +30,13 @@ export default async function InstitutionsPage() {
     .order("created_at", { ascending: false });
 
   // Get user role for UI restrictions
-  const { data: { user } } = await supabase.auth.getUser();
-  let userRole = "operador";
-  if (user) {
-    const { data: profile } = await supabase
-      .from("users")
-      .select("role:roles(name)")
-      .eq("id", user.id)
-      .single();
-    userRole = (profile?.role as any)?.name || "operador";
-  }
-
-  const columns = getColumns(userRole);
+  const { data: profile } = await supabase
+    .from("users")
+    .select("role:roles(name)")
+    .eq("id", user.id)
+    .single() as { data: { role: { name: string } } | null };
+  
+  const userRole = profile?.role?.name || "operador";
 
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
@@ -44,7 +45,10 @@ export default async function InstitutionsPage() {
         <InstitutionsHeaderActions institutions={institutions || []} />
       </div>
       <div className="h-full flex-1 flex-col space-y-8 flex">
-        <DataTable columns={columns} data={(fullInstitutions as any[]) || []} />
+        <InstitutionsClient 
+            data={(fullInstitutions as Institution[]) || []} 
+            userRole={userRole} 
+        />
       </div>
     </div>
   );
