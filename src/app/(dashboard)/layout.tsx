@@ -48,7 +48,11 @@ export default function DashboardLayout({
                 role:roles(name),
                 institution_id,
                 institutions (
-                    subscriptions (status)
+                    subscriptions (
+                        status,
+                        trial_end,
+                        current_period_end
+                    )
                 )
             `,
           )
@@ -73,7 +77,7 @@ export default function DashboardLayout({
                 role_id: metadata.role_id,
                 status: "active",
               })
-              .select("role:roles(name), institution_id, institutions(subscriptions(status))")
+              .select("role:roles(name), institution_id, institutions(subscriptions(status, trial_end, current_period_end))")
               .maybeSingle();
 
             if (!recoveryError && recoveredProfile) {
@@ -96,14 +100,34 @@ export default function DashboardLayout({
         console.log("[DEBUG Auth] DashboardLayout Role resolved as:", roleName);
         setRole(roleName);
 
-        // Subscription status core check
+        // Subscription status core check with date validation
         let subStatus = "active";
         const instData = (finalProfile as any)?.institutions;
-        const subscriptions = instData?.subscriptions;
-        if (Array.isArray(subscriptions) && subscriptions.length > 0) {
-          subStatus = subscriptions[0].status;
-        } else if (instData?.subscriptions) {
-          subStatus = (instData.subscriptions as any).status || "active";
+        const sub = Array.isArray(instData?.subscriptions) 
+          ? instData.subscriptions[0] 
+          : instData?.subscriptions;
+
+        if (sub) {
+          subStatus = sub.status || "active";
+          
+          // Check for expiration based on dates even if status is still 'active' or 'trialing'
+          const now = new Date();
+          const trialEnd = sub.trial_end ? new Date(sub.trial_end) : null;
+          const periodEnd = sub.current_period_end ? new Date(sub.current_period_end) : null;
+
+          if (subStatus === "trialing" && trialEnd && now > trialEnd) {
+            console.warn("[DEBUG Auth] Trial expired by date, forcing past_due status");
+            subStatus = "past_due";
+          } else if (subStatus === "active" && periodEnd && now > periodEnd) {
+            console.warn("[DEBUG Auth] Subscription expired by date, forcing past_due status");
+            subStatus = "past_due";
+          }
+        } else {
+          // If no subscription record exists, it might be a newly created institution
+          // We should probably default to 'trialing' or check institution created_at
+          // For now, let's keep it safe. If no sub, it's NOT 'active' unless confirmed.
+          console.warn("[DEBUG Auth] No subscription record found for institution");
+          subStatus = "past_due"; // Block access if no sub record exists (should not happen for valid accounts)
         }
 
         (window as any).__subscriptionStatus = subStatus;

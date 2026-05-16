@@ -10,33 +10,49 @@ export default async function InstitutionsPage() {
   const user = authData?.user;
 
   if (!user) {
-      return <div>Acesso negado. Por favor, faça login.</div>;
+    return (
+      <div className="flex items-center justify-center h-full p-8 text-slate-500">
+        Acesso negado. Por favor, faça login.
+      </div>
+    );
   }
 
-  // Fetch institutions for header actions
-  const { data: institutions, error } = await supabase
+  // 1. Get user role safely
+  let userRole = "operador";
+  try {
+    const { data: profile } = await supabase
+      .from("users")
+      .select("role:roles(name)")
+      .eq("id", user.id)
+      .single();
+    
+    if (profile && (profile as any).role) {
+      userRole = (profile as any).role.name || "operador";
+    }
+  } catch (err) {
+    console.error("Error fetching user role:", err);
+  }
+
+  // 2. Fetch institutions for header actions (only needed columns)
+  const { data: institutions, error: headerError } = await supabase
     .from("institutions")
     .select("id, name")
     .order("created_at", { ascending: false });
 
-  if (error) {
-    return <div>Erro ao carregar instituições: {error.message}</div>;
-  }
-
-  // We also need to fetch full institutions data for the datatable
-  const { data: fullInstitutions } = await supabase
+  // 3. Fetch institutions for the table (limited columns to prevent serialization issues)
+  const { data: fullInstitutions, error: dataError } = await supabase
     .from("institutions")
-    .select("*")
+    .select("id, name, email, status, created_at")
     .order("created_at", { ascending: false });
 
-  // Get user role for UI restrictions
-  const { data: profile } = await supabase
-    .from("users")
-    .select("role:roles(name)")
-    .eq("id", user.id)
-    .single() as { data: { role: { name: string } } | null };
-  
-  const userRole = profile?.role?.name || "operador";
+  if (headerError || dataError) {
+    return (
+      <div className="p-8 text-red-500 border border-red-200 rounded-lg bg-red-50">
+        <h3 className="text-lg font-bold">Erro ao carregar dados</h3>
+        <p>{headerError?.message || dataError?.message}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
@@ -46,8 +62,8 @@ export default async function InstitutionsPage() {
       </div>
       <div className="h-full flex-1 flex-col space-y-8 flex">
         <InstitutionsClient 
-            data={(fullInstitutions as Institution[]) || []} 
-            userRole={userRole} 
+          data={(fullInstitutions as Institution[]) || []} 
+          userRole={userRole} 
         />
       </div>
     </div>

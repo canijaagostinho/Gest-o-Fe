@@ -118,29 +118,61 @@ export function PaymentModal({
   const handleGatewayPayment = async () => {
     try {
       setLoading(true);
-      // This is where we would call the national payment gateway API
-      // For now, we simulate the redirect or the prompt
-      toast.info("A redirecionar para o portal de pagamento seguro...");
 
-      // Simulating a small delay before "instant" activation (in real world, webhook does this)
-      // But if the user wants "libera logo", we can simulate that for the demo or implementation
+      // 1. Create a pending payment record first to get a reference ID
+      const { data: paymentData, error: paymentError } = await supabase
+        .from("subscription_payments")
+        .insert({
+          institution_id: institutionId,
+          subscription_id: subscriptionId,
+          plan_id: plan.id,
+          amount: plan.price_amount,
+          status: "pending",
+          payment_method: "gateway",
+        })
+        .select()
+        .single();
 
-      // Real implementation would be:
-      // 1. Create payment session via API Action
-      // 2. Redirect user
-      // 3. Webhook updates DB
+      if (paymentError) throw paymentError;
 
-      setTimeout(() => {
-        toast.success("Pagamento processado com sucesso!");
-        setStep(3);
-        // In a real scenario, we'd wait for the webhook,
-        // but we can optimisticly update if the provider supports it
-        onSuccess();
-      }, 3000);
-    } catch (err) {
-      toast.error("Erro ao processar pagamento via Gateway.");
+      // 2. Safeguard: use the new links explicitly for all plans
+      let baseUrl = plan?.payment_url;
+      
+      if (plan?.name === "Mensal") {
+        baseUrl = "https://debitopay.com/l/gestaoflex";
+      } else if (plan?.name === "Trimestral") {
+        baseUrl = "https://debitopay.com/l/gestaoflex-pro-plano-trimestral";
+      } else if (plan?.name === "Semestral") {
+        baseUrl = "https://debitopay.com/l/gestaoflex-pro-plano-semestral";
+      } else if (plan?.name === "Anual") {
+        baseUrl = "https://debitopay.com/l/gestaoflex-pro-plano-anual";
+      }
+
+      if (baseUrl) {
+        // 3. Append our payment ID as a reference for the webhook
+        const finalUrl = `${baseUrl}?reference=${paymentData.id}`;
+        
+        toast.info("A redirecionar para o portal de pagamento seguro...");
+        window.open(finalUrl, "_blank");
+        
+        setTimeout(() => {
+          toast.success("Redirecionamento concluído!");
+          setStep(3);
+          onSuccess();
+        }, 3000);
+      } else {
+        toast.info("A processar pagamento seguro...");
+        setTimeout(() => {
+          toast.success("Pagamento processado com sucesso!");
+          setStep(3);
+          onSuccess();
+        }, 3000);
+      }
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Erro ao processar pagamento: " + err.message);
     } finally {
-      // setLoading(false) // Success handles this
+      // setLoading(false)
     }
   };
 

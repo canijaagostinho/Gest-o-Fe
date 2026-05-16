@@ -36,16 +36,21 @@ export async function POST(req: Request) {
     console.log(`[${requestId}] Body:`, JSON.stringify(body, null, 2));
 
     // 2. Identify the payment and institution
-    // M-Pesa standard fields: input_ThirdPartyReference (our paymentId)
-    // output_ResponseCode: "INS-0" (Success)
-    const paymentId = body.input_ThirdPartyReference || body.paymentId;
-    const responseCode = body.output_ResponseCode || body.status;
-    const transactionId = body.output_TransactionID || body.transactionId;
+    // DébitoPay / M-Pesa standard fields
+    const paymentId = body.reference || body.input_ThirdPartyReference || body.paymentId;
+    const responseCode = body.status || body.output_ResponseCode;
+    const transactionId = body.transactionId || body.output_TransactionID;
 
-    const isSuccess = responseCode === "INS-0" || responseCode === "SUCCESS" || responseCode === "COMPLETED";
+    // DébitoPay usually sends 'completed' or 'success'
+    const isSuccess = 
+      responseCode === "completed" || 
+      responseCode === "success" || 
+      responseCode === "SUCCESS" ||
+      responseCode === "INS-0";
 
     if (!paymentId) {
-      return NextResponse.json({ error: "Missing paymentId" }, { status: 400 });
+      console.error(`[${requestId}] Webhook missing reference/paymentId. Body:`, body);
+      return NextResponse.json({ error: "Missing reference" }, { status: 400 });
     }
 
     const supabase = await createClient();

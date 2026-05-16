@@ -164,19 +164,19 @@ export default function BlockedPage() {
           <p className="text-xl sm:text-2xl text-slate-400 font-medium max-w-3xl mx-auto leading-relaxed">
             {isTrialEnded ? (
               <>
-                O período de teste gratuito da instituição{" "}
-                <span className="text-blue-400 font-bold">
-                  {institution?.name}
-                </span>{" "}
-                terminou após 45 dias.
-              </>
-            ) : (
-              <>
-                A sua subscrição do Gestão Flex para a instituição{" "}
+                O período de acesso gratuito da instituição{" "}
                 <span className="text-blue-400 font-bold">
                   {institution?.name}
                 </span>{" "}
                 expirou.
+              </>
+            ) : (
+              <>
+                A subscrição do Gestão Flex para a instituição{" "}
+                <span className="text-blue-400 font-bold">
+                  {institution?.name}
+                </span>{" "}
+                está atualmente suspensa por expiração.
               </>
             )}
             <br />
@@ -329,7 +329,7 @@ export default function BlockedPage() {
             // If it was a gateway payment, we want to reload/redirect immediately
             toast.success("Pagamento confirmado! Acesso restaurado.");
             setTimeout(() => {
-              window.location.href = "/"; // Hard reload to clear middleware state
+              window.location.href = "/dashboard"; // Redirecionar diretamente para o painel principal
             }, 2000);
           }}
         />
