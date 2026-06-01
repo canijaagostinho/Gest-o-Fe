@@ -6,6 +6,8 @@ import { insertOperationLog } from "@/utils/operation-logger";
 import { ActionResponse, LoanCreateData } from "@/types";
 import { PostgrestError } from "@supabase/supabase-js";
 import { translateSupabaseError } from "@/lib/error-handler";
+import { loanCreateSchema } from "@/schemas/validation";
+import { checkRateLimit, RateLimits } from "@/utils/rate-limiter";
 
 /**
  * Marks an installment as paid.
@@ -73,7 +75,35 @@ export async function cancelLoanAction(loanId: string): Promise<ActionResponse> 
   try {
     const supabase = await createClient();
 
-    // 1. Update loan status to 'cancelled'
+    // 1. Get current authenticated user
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+    if (authError || !user) {
+      return { success: false, error: "Não autenticado ou sessão expirada." };
+    }
+
+    // 2. Fetch user profile and check role permissions (Camada 2 - RBAC)
+    const { data: profile, error: profileError } = await supabase
+      .from("users")
+      .select("*, role:roles(name)")
+      .eq("id", user.id)
+      .single();
+
+    if (profileError || !profile) {
+      return { success: false, error: "Erro ao verificar perfil do usuário." };
+    }
+
+    const roleName = (profile.role as any)?.name;
+    if (roleName !== "admin_geral" && roleName !== "gestor" && roleName !== "admin") {
+      return {
+        success: false,
+        error: "Permissão negada. Apenas gestores ou administradores podem cancelar empréstimos.",
+      };
+    }
+
+    // 3. Update loan status to 'cancelled'
     const { error: loanError } = await supabase
       .from("loans")
       .update({ status: "cancelled" })
@@ -81,7 +111,7 @@ export async function cancelLoanAction(loanId: string): Promise<ActionResponse> 
 
     if (loanError) throw loanError;
 
-    // 2. Update all pending installments to 'cancelled'
+    // 4. Update all pending installments to 'cancelled'
     const { error: instError } = await supabase
       .from("installments")
       .update({ status: "cancelled" })
@@ -137,6 +167,19 @@ export async function renegotiateLoanAction(loanId: string): Promise<ActionRespo
 export async function createLoanAction(data: LoanCreateData): Promise<ActionResponse<{ loanId: string }>> {
   try {
     const supabase = await createClient();
+
+    // Rate Limit: max 30 financial ops per user per minute (Camada 4 - OWASP A04)
+    const rl = checkRateLimit(`loan:${data.user_id}`, RateLimits.FINANCIAL_ACTION);
+    if (!rl.allowed) {
+      return { success: false, error: rl.error };
+    }
+
+    // Schema validation: blocks malformed payloads and injection attacks (Camada 4 - OWASP A03)
+    const parsed = loanCreateSchema.safeParse(data);
+    if (!parsed.success) {
+      const firstError = parsed.error.errors[0];
+      return { success: false, error: `Dados inválidos: ${firstError.message}` };
+    }
 
     // 1. Check account balance
     const { data: account, error: accError } = await supabase

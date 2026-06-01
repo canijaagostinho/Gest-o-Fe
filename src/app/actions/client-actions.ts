@@ -5,6 +5,8 @@ import { revalidatePath } from "next/cache";
 import { insertOperationLog } from "@/utils/operation-logger";
 import { translateSupabaseError } from "@/lib/error-handler";
 import { ActionResponse } from "@/types";
+import { sanitizeObject } from "@/utils/sanitizer";
+import { encryptClientPII } from "@/utils/field-encryption";
 
 /**
  * Deletes a client if they have no active or completed loans.
@@ -79,15 +81,21 @@ export async function updateClientAction(clientId: string, data: {
   try {
     const supabase = await createClient();
 
+    // Sanitizar dados recebidos para mitigar XSS e injeção de HTML (Camada 3)
+    const sanitizedData = sanitizeObject(data);
+
+    // Criptografar campos PII antes de persistir no banco de dados (Camada 6 - AES-256-GCM)
+    const encryptedData = encryptClientPII(sanitizedData);
+
     const { error } = await supabase
       .from("clients")
       .update({
-        full_name: data.full_name,
-        email: data.email || null,
-        phone: data.phone,
-        id_number: data.id_number,
-        address: data.address || null,
-        code: data.code || null,
+        full_name: encryptedData.full_name,
+        email: encryptedData.email || null,
+        phone: encryptedData.phone,
+        id_number: encryptedData.id_number,
+        address: encryptedData.address || null,
+        code: encryptedData.code || null,
       })
       .eq("id", clientId);
 

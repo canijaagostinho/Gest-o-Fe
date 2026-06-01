@@ -1,8 +1,8 @@
 {
-  "accounts": "EXISTS",
-  "commissions": "EXISTS",
-  "agents": "EXISTS",
-  "transactions": "EXISTS",
-  "loans": "EXISTS",
-  "installments": "EXISTS"
+  "accounts": "ERROR: Could not find the table 'public.accounts' in the schema cache",
+  "commissions": "ERROR: Could not find the table 'public.commissions' in the schema cache",
+  "agents": "ERROR: Could not find the table 'public.agents' in the schema cache",
+  "transactions": "ERROR: Could not find the table 'public.transactions' in the schema cache",
+  "loans": "ERROR: Could not find the table 'public.loans' in the schema cache",
+  "installments": "ERROR: Could not find the table 'public.installments' in the schema cache"
 }

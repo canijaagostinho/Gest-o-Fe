@@ -5,6 +5,9 @@ import { revalidatePath } from "next/cache";
 import { insertOperationLog } from "@/utils/operation-logger";
 import { translateSupabaseError } from "@/lib/error-handler";
 import { ActionResponse } from "@/types";
+import { sanitizeObject } from "@/utils/sanitizer";
+import { paymentCreateSchema } from "@/schemas/validation";
+import { checkRateLimit, RateLimits } from "@/utils/rate-limiter";
 
 /**
  * Voids a payment transaction.
@@ -14,7 +17,39 @@ export async function voidPaymentAction(paymentId: string): Promise<ActionRespon
   try {
     const supabase = await createClient();
 
-    // 1. Get payment details before voiding
+    // 1. Authenticate user and verify permissions (Camada 2 - RBAC)
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+    if (authError || !user) {
+      return { success: false, error: "Não autenticado ou sessão expirada." };
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from("users")
+      .select("*, role:roles(name)")
+      .eq("id", user.id)
+      .single();
+
+    if (profileError || !profile) {
+      return { success: false, error: "Erro ao verificar permissões do usuário." };
+    }
+
+    const roleName = (profile.role as any)?.name;
+    if (
+      roleName !== "admin_geral" &&
+      roleName !== "gestor" &&
+      roleName !== "admin" &&
+      roleName !== "financeiro"
+    ) {
+      return {
+        success: false,
+        error: "Permissão negada. Apenas administradores ou gestores financeiros podem anular pagamentos.",
+      };
+    }
+
+    // 2. Get payment details before voiding
     const { data: payment, error: fetchError } = await supabase
       .from("payments")
       .select("*")
@@ -75,14 +110,25 @@ export async function createPaymentAction(data: {
   account_id: string;
   user_id: string;
   institution_id: string;
-  installment_id?: string; // Optional, for specific installment payment
+  installment_id?: string;
   payment_method?: string;
   notes?: string;
 }): Promise<ActionResponse<{ paymentId: string }>> {
   try {
     const supabase = await createClient();
 
-    // Use atomic RPC for data integrity
+    // Rate Limit: max 30 financial actions per user per minute (Camada 4 - OWASP A04)
+    const rl = checkRateLimit(`payment:${data.user_id}`, RateLimits.FINANCIAL_ACTION);
+    if (!rl.allowed) {
+      return { success: false, error: rl.error };
+    }
+
+    // Schema validation: reject malformed or injection payloads (Camada 4 - OWASP A03)
+    const parsed = paymentCreateSchema.safeParse(sanitizeObject(data));
+    if (!parsed.success) {
+      const firstError = parsed.error.errors[0];
+      return { success: false, error: `Dados inválidos: ${firstError.message}` };
+    }
     const { data: result, error: rpcError } = await supabase.rpc("handle_loan_payment", {
       p_loan_id: data.loan_id,
       p_client_id: data.client_id,

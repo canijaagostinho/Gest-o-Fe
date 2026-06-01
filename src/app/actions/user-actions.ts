@@ -114,6 +114,15 @@ export async function createUserAction(data: UserCreateData): Promise<ActionResp
     }
 
     // 3. Create User in Supabase Auth
+    // Enforce strong password policy (Camada 1)
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
+    if (!data.password || !passwordRegex.test(data.password)) {
+      return {
+        success: false,
+        error: "A senha deve ter pelo menos 8 caracteres, incluindo letras maiúsculas, minúsculas e um caractere especial.",
+      };
+    }
+
     let userId = "";
 
     const { data: newUser, error: createError } =
@@ -279,8 +288,17 @@ export async function updateUserAction(data: UserUpdateData): Promise<ActionResp
     };
 
     if (data.email) authUpdates.email = data.email;
-    if (data.password && data.password.trim().length > 0)
+    if (data.password && data.password.trim().length > 0) {
+      // Enforce strong password policy (Camada 1)
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
+      if (!passwordRegex.test(data.password)) {
+        return {
+          success: false,
+          error: "A nova senha deve ter pelo menos 8 caracteres, incluindo letras maiúsculas, minúsculas e um caractere especial.",
+        };
+      }
       authUpdates.password = data.password;
+    }
 
     if (Object.keys(authUpdates).length > 0) {
       const { error: authError } =

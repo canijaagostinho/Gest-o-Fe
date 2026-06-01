@@ -21,16 +21,32 @@ import { Loader2, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { translateSupabaseError } from "@/lib/error-handler";
+import { useSecureForm } from "@/hooks/useSecureForm";
 
 function LoginContent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  // Camada 5: Client-side brute-force lockout tracking
+  const [attempts, setAttempts] = useState(0);
+  const [lockedUntil, setLockedUntil] = useState<number | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const supabase = createClient();
   const toastShown = useRef(false);
+
+  // Camada 5: useSecureForm for client-side validation including DOM XSS detection
+  const { errors, validateAll, onBlur } = useSecureForm<{
+    email: string;
+    password: string;
+  }>(
+    {
+      email: { required: true, email: true },
+      password: { required: true, minLength: 8 },
+    },
+    { email: "Email", password: "Senha" },
+  );
 
   useEffect(() => {
     const error = searchParams.get("error");
@@ -45,23 +61,24 @@ function LoginContent() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Sync state with form elements in case of autofill
-    const form = e.currentTarget as HTMLFormElement;
-    const emailInput = form.elements.namedItem("email") as HTMLInputElement;
-    const passwordInput = form.elements.namedItem(
-      "password",
-    ) as HTMLInputElement;
-
-    const currentEmail = emailInput?.value || email;
-    const currentPassword = passwordInput?.value || password;
-
-    // Validation: Empty fields
-    if (!currentEmail.trim() || !currentPassword.trim()) {
-      toast.error("Campos vazios", {
-        description: "Por favor, preencha o e-mail e a senha.",
+    // Camada 5: Client-side lockout enforcement (5 attempts → 60s lockout)
+    if (lockedUntil && Date.now() < lockedUntil) {
+      const remaining = Math.ceil((lockedUntil - Date.now()) / 1000);
+      toast.error("Acesso Temporariamente Bloqueado", {
+        description: `Demasiadas tentativas. Aguarde ${remaining} segundos.`,
       });
       return;
     }
+
+    const form = e.currentTarget as HTMLFormElement;
+    const emailInput = form.elements.namedItem("email") as HTMLInputElement;
+    const passwordInput = form.elements.namedItem("password") as HTMLInputElement;
+    const currentEmail = emailInput?.value || email;
+    const currentPassword = passwordInput?.value || password;
+
+    // Camada 5: Client-side schema validation before hitting the server
+    const isValid = validateAll({ email: currentEmail, password: currentPassword });
+    if (!isValid) return;
 
     setIsLoading(true);
 
@@ -72,13 +89,24 @@ function LoginContent() {
       });
 
       if (error) {
-        toast.error("Erro ao entrar", {
-          description: translateSupabaseError(error),
-        });
+        // Camada 5: Increment attempt counter, lock after 5 failures
+        const newAttempts = attempts + 1;
+        setAttempts(newAttempts);
+        if (newAttempts >= 5) {
+          setLockedUntil(Date.now() + 60_000);
+          toast.error("Conta Temporariamente Bloqueada", {
+            description:
+              "5 tentativas inválidas. Acesso bloqueado por 60 segundos.",
+          });
+        } else {
+          toast.error("Erro ao entrar", {
+            description: translateSupabaseError(error),
+          });
+        }
         return;
       }
 
-      // NOVO: Verificar se o perfil existe no banco de dados público
+      // Check if profile exists in public.users
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const { data: profile } = await supabase
@@ -97,6 +125,10 @@ function LoginContent() {
         }
       }
 
+      // Reset attempts on success
+      setAttempts(0);
+      setLockedUntil(null);
+
       toast.success("Sucesso!", {
         description: "Redirecionando para o painel...",
       });
@@ -110,6 +142,7 @@ function LoginContent() {
       setIsLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/40 p-4">
@@ -149,9 +182,13 @@ function LoginContent() {
                 placeholder="seu@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="h-11"
+                onBlur={(e) => onBlur("email", e.target.value)}
+                className={`h-11 ${errors.email ? "border-red-500 focus-visible:ring-red-500" : ""}`}
                 autoComplete="email"
               />
+              {errors.email && (
+                <p className="text-xs text-red-500 mt-1">{errors.email}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Senha</Label>
@@ -162,9 +199,13 @@ function LoginContent() {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="h-11 pr-10"
+                  onBlur={(e) => onBlur("password", e.target.value)}
+                  className={`h-11 pr-10 ${errors.password ? "border-red-500 focus-visible:ring-red-500" : ""}`}
                   autoComplete="current-password"
                 />
+                {errors.password && (
+                  <p className="text-xs text-red-500 mt-1">{errors.password}</p>
+                )}
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
