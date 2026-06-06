@@ -6,6 +6,8 @@ import {
   ChevronLeft,
   CreditCard,
   Download,
+  Plus,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -21,17 +23,42 @@ import {
 import { createClient } from "@/utils/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { Client, Loan, Payment } from "@/types";
+import type { Payment } from "@/types";
+import { Client as BaseClient } from "../types";
 
-interface ClientData extends Client {
-  institution_id?: string;
+interface ClientData extends BaseClient {
+  institution_id: string;
+  address?: string | null;
+  document_id?: string | null;
 }
 
-interface LoanData extends Loan {
-  installments: Array<{ status: string; due_date: string }>;
+interface LoanData {
+  id: string;
+  institution_id: string;
+  client_id: string;
+  loan_amount: number;
+  interest_rate: number;
+  term: number;
+  frequency: string;
+  interest_type: string;
+  status: "pending" | "approved" | "active" | "paid" | "defaulted" | "cancelled" | "completed" | "delinquent";
+  disbursement_date?: string | null;
+  maturity_date?: string | null;
+  created_at: string;
+  updated_at: string;
+  amount_paid: number;
+  installments: Array<{ status: string; due_date: string; amount: number; amount_paid: number }>;
 }
 
-interface PaymentData extends Payment {
+interface PaymentData {
+  id: string;
+  institution_id: string;
+  loan_id: string;
+  amount_paid: number;
+  payment_date: string;
+  status: "pending" | "paid" | "reversed" | string;
+  created_at: string;
+  updated_at: string;
   loans: { id: string };
 }
 
@@ -58,7 +85,7 @@ export default function ClientProfilePage({
 
         const { data: loansData } = await supabase
           .from("loans")
-          .select("*, installments(status, due_date)")
+          .select("*, installments(status, due_date, amount, amount_paid)")
           .eq("client_id", id)
           .order("created_at", { ascending: false });
 
@@ -68,8 +95,19 @@ export default function ClientProfilePage({
           .in("loan_id", loansData?.map((l: any) => l.id) || [])
           .order("payment_date", { ascending: false });
 
+        const processedLoans = (loansData || []).map((loan: any) => {
+          const amountPaid = loan.installments?.reduce(
+            (sum: number, inst: any) => sum + Number(inst.amount_paid || 0),
+            0
+          ) || 0;
+          return {
+            ...loan,
+            amount_paid: amountPaid,
+          };
+        });
+
         setClient(clientData);
-        setLoans(loansData || []);
+        setLoans(processedLoans);
         setPayments(paymentsData || []);
       } finally {
         setLoading(false);
@@ -184,10 +222,10 @@ export default function ClientProfilePage({
         await pdf.generateClientStatement(
           {
             full_name: client.full_name,
-            document_id: client.document_id || client.id_number,
-            phone: client.phone,
-            email: client.email,
-            address: client.address,
+            document_id: (client.document_id || client.id_number) || undefined,
+            phone: client.phone || undefined,
+            email: client.email || undefined,
+            address: client.address || undefined,
           },
           loans.map((l) => ({
             id: l.id,

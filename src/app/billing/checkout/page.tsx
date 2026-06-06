@@ -43,7 +43,7 @@ function CheckoutContent() {
   const [institution, setInstitution] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState("mpesa");
+  const [paymentMethod, setPaymentMethod] = useState("gateway");
   const [success, setSuccess] = useState(false);
   
   const supabase = createClient();
@@ -109,6 +109,27 @@ function CheckoutContent() {
       );
 
       if (result.success) {
+        if (paymentMethod === "gateway") {
+          let baseUrl = plan?.payment_url;
+          
+          if (plan?.name === "Mensal") {
+            baseUrl = "https://debitopay.com/l/gestaoflex";
+          } else if (plan?.name === "Trimestral") {
+            baseUrl = "https://debitopay.com/l/gestaoflex-pro-plano-trimestral";
+          } else if (plan?.name === "Semestral") {
+            baseUrl = "https://debitopay.com/l/gestaoflex-pro-plano-semestral";
+          } else if (plan?.name === "Anual") {
+            baseUrl = "https://debitopay.com/l/gestaoflex-pro-plano-anual";
+          }
+
+          if (baseUrl && (result as any).paymentId) {
+            const finalUrl = `${baseUrl}?reference=${(result as any).paymentId}`;
+            toast.info("A redirecionar para o portal de pagamento seguro...");
+            window.location.href = finalUrl;
+            return;
+          }
+        }
+
         setSuccess(true);
         toast.success("Subscrição processada com sucesso!");
         setTimeout(() => {
@@ -181,109 +202,39 @@ function CheckoutContent() {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-8 pt-4">
-              <RadioGroup 
-                value={paymentMethod} 
-                onValueChange={setPaymentMethod}
-                className="grid grid-cols-1 md:grid-cols-2 gap-4"
-              >
-                <div>
-                  <RadioGroupItem value="mpesa" id="mpesa" className="sr-only" />
-                  <Label
-                    htmlFor="mpesa"
-                    className={`flex items-center gap-4 p-5 rounded-3xl border-2 cursor-pointer transition-all ${
-                      paymentMethod === "mpesa" 
-                        ? "border-blue-600 bg-blue-50/50 ring-4 ring-blue-100" 
-                        : "border-slate-100 bg-white hover:border-slate-200"
-                    }`}
-                  >
-                    <div className={`p-3 rounded-2xl ${paymentMethod === "mpesa" ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-400"}`}>
-                      <Smartphone className="w-6 h-6" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-black text-slate-900">M-Pesa</p>
-                      <p className="text-xs text-slate-500 font-bold">Pagamento Móvel</p>
-                    </div>
-                    {paymentMethod === "mpesa" && <Check className="w-5 h-5 text-blue-600" />}
-                  </Label>
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-5 p-6 rounded-3xl border-2 border-blue-600 bg-blue-50/50 ring-4 ring-blue-100/50">
+                <div className="p-4 rounded-2xl bg-blue-600 text-white">
+                  <CreditCard className="w-8 h-8" />
                 </div>
-
-                <div>
-                  <RadioGroupItem value="bank" id="bank" className="sr-only" />
-                  <Label
-                    htmlFor="bank"
-                    className={`flex items-center gap-4 p-5 rounded-3xl border-2 cursor-pointer transition-all ${
-                      paymentMethod === "bank" 
-                        ? "border-blue-600 bg-blue-50/50 ring-4 ring-blue-100" 
-                        : "border-slate-100 bg-white hover:border-slate-200"
-                    }`}
-                  >
-                    <div className={`p-3 rounded-2xl ${paymentMethod === "bank" ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-400"}`}>
-                      <CreditCard className="w-6 h-6" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-black text-slate-900">Transferência</p>
-                      <p className="text-xs text-slate-500 font-bold">Banco Bim/Outros</p>
-                    </div>
-                    {paymentMethod === "bank" && <Check className="w-5 h-5 text-blue-600" />}
-                  </Label>
+                <div className="flex-1">
+                  <p className="font-black text-slate-900 text-xl">Débito Pay</p>
+                  <p className="text-sm text-slate-600 font-bold mt-1">Pagamento Seguro com Cartão Visa / Mastercard</p>
+                  <p className="text-xs text-slate-400 font-medium mt-0.5">Liberação instantânea do acesso via API</p>
                 </div>
-              </RadioGroup>
+                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600/15 text-blue-700 rounded-full text-xs font-black uppercase tracking-wider self-start md:self-center">
+                  <Zap className="w-4 h-4" /> Instantâneo
+                </div>
+              </div>
 
               <div className="mt-8 p-6 bg-slate-50 rounded-3xl border border-slate-100">
                 <h4 className="font-black text-slate-900 mb-4 flex items-center gap-2">
                   <Banknote className="w-4 h-4 text-blue-600" />
                   Instruções de Pagamento
                 </h4>
-                {paymentMethod === "mpesa" ? (
-                  <ul className="text-sm space-y-3 text-slate-600 font-medium">
-                    <li className="flex gap-2">
-                       <span className="flex-shrink-0 w-5 h-5 bg-white rounded-full flex items-center justify-center text-[10px] font-black border border-slate-200">1</span>
-                       Envie o valor de <span className="font-black text-slate-900">{Number(plan.price_amount).toLocaleString('pt-MZ')} MTn</span> para o número: <span className="font-black text-blue-600">84 123 4567</span> (HEDWIG DA FATIMA)
-                    </li>
-                    <li className="flex gap-2">
-                       <span className="flex-shrink-0 w-5 h-5 bg-white rounded-full flex items-center justify-center text-[10px] font-black border border-slate-200">2</span>
-                       Copie o código de transação ou tire um screenshot do comprovativo.
-                    </li>
-                  </ul>
-                ) : (
-                  <ul className="text-sm space-y-3 text-slate-600 font-medium">
-                    <li className="flex gap-2">
-                       <span className="flex-shrink-0 w-5 h-5 bg-white rounded-full flex items-center justify-center text-[10px] font-black border border-slate-200">1</span>
-                       NIB: <span className="font-black text-slate-900">0001 0000 1234 5678 901 23</span>
-                    </li>
-                    <li className="flex gap-2">
-                       <span className="flex-shrink-0 w-5 h-5 bg-white rounded-full flex items-center justify-center text-[10px] font-black border border-slate-200">2</span>
-                       Banco: <span className="font-black text-slate-900">Millennium BIM</span>
-                    </li>
-                  </ul>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-none shadow-2xl bg-white rounded-[2.5rem] overflow-hidden">
-            <CardHeader className="p-8 pb-4">
-              <CardTitle className="text-xl font-extrabold flex items-center gap-3">
-                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white text-sm">2</span>
-                Comprovativo de Operação
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-8 pt-4">
-              <div className="space-y-6">
-                <div className="grid gap-2">
-                  <Label htmlFor="ref" className="text-xs font-black uppercase text-slate-500">ID da Transação / Referência</Label>
-                  <Input id="ref" placeholder="Ex: 84G7H92J" className="rounded-2xl h-12 border-slate-200 focus:ring-blue-500 font-bold" />
-                </div>
-                
-                <div className="p-12 border-2 border-dashed border-slate-200 rounded-[2rem] flex flex-col items-center justify-center gap-4 bg-slate-50/50 hover:bg-slate-50 hover:border-blue-400 transition-all cursor-pointer group">
-                  <div className="p-4 bg-white rounded-full shadow-sm group-hover:scale-110 transition-transform">
-                    <Upload className="w-8 h-8 text-blue-600" />
-                  </div>
-                  <div className="text-center">
-                    <p className="font-black text-slate-900 text-sm italic">Clique ou arraste para subir o comprovativo</p>
-                    <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">PNG, JPG ou PDF (Max 5MB)</p>
-                  </div>
-                </div>
+                <ul className="text-sm space-y-3 text-slate-600 font-medium">
+                  <li className="flex gap-2">
+                     <span className="flex-shrink-0 w-5 h-5 bg-white rounded-full flex items-center justify-center text-[10px] font-black border border-slate-200">1</span>
+                     Ao clicar em "Confirmar Pagamento", você será redirecionado para o portal seguro da Débito Pay.
+                  </li>
+                  <li className="flex gap-2">
+                     <span className="flex-shrink-0 w-5 h-5 bg-white rounded-full flex items-center justify-center text-[10px] font-black border border-slate-200">2</span>
+                     Efetue o pagamento de forma segura usando o seu cartão Visa ou Mastercard.
+                  </li>
+                  <li className="flex gap-2">
+                     <span className="flex-shrink-0 w-5 h-5 bg-white rounded-full flex items-center justify-center text-[10px] font-black border border-slate-200">3</span>
+                     A ativação da sua conta será automática e imediata após a conclusão (via webhook).
+                  </li>
+                </ul>
               </div>
             </CardContent>
           </Card>
@@ -320,7 +271,7 @@ function CheckoutContent() {
                     <Smartphone className="w-4 h-4" /> Método
                   </span>
                   <span className="font-black uppercase tracking-widest text-[10px] bg-white/10 px-3 py-1 rounded-full border border-white/10">
-                    {paymentMethod === 'mpesa' ? 'M-Pesa' : 'Transferência'}
+                    {paymentMethod === 'gateway' ? 'Débito Pay' : paymentMethod === 'mpesa' ? 'M-Pesa' : 'Transferência'}
                   </span>
                 </div>
                 {institution && (
@@ -372,11 +323,10 @@ function CheckoutContent() {
 
             <div className="p-6 bg-slate-800/50 flex items-center gap-4">
               <div className="p-2 bg-slate-700 rounded-xl">
-                 <ShieldAlert className="w-4 h-4 text-amber-400" />
+                 <ShieldCheck className="w-4 h-4 text-emerald-400" />
               </div>
               <p className="text-[10px] text-white/40 leading-relaxed font-medium">
-                Sua ativação será manual e sujeita a verificação do comprovativo. 
-                O prazo de ativação é de até 2 horas úteis.
+                Sua ativação será automática e imediata após a confirmação do pagamento pelo gateway.
               </p>
             </div>
           </Card>

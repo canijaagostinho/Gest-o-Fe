@@ -11,15 +11,15 @@ export type Collateral = {
   type: string;
   description: string;
   value: number;
-  location?: string;
+  location?: string | null;
   created_at: string;
-  loans: {
+  loans?: {
     id: string;
     status: string;
     clients: {
       full_name: string;
     };
-  };
+  } | null;
 };
 
 export const columns: ColumnDef<Collateral>[] = [
@@ -93,7 +93,7 @@ export const columns: ColumnDef<Collateral>[] = [
           className: "bg-red-500/10 text-red-600 border-red-500/20",
         },
       };
-      const config = variants[status] || { label: status, className: "" };
+      const config = (status && variants[status]) || { label: status || "N/A", className: "" };
       return (
         <Badge variant="outline" className={config.className}>
           {config.label}

@@ -56,14 +56,14 @@ export async function createSubscriptionAction(
         current_period_start: now.toISOString(),
         current_period_end: endDate.toISOString(),
         updated_at: now.toISOString(),
-      })
+      }, { onConflict: "institution_id" })
       .select()
       .single();
 
     if (subError) throw new Error("Erro ao criar subscrição: " + subError.message);
 
     // 5. Inserir registro de pagamento
-    const { error: payError } = await adminSupabase
+    const { data: payData, error: payError } = await adminSupabase
       .from("subscription_payments")
       .insert([
         {
@@ -76,9 +76,11 @@ export async function createSubscriptionAction(
           receipt_url: receiptUrl,
           created_at: now.toISOString(),
         },
-      ]);
+      ])
+      .select()
+      .single();
 
-    if (payError) throw new Error("Erro ao registrar pagamento: " + payError.message);
+    if (payError || !payData) throw new Error("Erro ao registrar pagamento: " + (payError?.message || "Registro não retornado"));
 
     // 6. Atualizar o plano na tabela da instituição para refletir o nome do plano atual
     const { error: instError } = await adminSupabase
@@ -94,7 +96,7 @@ export async function createSubscriptionAction(
     revalidatePath("/(dashboard)", "layout");
     revalidatePath("/settings/plans");
 
-    return { success: true, subscriptionId: subscription.id };
+    return { success: true, subscriptionId: subscription.id, paymentId: payData.id };
   } catch (error: any) {
     console.error("Subscription Error:", error);
     throw new Error(error.message || "Erro interno ao processar subscrição.");

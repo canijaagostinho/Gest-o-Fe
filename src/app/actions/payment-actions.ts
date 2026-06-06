@@ -67,9 +67,6 @@ export async function voidPaymentAction(paymentId: string): Promise<ActionRespon
     if (voidError) throw voidError;
 
     // 3. Log action (System logs and Operation Logs)
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
     if (user) {
       await supabase.from("audit_logs").insert({
         user_id: user.id,
@@ -126,7 +123,7 @@ export async function createPaymentAction(data: {
     // Schema validation: reject malformed or injection payloads (Camada 4 - OWASP A03)
     const parsed = paymentCreateSchema.safeParse(sanitizeObject(data));
     if (!parsed.success) {
-      const firstError = parsed.error.errors[0];
+      const firstError = parsed.error.issues[0];
       return { success: false, error: `Dados inválidos: ${firstError.message}` };
     }
     const { data: result, error: rpcError } = await supabase.rpc("handle_loan_payment", {
@@ -161,7 +158,7 @@ export async function createPaymentAction(data: {
     revalidatePath(`/loans/${data.loan_id}`);
     revalidatePath("/dashboard");
 
-    return { success: true, paymentId: result.payment_id };
+    return { success: true, data: { paymentId: result.payment_id } };
   } catch (error: any) {
     console.error("Payment registration failure:", error);
     return {

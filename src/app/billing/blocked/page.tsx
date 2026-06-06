@@ -113,6 +113,7 @@ export default function BlockedPage() {
 
   return (
     <div className="min-h-screen bg-[#0F172A] text-white flex flex-col items-center justify-center p-6 sm:p-12 relative overflow-hidden font-sans">
+      <title>Acesso Suspenso - Gestão Flex</title>
       {/* Animated Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
         <motion.div
@@ -186,7 +187,6 @@ export default function BlockedPage() {
           </p>
         </motion.div>
 
-        {/* Only show plans and payment options to Administrators/Gestores */}
         {userRole === "gestor" || userRole === "admin_geral" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-16">
             {plans.map((plan, idx) => (
@@ -271,20 +271,81 @@ export default function BlockedPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.5 }}
-            className="mt-16 max-w-2xl mx-auto bg-slate-800/40 backdrop-blur-xl border border-rose-500/20 rounded-[2.5rem] p-8 text-center"
+            className="mt-12 max-w-3xl mx-auto bg-slate-800/40 backdrop-blur-xl border border-rose-500/20 rounded-[2.5rem] p-8 text-center"
           >
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-rose-500/10 mb-6">
               <Clock className="h-8 w-8 text-rose-400" />
             </div>
-            <h3 className="text-2xl font-black text-white mb-3">
+            <h3 className="text-2xl font-black text-white mb-4">
               Acesso Temporariamente Suspenso
             </h3>
-            <p className="text-slate-400 leading-relaxed font-medium">
-              Por favor, entre em contato com o <strong>Administrador</strong>{" "}
-              da sua instituição para regularizar o acesso ao sistema. Suas
+            <p className="text-slate-400 leading-relaxed font-medium mb-6">
+              Por favor, entre em contato com o <strong>Administrador</strong> da
+              sua instituição para regularizar o acesso ao sistema. Suas
               funcionalidades e dados estão seguros e retornarão assim que a
               subscrição for reativada.
             </p>
+            {subscription && (
+              <div className="bg-slate-700/50 rounded-xl p-6 text-left mb-6 shadow-inner">
+                <h4 className="text-xl font-semibold text-white mb-3">
+                  Detalhes da Subscrição
+                </h4>
+                <ul className="space-y-2 text-slate-300">
+                  <li>
+                    <span className="font-medium">Plano:</span>{" "}
+                    {subscription.plan?.name || "-"}
+                  </li>
+                  <li>
+                    <span className="font-medium">Valor Pendente:</span>{" "}
+                    {Number(subscription.plan?.price_amount).toLocaleString(
+                      "pt-MZ"
+                    )}{" "}
+                    MTn
+                  </li>
+                  <li>
+                    <span className="font-medium">Data de Vencimento:</span>{" "}
+                    {new Date(subscription.current_period_end).toLocaleDateString(
+                      "pt-PT"
+                    )}
+                  </li>
+                  <li>
+                    <span className="font-medium">Dias em atraso:</span>{" "}
+                    {Math.max(
+                      0,
+                      Math.ceil(
+                        (Date.now() -
+                          new Date(subscription.current_period_end).getTime()) /
+                          (1000 * 60 * 60 * 24)
+                      )
+                    )}{" "}
+                    dia(s)
+                  </li>
+                  <li>
+                    <span className="font-medium">Referência:</span>{" "}
+                    {subscription.id}
+                  </li>
+                </ul>
+              </div>
+            )}
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <Button
+                className="bg-blue-600 hover:bg-blue-700 text-white font-black py-2 px-4 rounded-lg shadow-md"
+                onClick={() => setIsPaymentModalOpen(true)}
+              >
+                Efetuar Pagamento
+              </Button>
+              <Button
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-black py-2 px-4 rounded-lg shadow-md"
+                onClick={() => {
+                  if (subscription?.plan) {
+                    setSelectedPlan(subscription.plan);
+                    setIsPaymentModalOpen(true);
+                  }
+                }}
+              >
+                Renovar Assinatura
+              </Button>
+            </div>
           </motion.div>
         )}
 

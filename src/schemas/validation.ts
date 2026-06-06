@@ -9,7 +9,7 @@ import { z } from "zod";
 // --- Shared Primitives ---
 const uuidSchema = z.string().uuid({ message: "ID inválido." });
 const currencySchema = z
-  .number({ invalid_type_error: "Deve ser um número." })
+  .number({ message: "Deve ser um número." })
   .positive({ message: "O valor deve ser positivo." })
   .multipleOf(0.01, { message: "Máximo de 2 casas decimais." });
 

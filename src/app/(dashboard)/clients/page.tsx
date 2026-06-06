@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import { ClientsClient } from "./clients-client";
-import type { Client } from "@/types";
+import type { Client } from "./types";
 
 interface ClientLoan {
   id: string;

@@ -37,6 +37,9 @@ import {
   deletePlan,
 } from "@/app/actions/plan-actions";
 
+// Cliente criado fora do componente para evitar re-criação a cada render
+const supabase = createClient();
+
 export default function PlansManagementPage() {
   const [plans, setPlans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -44,7 +47,6 @@ export default function PlansManagementPage() {
   const [isCreating, setIsCreating] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const supabase = createClient();
   const [userRole, setUserRole] = useState<string>("");
 
   useEffect(() => {
@@ -79,7 +81,8 @@ export default function PlansManagementPage() {
       }
     }
     fetchPlansAndRole();
-  }, [supabase]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -181,6 +181,12 @@ const institutionalRoutes = [
         color: "text-blue-500",
       },
       {
+        label: "Gestão de Assinaturas",
+        icon: Wallet,
+        href: "/institutions/subscriptions",
+        color: "text-amber-500",
+      },
+      {
         label: "Assinatura do Plano",
         icon: CreditCard,
         href: "/settings/plans",

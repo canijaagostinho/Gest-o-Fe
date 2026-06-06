@@ -219,7 +219,7 @@ export async function deleteAccountAction(id: string): Promise<ActionResponse> {
   }
 }
 
-export async function getAccountTransactionsAction(accountId: string): Promise<ActionResponse> {
+export async function getAccountTransactionsAction(accountId: string): Promise<ActionResponse<any[]>> {
   try {
     const supabase = await createClient();
     // RLS protects this automatically.

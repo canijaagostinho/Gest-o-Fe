@@ -78,7 +78,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
       const result = await getAccountsAction();
       if (result.success) {
         // Filter out source account
-        setAccounts(result.data.filter((acc: any) => acc.id !== sourceAccountId));
+        setAccounts((result.data || []).filter((acc: any) => acc.id !== sourceAccountId));
       }
     }
     if (isOpen) {

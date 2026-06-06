@@ -101,7 +101,7 @@ export interface Loan {
   term: number;
   frequency: string;
   interest_type: string;
-  status: "pending" | "approved" | "active" | "paid" | "defaulted";
+  status: "pending" | "approved" | "active" | "paid" | "defaulted" | "cancelled" | "completed";
   disbursement_date?: string | null;
   maturity_date?: string | null;
   created_at: string;

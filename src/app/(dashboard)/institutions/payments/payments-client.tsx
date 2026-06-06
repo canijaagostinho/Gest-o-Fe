@@ -58,17 +58,42 @@ export default function PaymentsClient({
         // Enforce 22:00 expiration time
         nextEndDate.setUTCHours(22, 0, 0, 0);
 
+        // Get current subscription status for audit logging
+        const { data: subCurrent } = await supabase
+          .from("subscriptions")
+          .select("status")
+          .eq("id", payment.subscription_id)
+          .single();
+
         const { error: subErr } = await supabase
           .from("subscriptions")
           .update({
-            status: "active",
+            status: "Ativa",
             plan_id: payment.plan_id,
             current_period_start: new Date().toISOString(),
             current_period_end: nextEndDate.toISOString(),
+            updated_at: new Date().toISOString(),
           })
           .eq("id", payment.subscription_id);
 
         if (subErr) throw subErr;
+
+        // Write to subscription_audit_logs (Audit Trail)
+        const { data: authUser } = await supabase.auth.getUser();
+        await supabase
+          .from("subscription_audit_logs")
+          .insert({
+            subscription_id: payment.subscription_id,
+            institution_id: payment.institution_id,
+            user_id: authUser?.user?.id,
+            event_type: "reactivation",
+            status_before: subCurrent?.status || "Suspensa por inadimplência",
+            status_after: "Ativa",
+            due_date: nextEndDate.toISOString(),
+            reactivation_date: new Date().toISOString(),
+            amount_paid: payment.amount,
+            payment_method: payment.payment_method || "manual",
+          });
 
         // 3. Create success notification
         await supabase.from("system_notifications").insert({
@@ -76,6 +101,7 @@ export default function PaymentsClient({
           title: "Pagamento Confirmado",
           message: `O seu pagamento foi validado com sucesso! O acesso total ao sistema foi restaurado e a sua subscrição está agora ativa.`,
           type: "success",
+          link: "/dashboard",
         });
 
         toast.success("Pagamento aprovado! Assinatura atualizada.");

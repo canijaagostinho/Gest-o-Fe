@@ -11,15 +11,10 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import {
-  Upload,
   CheckCircle2,
   ArrowRight,
-  Building2,
-  Smartphone,
   CreditCard,
   Loader2,
   Sparkles,
@@ -46,74 +41,10 @@ export function PaymentModal({
   onSuccess,
 }: PaymentModalProps) {
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState(1); // 1: method, 2: instruction/gateway, 3: success (4 in original code)
-  const [paymentMethod, setPaymentMethod] = useState("mpesa");
-  const [fileUrl, setFileUrl] = useState("");
+  const [step, setStep] = useState(1); // 1: gateway info, 3: processing/success
+  const paymentMethod = "gateway";
 
   const supabase = createClient();
-
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      setLoading(true);
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${institutionId}_${Date.now()}.${fileExt}`;
-      const filePath = `receipts/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("receipts")
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data: publicUrlData } = supabase.storage
-        .from("receipts")
-        .getPublicUrl(filePath);
-
-      setFileUrl(publicUrlData.publicUrl);
-      toast.success("Comprovativo anexado com sucesso");
-    } catch (error: any) {
-      console.error(error);
-      toast.error("Erro ao fazer upload do ficheiro.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSubmitPayment = async () => {
-    if (!fileUrl && paymentMethod !== "gateway") {
-      toast.error("Por favor anexe o comprovativo de pagamento.");
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      const { error } = await supabase.from("subscription_payments").insert({
-        institution_id: institutionId,
-        subscription_id: subscriptionId,
-        plan_id: plan.id,
-        amount: plan.price_amount,
-        status: "pending",
-        payment_method: paymentMethod,
-        receipt_url: fileUrl,
-      });
-
-      if (error) throw error;
-
-      setStep(3); // Success
-      setTimeout(() => {
-        onSuccess();
-      }, 4000);
-    } catch (error: any) {
-      console.error(error);
-      toast.error("Erro ao submeter pagamento: " + error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleGatewayPayment = async () => {
     try {
@@ -153,13 +84,7 @@ export function PaymentModal({
         const finalUrl = `${baseUrl}?reference=${paymentData.id}`;
         
         toast.info("A redirecionar para o portal de pagamento seguro...");
-        window.open(finalUrl, "_blank");
-        
-        setTimeout(() => {
-          toast.success("Redirecionamento concluído!");
-          setStep(3);
-          onSuccess();
-        }, 3000);
+        window.location.href = finalUrl;
       } else {
         toast.info("A processar pagamento seguro...");
         setTimeout(() => {
@@ -188,8 +113,7 @@ export function PaymentModal({
               Ativar {plan?.name}
             </DialogTitle>
             <DialogDescription className="text-slate-400 font-medium text-base">
-              Escolha o seu método preferido para restaurar o acesso
-              instantaneamente.
+            Restaure o seu acesso instantaneamente através do portal de pagamento seguro.
             </DialogDescription>
           </DialogHeader>
 
@@ -217,126 +141,24 @@ export function PaymentModal({
               {step === 1 && (
                 <motion.div
                   key="step1"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
                   className="space-y-6"
                 >
-                  <Label className="text-sm font-black text-slate-400 uppercase tracking-widest">
-                    Método de Pagamento
-                  </Label>
-                  <div className="grid grid-cols-1 gap-4">
-                    <button
-                      onClick={() => setPaymentMethod("gateway")}
-                      className={`flex items-center gap-5 p-5 rounded-[1.5rem] border-2 transition-all text-left ${paymentMethod === "gateway" ? "border-blue-500 bg-blue-500/10 ring-1 ring-blue-500/50" : "border-white/5 bg-white/5 hover:bg-white/10"}`}
-                    >
-                      <div
-                        className={`p-3 rounded-2xl ${paymentMethod === "gateway" ? "bg-blue-600" : "bg-slate-700"}`}
-                      >
-                        <Zap className="h-6 w-6" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-black text-lg">
-                          Pagamento Instantâneo
-                        </p>
-                        <p className="text-xs font-medium text-slate-400">
-                          Cartão, M-Pesa API, Conta Móvel (Liberação na hora)
-                        </p>
-                      </div>
-                      <CheckCircle2
-                        className={`h-6 w-6 ${paymentMethod === "gateway" ? "text-blue-500" : "opacity-0"}`}
-                      />
-                    </button>
-
-                    <button
-                      onClick={() => setPaymentMethod("manual")}
-                      className={`flex items-center gap-5 p-5 rounded-[1.5rem] border-2 transition-all text-left ${paymentMethod === "manual" ? "border-indigo-500 bg-indigo-500/10 ring-1 ring-indigo-500/50" : "border-white/5 bg-white/5 hover:bg-white/10"}`}
-                    >
-                      <div
-                        className={`p-3 rounded-2xl ${paymentMethod === "manual" ? "bg-indigo-600" : "bg-slate-700"}`}
-                      >
-                        <Building2 className="h-6 w-6" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-black text-lg">
-                          Transferência / Depósito
-                        </p>
-                        <p className="text-xs font-medium text-slate-400">
-                          Envio de comprovativo manual (1-4 horas úteis)
-                        </p>
-                      </div>
-                      <CheckCircle2
-                        className={`h-6 w-6 ${paymentMethod === "manual" ? "text-indigo-500" : "opacity-0"}`}
-                      />
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-
-              {step === 2 && paymentMethod === "manual" && (
-                <motion.div
-                  key="step2-manual"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  className="space-y-6"
-                >
-                  <div className="bg-indigo-500/10 border border-indigo-500/20 p-5 rounded-2xl space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-slate-400 text-sm font-bold">
-                        Banco:
-                      </span>
-                      <span className="font-bold text-white uppercase text-sm tracking-wider">
-                        Millennium BIM
-                      </span>
+                  <div className="flex flex-col items-center gap-4 p-6 rounded-3xl border-2 border-blue-500/30 bg-blue-500/5 ring-4 ring-blue-500/10">
+                    <div className="p-4 rounded-2xl bg-blue-600 text-white">
+                      <CreditCard className="h-8 w-8" />
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-slate-400 text-sm font-bold">
-                        NIB:
-                      </span>
-                      <span className="font-bold text-white text-lg tabular-nums">
-                        0001 0000 1234 5678 901 23
-                      </span>
+                    <div className="text-center">
+                      <p className="font-black text-xl text-white">Débito Pay</p>
+                      <p className="text-sm text-slate-400 mt-1">
+                        Pagamento imediato via Cartão de Crédito/Débito Visa ou Mastercard.
+                      </p>
+                      <p className="text-[10px] text-slate-500 font-bold mt-2 uppercase tracking-wider">
+                        Ativação automática via webhook instantâneo
+                      </p>
                     </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <Label className="text-xs font-black text-slate-500 uppercase tracking-widest">
-                      Comprovativo Bancário
-                    </Label>
-                    <Label
-                      htmlFor="receipt-upload"
-                      className={`flex flex-col items-center justify-center w-full h-36 border-2 border-dashed rounded-[1.5rem] cursor-pointer bg-white/5 transition-all ${fileUrl ? "border-emerald-500 bg-emerald-500/5" : "border-white/10 hover:border-white/20 hover:bg-white/10"}`}
-                    >
-                      {loading ? (
-                        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-                      ) : fileUrl ? (
-                        <>
-                          <CheckCircle2 className="w-10 h-10 mb-2 text-emerald-500" />
-                          <p className="text-sm font-bold text-emerald-500">
-                            Documento anexado!
-                          </p>
-                        </>
-                      ) : (
-                        <>
-                          <Upload className="w-10 h-10 mb-2 text-slate-500 group-hover:text-white" />
-                          <p className="text-sm font-bold text-slate-400">
-                            Clique para fazer o upload
-                          </p>
-                          <p className="text-[10px] text-slate-600 mt-1 uppercase font-bold tracking-widest">
-                            PDF, JPG ou PNG
-                          </p>
-                        </>
-                      )}
-                      <Input
-                        id="receipt-upload"
-                        type="file"
-                        className="hidden"
-                        accept=".pdf,image/*"
-                        onChange={handleFileUpload}
-                        disabled={loading}
-                      />
-                    </Label>
                   </div>
                 </motion.div>
               )}
@@ -367,9 +189,7 @@ export function PaymentModal({
                       Pagamento em Processamento
                     </h3>
                     <p className="text-slate-400 font-medium max-w-xs leading-relaxed">
-                      {paymentMethod === "gateway"
-                        ? "O seu acesso está a ser restaurado. O painel será atualizado em instantes."
-                        : "Recebemos o seu comprovativo! A nossa equipa irá validar em até 4 horas úteis."}
+                      O seu acesso está a ser restaurado. O painel será atualizado em instantes.
                     </p>
                   </div>
                 </motion.div>
@@ -384,31 +204,21 @@ export function PaymentModal({
               <Button
                 variant="ghost"
                 className="h-14 rounded-2xl font-bold text-slate-400 hover:text-white hover:bg-white/5 px-8"
-                onClick={step === 1 ? onClose : () => setStep(step - 1)}
+                onClick={onClose}
               >
-                Voltar
+                Cancelar
               </Button>
 
               <Button
-                onClick={
-                  paymentMethod === "gateway"
-                    ? handleGatewayPayment
-                    : step === 1
-                      ? () => setStep(2)
-                      : handleSubmitPayment
-                }
-                disabled={loading || (step === 2 && !fileUrl)}
-                className={`flex-1 h-14 rounded-2xl font-black text-lg transition-all shadow-xl ${paymentMethod === "gateway" ? "bg-blue-600 hover:bg-blue-700 shadow-blue-500/20" : "bg-indigo-600 hover:bg-indigo-700 shadow-indigo-500/20"}`}
+                onClick={handleGatewayPayment}
+                disabled={loading}
+                className="flex-1 h-14 rounded-2xl font-black text-lg transition-all shadow-xl bg-blue-600 hover:bg-blue-700 shadow-blue-500/20"
               >
                 {loading ? (
                   <Loader2 className="h-6 w-6 animate-spin" />
                 ) : (
                   <>
-                    {paymentMethod === "gateway"
-                      ? "Pagar Agora"
-                      : step === 1
-                        ? "Seguinte"
-                        : "Confirmar Envio"}
+                    Pagar Agora
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </>
                 )}

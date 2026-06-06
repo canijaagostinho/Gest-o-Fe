@@ -22,6 +22,8 @@ export default function DashboardLayout({
   const [authorized, setAuthorized] = useState(false);
   const [role, setRole] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const pathnameRef = { current: pathname };
+  pathnameRef.current = pathname;
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -34,14 +36,11 @@ export default function DashboardLayout({
         } = await supabase.auth.getUser();
 
         if (userError || !user) {
-          console.warn("[DEBUG Auth] No user found in DashboardLayout, redirecting to login");
           router.push("/auth/login?reason=no_user");
           return;
         }
 
-        console.log("[DEBUG Auth] Fetching profile for user:", user.id);
-
-        const { data: profile, error: profileError } = await supabase
+        const { data: profile } = await supabase
           .from("users")
           .select(
             `
@@ -61,11 +60,8 @@ export default function DashboardLayout({
 
         let finalProfile = profile;
 
-        // TENTATIVA DE RECUPERAÇÃO: Se o perfil não existe mas o usuário está autenticado
         if (!finalProfile) {
-          console.warn("[DEBUG Auth] Perfil não encontrado no DashboardLayout, tentando recuperar via metadata...");
           const metadata = user.user_metadata;
-
           if (metadata?.full_name && metadata?.institution_id && metadata?.role_id) {
             const { data: recoveredProfile, error: recoveryError } = await supabase
               .from("users")
@@ -81,120 +77,82 @@ export default function DashboardLayout({
               .maybeSingle();
 
             if (!recoveryError && recoveredProfile) {
-              console.log("[DEBUG Auth] Perfil recuperado com sucesso!");
               finalProfile = recoveredProfile;
-            } else {
-              console.error("[DEBUG Auth] Falha na recuperação automática:", recoveryError);
             }
           }
         }
 
         if (!finalProfile) {
-          console.warn("[DEBUG Auth] No profile found after all attempts - signing out and redirecting");
           await supabase.auth.signOut();
           router.push("/auth/login?error=auth_failed&reason=profile_not_found");
           return;
         }
 
         const roleName = (finalProfile as any)?.role?.name || "gestor";
-        console.log("[DEBUG Auth] DashboardLayout Role resolved as:", roleName);
         setRole(roleName);
 
-        // Subscription status core check with date validation
-        let subStatus = "active";
+        // Verificar status da subscrição
+        let subStatus = "Ativa";
         const instData = (finalProfile as any)?.institutions;
-        const sub = Array.isArray(instData?.subscriptions) 
-          ? instData.subscriptions[0] 
+        const sub = Array.isArray(instData?.subscriptions)
+          ? instData.subscriptions[0]
           : instData?.subscriptions;
 
         if (sub) {
-          subStatus = sub.status || "active";
-          
-          // Check for expiration based on dates even if status is still 'active' or 'trialing'
+          subStatus = sub.status || "Ativa";
           const now = new Date();
-          const trialEnd = sub.trial_end ? new Date(sub.trial_end) : null;
           const periodEnd = sub.current_period_end ? new Date(sub.current_period_end) : null;
-
-          if (subStatus === "trialing" && trialEnd && now > trialEnd) {
-            console.warn("[DEBUG Auth] Trial expired by date, forcing past_due status");
-            subStatus = "past_due";
-          } else if (subStatus === "active" && periodEnd && now > periodEnd) {
-            console.warn("[DEBUG Auth] Subscription expired by date, forcing past_due status");
-            subStatus = "past_due";
+          if (subStatus === "Ativa" && periodEnd && now > periodEnd) {
+            subStatus = "Suspensa por inadimplência";
           }
         } else {
-          // If no subscription record exists, it might be a newly created institution
-          // We should probably default to 'trialing' or check institution created_at
-          // For now, let's keep it safe. If no sub, it's NOT 'active' unless confirmed.
-          console.warn("[DEBUG Auth] No subscription record found for institution");
-          subStatus = "past_due"; // Block access if no sub record exists (should not happen for valid accounts)
+          subStatus = "Suspensa por inadimplência";
         }
 
         (window as any).__subscriptionStatus = subStatus;
+
+        // --- Verificações de autorização feitas aqui mesmo, após termos o role ---
+        const currentPath = pathnameRef.current;
+        const platformRoutes = ["/institutions", "/audit-logs"];
+        const operadorBlockedSubRoutes = ["/settings/billing", "/settings/plans", "/settings/institution", "/monitoring"];
+        const managementRoutes = ["/users", "/monitoring", "/agents"];
+
+        const isPlatformRoute = platformRoutes.some(p => currentPath.startsWith(p));
+        const isOperadorBlockedSubRoute = operadorBlockedSubRoutes.some(p => currentPath.startsWith(p));
+        const isManagementRoute = managementRoutes.some(p => currentPath.startsWith(p));
+
+        if (isOperadorBlockedSubRoute && roleName === "operador") {
+          router.push("/settings");
+          return;
+        }
+        if (isPlatformRoute && roleName !== "admin_geral") {
+          router.push("/auth/login?error=access_denied&from=" + encodeURIComponent(currentPath));
+          return;
+        }
+        if (isManagementRoute && roleName !== "admin_geral" && roleName !== "gestor") {
+          router.push("/auth/login?error=access_denied&from=" + encodeURIComponent(currentPath));
+          return;
+        }
+        if (roleName !== "admin_geral" && subStatus !== "Ativa") {
+          router.push("/billing/blocked");
+          return;
+        }
+
+        // Tudo ok — autorizar acesso
+        setAuthorized(true);
       } catch (err: any) {
-        console.error("[DEBUG Auth] Critical error in DashboardLayout:", err);
+        console.error("[DashboardLayout] Erro crítico:", err);
         const supabase = createClient();
         await supabase.auth.signOut();
-        router.push(`/auth/login?error=auth_failed&reason=catch_error&message=${encodeURIComponent(err.message || "unknown")}`);
+        router.push(`/auth/login?error=auth_failed&reason=catch_error`);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchProfile();
-  }, [router]);
-
-  // Permission and Authorization effect
-  useEffect(() => {
-    if (isLoading) return;
-
-    console.log("[DEBUG Auth] Running Permission/Auth effect:", { pathname, role, isLoading });
-
-    if (role === null) {
-        console.warn("[DEBUG Auth] Role is null in effect, signing out and redirecting to login");
-        const supabase = createClient();
-        supabase.auth.signOut().then(() => {
-            router.push("/auth/login?error=auth_failed_no_role");
-        });
-        return;
-    }
-
-    // Role-based route protection
-    const platformRoutes = ["/institutions", "/audit-logs", "/plans"];
-    const operadorBlockedSubRoutes = ["/settings/billing", "/settings/plans", "/settings/institution", "/monitoring"];
-    
-    const isPlatformRoute = platformRoutes.some(p => pathname.startsWith(p));
-    const isOperadorBlockedSubRoute = operadorBlockedSubRoutes.some(p => pathname.startsWith(p));
-    const managementRoutes = ["/users", "/monitoring", "/agents"];
-    const isManagementRoute = managementRoutes.some(p => pathname.startsWith(p));
-
-    if (isOperadorBlockedSubRoute && role === "operador") {
-      router.push("/settings");
-      return;
-    }
-
-    if (isPlatformRoute && role !== "admin_geral") {
-      console.warn("[DEBUG Auth] Access denied to platform route:", pathname);
-      router.push("/auth/login?error=access_denied&from=" + encodeURIComponent(pathname));
-      return;
-    }
-
-    if (isManagementRoute && role !== "admin_geral" && role !== "gestor") {
-      console.warn("[DEBUG Auth] Access denied to management route:", pathname);
-      router.push("/auth/login?error=access_denied&from=" + encodeURIComponent(pathname));
-      return;
-    }
-
-    const subStatus = (window as any).__subscriptionStatus || "active";
-    if (role !== "admin_geral" && (subStatus === "past_due" || subStatus === "canceled")) {
-      console.warn("[DEBUG Auth] Blocking access due to subscription status:", subStatus);
-      router.push("/billing/blocked");
-      return;
-    }
-
-    console.log("[DEBUG Auth] User authorized for route:", pathname);
-    setAuthorized(true);
-  }, [pathname, role, isLoading, router]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
 
   if (isLoading || !authorized) {
     return (

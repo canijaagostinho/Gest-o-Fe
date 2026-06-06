@@ -67,8 +67,11 @@ export async function updateSession(request: NextRequest) {
 
   const isAuthPage = request.nextUrl.pathname.startsWith("/auth");
   const isRootPage = request.nextUrl.pathname === "/";
+  const isBlockedPage = request.nextUrl.pathname.startsWith("/billing/blocked");
+  const isWebhook = request.nextUrl.pathname.startsWith("/api/webhooks");
+  const isCron = request.nextUrl.pathname.startsWith("/api/cron");
 
-  if (!user && !isAuthPage && !isRootPage) {
+  if (!user && !isAuthPage && !isRootPage && !isBlockedPage && !isWebhook && !isCron) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";
     return NextResponse.redirect(url);
@@ -79,6 +82,64 @@ export async function updateSession(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);
+  }
+
+  // Cheat Protection: Server-side validation of subscription status for authenticated users
+  if (user && !isAuthPage && !isRootPage && !isBlockedPage && !isWebhook && !isCron) {
+    try {
+      // 1. Fetch user role and institution ID
+      const { data: profile } = await supabase
+        .from("users")
+        .select("role:roles(name), institution_id")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (profile) {
+        const roleName = (profile as any)?.role?.name || "gestor";
+        
+        // admin_geral is bypassable (is the global system administrator)
+        if (roleName !== "admin_geral" && profile.institution_id) {
+          // 2. Fetch institution subscription status
+          const { data: sub } = await supabase
+            .from("subscriptions")
+            .select("status, current_period_end")
+            .eq("institution_id", profile.institution_id)
+            .maybeSingle();
+
+          let subStatus = sub?.status || "Suspensa por inadimplência";
+          const now = new Date();
+          const periodEnd = sub?.current_period_end ? new Date(sub.current_period_end) : null;
+
+          // Check for expiration by date even if database status says otherwise
+          if (subStatus === "Ativa" && periodEnd && now > periodEnd) {
+            subStatus = "Suspensa por inadimplência";
+          }
+
+          // If not Active, block access to all pages and APIs
+          if (subStatus !== "Ativa") {
+            console.warn(`[MIDDLEWARE] Access blocked for institution ${profile.institution_id} (Status: ${subStatus})`);
+            
+            // If API route, return 403 Forbidden
+            if (request.nextUrl.pathname.startsWith("/api/")) {
+              return new NextResponse(
+                JSON.stringify({ error: "Assinatura suspensa. Acesso negado." }),
+                { 
+                  status: 403,
+                  headers: { "Content-Type": "application/json" }
+                }
+              );
+            }
+
+            // Redirect web client to the blocked screen
+            const url = request.nextUrl.clone();
+            url.pathname = "/billing/blocked";
+            return NextResponse.redirect(url);
+          }
+        }
+      }
+    } catch (err) {
+      console.error("[MIDDLEWARE] Error validating subscription:", err);
+    }
   }
 
   return supabaseResponse;

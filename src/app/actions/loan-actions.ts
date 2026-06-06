@@ -121,9 +121,6 @@ export async function cancelLoanAction(loanId: string): Promise<ActionResponse> 
     if (instError) throw instError;
 
     // 3. Log Operation
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
     if (user) {
       const { data: loanData } = await supabase
         .from("loans")
@@ -177,7 +174,7 @@ export async function createLoanAction(data: LoanCreateData): Promise<ActionResp
     // Schema validation: blocks malformed payloads and injection attacks (Camada 4 - OWASP A03)
     const parsed = loanCreateSchema.safeParse(data);
     if (!parsed.success) {
-      const firstError = parsed.error.errors[0];
+      const firstError = parsed.error.issues[0];
       return { success: false, error: `Dados inválidos: ${firstError.message}` };
     }
 
