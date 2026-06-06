@@ -52,17 +52,29 @@ export default function BlockedPage() {
       try {
         const {
           data: { user },
+          error: userError,
         } = await supabase.auth.getUser();
+        if (userError) {
+          console.error("userError:", userError);
+          toast.error("Erro de Autenticação", { description: userError.message });
+          router.push("/auth/login");
+          return;
+        }
         if (!user) {
           router.push("/auth/login");
           return;
         }
 
-        const { data: profile } = await supabase
+        const { data: profile, error: profileError } = await supabase
           .from("users")
           .select("institution_id, role:roles(name)")
           .eq("id", user.id)
           .single();
+
+        if (profileError) {
+          console.error("profileError:", profileError);
+          toast.error("Erro ao Carregar Perfil", { description: profileError.message });
+        }
 
         if (profile) {
           const roleName = (profile.role as any)?.name || "operador";
@@ -70,29 +82,48 @@ export default function BlockedPage() {
         }
 
         if (profile?.institution_id) {
-          const { data: inst } = await supabase
+          const { data: inst, error: instError } = await supabase
             .from("institutions")
             .select("*")
             .eq("id", profile.institution_id)
             .single();
-          setInstitution(inst);
+          if (instError) {
+            console.error("instError:", instError);
+            toast.error("Erro ao Carregar Instituição", { description: instError.message });
+          } else {
+            setInstitution(inst);
+          }
 
-          const { data: sub } = await supabase
+          const { data: sub, error: subError } = await supabase
             .from("subscriptions")
             .select("*, plan:plans(*)")
             .eq("institution_id", profile.institution_id)
             .maybeSingle();
-          setSubscription(sub);
+          if (subError) {
+            console.error("subError:", subError);
+            toast.error("Erro ao Carregar Assinatura", { description: subError.message });
+          } else {
+            setSubscription(sub);
+          }
         }
 
-        const { data: availablePlans } = await supabase
+        const { data: availablePlans, error: plansError } = await supabase
           .from("plans")
           .select("*")
           .eq("is_active", true)
           .order("price_amount", { ascending: true });
-        setPlans(availablePlans || []);
-      } catch (err) {
+
+        if (plansError) {
+          console.error("plansError:", plansError);
+          toast.error("Erro ao Carregar Planos", { description: plansError.message });
+        } else {
+          setPlans(availablePlans || []);
+        }
+      } catch (err: any) {
         console.error("Error fetching blocked page data:", err);
+        toast.error("Erro Inesperado", {
+          description: err.message || "Ocorreu um erro desconhecido.",
+        });
       } finally {
         setLoading(false);
       }

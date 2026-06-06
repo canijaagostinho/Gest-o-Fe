@@ -102,7 +102,8 @@ export default function DashboardLayout({
           subStatus = sub.status || "Ativa";
           const now = new Date();
           const periodEnd = sub.current_period_end ? new Date(sub.current_period_end) : null;
-          if (subStatus === "Ativa" && periodEnd && now > periodEnd) {
+          const isSubActive = subStatus === "Ativa" || subStatus === "active";
+          if (isSubActive && periodEnd && now > periodEnd) {
             subStatus = "Suspensa por inadimplência";
           }
         } else {
@@ -133,7 +134,7 @@ export default function DashboardLayout({
           router.push("/auth/login?error=access_denied&from=" + encodeURIComponent(currentPath));
           return;
         }
-        if (roleName !== "admin_geral" && subStatus !== "Ativa") {
+        if (roleName !== "admin_geral" && subStatus !== "Ativa" && subStatus !== "active") {
           router.push("/billing/blocked");
           return;
         }

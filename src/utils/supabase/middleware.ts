@@ -137,12 +137,13 @@ export async function updateSession(request: NextRequest) {
           const now = new Date();
           const periodEnd = sub?.current_period_end ? new Date(sub.current_period_end) : null;
 
-          if (subStatus === "Ativa" && periodEnd && now > periodEnd) {
+          const isSubActive = subStatus === "Ativa" || subStatus === "active";
+          if (isSubActive && periodEnd && now > periodEnd) {
             subStatus = "Suspensa por inadimplência";
           }
 
           // If current subscription is blocked, sign them out so they can log in/register a different account
-          if (subStatus !== "Ativa") {
+          if (subStatus !== "Ativa" && subStatus !== "active") {
             console.log(`[MIDDLEWARE] Blocked account ${user.id} tried to access auth page. Performing auto-logout.`);
             await supabase.auth.signOut();
             
@@ -206,13 +207,14 @@ export async function updateSession(request: NextRequest) {
           const now = new Date();
           const periodEnd = sub?.current_period_end ? new Date(sub.current_period_end) : null;
 
+          const isSubActive = subStatus === "Ativa" || subStatus === "active";
           // Check for expiration by date even if database status says otherwise
-          if (subStatus === "Ativa" && periodEnd && now > periodEnd) {
+          if (isSubActive && periodEnd && now > periodEnd) {
             subStatus = "Suspensa por inadimplência";
           }
 
           // If not Active, block access to all pages and APIs
-          if (subStatus !== "Ativa") {
+          if (subStatus !== "Ativa" && subStatus !== "active") {
             console.warn(`[MIDDLEWARE] Access blocked for institution ${profile.institution_id} (Status: ${subStatus})`);
             
             // If API route, return 403 Forbidden

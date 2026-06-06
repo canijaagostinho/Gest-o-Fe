@@ -139,11 +139,12 @@ export default function LandingPage() {
                             const now = new Date();
                             const periodEnd = sub?.current_period_end ? new Date(sub.current_period_end) : null;
                             
-                            if (subStatus === "Ativa" && periodEnd && now > periodEnd) {
+                            const isSubActive = subStatus === "Ativa" || subStatus === "active";
+                            if (isSubActive && periodEnd && now > periodEnd) {
                                 subStatus = "Suspensa por inadimplência";
                             }
                             
-                            if (subStatus !== "Ativa") {
+                            if (subStatus !== "Ativa" && subStatus !== "active") {
                                 isBlocked = true;
                             }
                         }
