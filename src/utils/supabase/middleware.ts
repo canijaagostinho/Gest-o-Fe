@@ -2,6 +2,42 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { checkRateLimit, RateLimits } from "@/utils/rate-limiter";
 
+function copyCookies(from: NextResponse, to: NextResponse) {
+  try {
+    const cookies = from.cookies.getAll();
+    cookies.forEach((cookie) => {
+      to.cookies.set(cookie.name, cookie.value, {
+        path: cookie.path,
+        domain: cookie.domain,
+        secure: cookie.secure,
+        sameSite: cookie.sameSite,
+        expires: cookie.expires,
+        maxAge: cookie.maxAge,
+        httpOnly: cookie.httpOnly,
+      });
+    });
+  } catch (err) {
+    console.error("[MIDDLEWARE] Error copying via cookies.getAll():", err);
+  }
+
+  try {
+    if (typeof from.headers.getSetCookie === "function") {
+      const setCookies = from.headers.getSetCookie();
+      setCookies.forEach((cookieStr) => {
+        to.headers.append("set-cookie", cookieStr);
+      });
+    } else {
+      from.headers.forEach((value, key) => {
+        if (key.toLowerCase() === "set-cookie") {
+          to.headers.append(key, value);
+        }
+      });
+    }
+  } catch (err) {
+    console.error("[MIDDLEWARE] Error copying via headers set-cookie:", err);
+  }
+}
+
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
@@ -71,11 +107,7 @@ export async function updateSession(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";
     const redirectResponse = NextResponse.redirect(url);
-    supabaseResponse.headers.forEach((value, key) => {
-      if (key.toLowerCase() === "set-cookie") {
-        redirectResponse.headers.append(key, value);
-      }
-    });
+    copyCookies(supabaseResponse, redirectResponse);
     return redirectResponse;
   }
 
@@ -118,11 +150,7 @@ export async function updateSession(request: NextRequest) {
             const redirectResponse = NextResponse.redirect(request.nextUrl);
             
             // Propagate the cookie deletions from supabaseResponse (updated by signOut()) to the redirect response
-            supabaseResponse.headers.forEach((value, key) => {
-              if (key.toLowerCase() === "set-cookie") {
-                redirectResponse.headers.append(key, value);
-              }
-            });
+            copyCookies(supabaseResponse, redirectResponse);
             
             const projectRef = process.env.NEXT_PUBLIC_SUPABASE_URL!.split("//")[1].split(".")[0];
             const cookiePrefix = `sb-${projectRef}-auth-token`;
@@ -148,11 +176,7 @@ export async function updateSession(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     const redirectResponse = NextResponse.redirect(url);
-    supabaseResponse.headers.forEach((value, key) => {
-      if (key.toLowerCase() === "set-cookie") {
-        redirectResponse.headers.append(key, value);
-      }
-    });
+    copyCookies(supabaseResponse, redirectResponse);
     return redirectResponse;
   }
 
@@ -206,11 +230,7 @@ export async function updateSession(request: NextRequest) {
             const url = request.nextUrl.clone();
             url.pathname = "/billing/blocked";
             const redirectResponse = NextResponse.redirect(url);
-            supabaseResponse.headers.forEach((value, key) => {
-              if (key.toLowerCase() === "set-cookie") {
-                redirectResponse.headers.append(key, value);
-              }
-            });
+            copyCookies(supabaseResponse, redirectResponse);
             return redirectResponse;
           }
         }
