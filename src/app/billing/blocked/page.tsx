@@ -184,21 +184,36 @@ export default function BlockedPage() {
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="inline-flex items-center gap-2 px-4 py-1.5 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-full text-xs font-black tracking-widest uppercase"
+                className="inline-flex items-center gap-2 px-5 py-2 bg-rose-500/10 border border-rose-500/30 text-rose-500 rounded-full text-xs font-black tracking-widest uppercase animate-pulse shadow-[0_0_15px_rgba(244,63,94,0.1)]"
               >
-                <Sparkles className="h-3 w-3 text-amber-400" /> Acesso Suspenso
+                <ShieldAlert className="h-3.5 w-3.5 text-rose-500" /> Acesso Suspenso por Inadimplência
               </motion.div>
               <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-white leading-tight font-sora">
                 Mantenha o seu capital a <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-emerald-400 bg-clip-text text-transparent">render</span>
               </h1>
-              <p className="text-lg text-slate-400 font-medium leading-relaxed">
+              <p className="text-lg text-slate-300 font-medium leading-relaxed max-w-2xl mx-auto">
                 {isTrialEnded ? (
-                  <>O período de teste da instituição <span className="text-blue-400 font-bold">{institution?.name}</span> chegou ao fim.</>
+                  <>
+                    O período de teste gratuito da instituição{" "}
+                    <span className="text-white font-bold">{institution?.name}</span>{" "}
+                    <span className="text-rose-500 font-black uppercase underline decoration-rose-500 decoration-2 underline-offset-4">
+                      expirou e chegou ao fim
+                    </span>.
+                  </>
                 ) : (
-                  <>A assinatura do GestãoFlex para a instituição <span className="text-blue-400 font-bold">{institution?.name}</span> está suspensa.</>
+                  <>
+                    A assinatura do GestãoFlex para a instituição{" "}
+                    <span className="text-white font-bold">{institution?.name}</span>{" "}
+                    está{" "}
+                    <span className="text-amber-500 font-black uppercase underline decoration-amber-500 decoration-2 underline-offset-4">
+                      atualmente suspensa por falta de pagamento
+                    </span>.
+                  </>
                 )}
                 <br />
-                Reative seu plano hoje para continuar operando com cobranças automatizadas e relatórios em tempo real.
+                <span className="text-rose-400/90 font-bold mt-2 inline-block">
+                  🚨 Acesso bloqueado. Regularize seu plano abaixo para reativar as cobranças e o controle de caixa.
+                </span>
               </p>
             </div>
 
