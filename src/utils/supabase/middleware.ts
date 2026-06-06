@@ -46,11 +46,7 @@ export async function updateSession(request: NextRequest) {
             request,
           });
           cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, {
-              ...options,
-              maxAge: undefined,
-              expires: undefined,
-            }),
+            supabaseResponse.cookies.set(name, value, options),
           );
         },
       },
@@ -74,7 +70,13 @@ export async function updateSession(request: NextRequest) {
   if (!user && !isAuthPage && !isRootPage && !isBlockedPage && !isWebhook && !isCron) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";
-    return NextResponse.redirect(url);
+    const redirectResponse = NextResponse.redirect(url);
+    supabaseResponse.headers.forEach((value, key) => {
+      if (key.toLowerCase() === "set-cookie") {
+        redirectResponse.headers.append(key, value);
+      }
+    });
+    return redirectResponse;
   }
 
   // If user is logged in and trying to access auth pages, redirect to dashboard
@@ -145,7 +147,13 @@ export async function updateSession(request: NextRequest) {
 
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
-    return NextResponse.redirect(url);
+    const redirectResponse = NextResponse.redirect(url);
+    supabaseResponse.headers.forEach((value, key) => {
+      if (key.toLowerCase() === "set-cookie") {
+        redirectResponse.headers.append(key, value);
+      }
+    });
+    return redirectResponse;
   }
 
   // Cheat Protection: Server-side validation of subscription status for authenticated users
@@ -197,7 +205,13 @@ export async function updateSession(request: NextRequest) {
             // Redirect web client to the blocked screen
             const url = request.nextUrl.clone();
             url.pathname = "/billing/blocked";
-            return NextResponse.redirect(url);
+            const redirectResponse = NextResponse.redirect(url);
+            supabaseResponse.headers.forEach((value, key) => {
+              if (key.toLowerCase() === "set-cookie") {
+                redirectResponse.headers.append(key, value);
+              }
+            });
+            return redirectResponse;
           }
         }
       }
