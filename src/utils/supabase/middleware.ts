@@ -79,6 +79,70 @@ export async function updateSession(request: NextRequest) {
 
   // If user is logged in and trying to access auth pages, redirect to dashboard
   if (user && isAuthPage) {
+    try {
+      // Fetch user profile to check institution
+      const { data: profile } = await supabase
+        .from("users")
+        .select("role:roles(name), institution_id")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (profile) {
+        const roleName = (profile as any)?.role?.name || "gestor";
+        
+        // admin_geral is bypassable
+        if (roleName !== "admin_geral" && profile.institution_id) {
+          // Fetch institution subscription status
+          const { data: sub } = await supabase
+            .from("subscriptions")
+            .select("status, current_period_end")
+            .eq("institution_id", profile.institution_id)
+            .maybeSingle();
+
+          let subStatus = sub?.status || "Suspensa por inadimplência";
+          const now = new Date();
+          const periodEnd = sub?.current_period_end ? new Date(sub.current_period_end) : null;
+
+          if (subStatus === "Ativa" && periodEnd && now > periodEnd) {
+            subStatus = "Suspensa por inadimplência";
+          }
+
+          // If current subscription is blocked, sign them out so they can log in/register a different account
+          if (subStatus !== "Ativa") {
+            console.log(`[MIDDLEWARE] Blocked account ${user.id} tried to access auth page. Performing auto-logout.`);
+            await supabase.auth.signOut();
+            
+            // Create a redirect response to the target page to ensure client-side router/cookies are fully aligned
+            const redirectResponse = NextResponse.redirect(request.nextUrl);
+            
+            // Propagate the cookie deletions from supabaseResponse (updated by signOut()) to the redirect response
+            supabaseResponse.headers.forEach((value, key) => {
+              if (key.toLowerCase() === "set-cookie") {
+                redirectResponse.headers.append(key, value);
+              }
+            });
+            
+            const projectRef = process.env.NEXT_PUBLIC_SUPABASE_URL!.split("//")[1].split(".")[0];
+            const cookiePrefix = `sb-${projectRef}-auth-token`;
+            
+            // Manually set expired cookies as a fallback to ensure immediate browser removal
+            redirectResponse.cookies.set(cookiePrefix, "", { path: "/", maxAge: 0, expires: new Date(0) });
+            redirectResponse.cookies.set(`${cookiePrefix}.0`, "", { path: "/", maxAge: 0, expires: new Date(0) });
+            redirectResponse.cookies.set(`${cookiePrefix}.1`, "", { path: "/", maxAge: 0, expires: new Date(0) });
+            
+            // Explicit delete headers
+            redirectResponse.cookies.delete(cookiePrefix);
+            redirectResponse.cookies.delete(`${cookiePrefix}.0`);
+            redirectResponse.cookies.delete(`${cookiePrefix}.1`);
+            
+            return redirectResponse;
+          }
+        }
+      }
+    } catch (err) {
+      console.error("[MIDDLEWARE] Error checking subscription on auth page redirect:", err);
+    }
+
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);

@@ -111,13 +111,48 @@ export default function LandingPage() {
                 if (authUser) {
                     const { data: profile } = await supabase
                         .from("users")
-                        .select("id")
+                        .select(`
+                            id,
+                            role:roles(name),
+                            institution_id,
+                            institutions (
+                                subscriptions (
+                                    status,
+                                    current_period_end
+                                )
+                            )
+                        `)
                         .eq("id", authUser.id)
                         .maybeSingle();
                     
                     if (profile) {
-                        setUser(authUser);
-                        // router.push("/dashboard"); // Removido para permitir visualizar a landing page enquanto logado se desejar
+                        const roleName = (profile as any)?.role?.name || "gestor";
+                        let isBlocked = false;
+                        
+                        if (roleName !== "admin_geral" && profile.institution_id) {
+                            const instData = (profile as any)?.institutions;
+                            const sub = Array.isArray(instData?.subscriptions)
+                                ? instData.subscriptions[0]
+                                : instData?.subscriptions;
+                            
+                            let subStatus = sub?.status || "Suspensa por inadimplência";
+                            const now = new Date();
+                            const periodEnd = sub?.current_period_end ? new Date(sub.current_period_end) : null;
+                            
+                            if (subStatus === "Ativa" && periodEnd && now > periodEnd) {
+                                subStatus = "Suspensa por inadimplência";
+                            }
+                            
+                            if (subStatus !== "Ativa") {
+                                isBlocked = true;
+                            }
+                        }
+                        
+                        if (isBlocked) {
+                            setUser(null);
+                        } else {
+                            setUser(authUser);
+                        }
                     } else {
                         setUser(null);
                     }
