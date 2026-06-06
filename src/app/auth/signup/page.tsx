@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { registerAndLoginAction } from "@/app/actions/auth-actions";
 import { translateSupabaseError } from "@/lib/error-handler";
+import { isValidName } from "@/schemas/institution";
 
 export default function SignupPage() {
   const [fullName, setFullName] = useState("");
@@ -36,6 +37,28 @@ export default function SignupPage() {
 
     if (!fullName || !institutionName || !email || !password || !confirmPassword) {
       toast.error("Preencha todos os campos");
+      return;
+    }
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      toast.error("E-mail inválido", {
+        description: "Introduza um endereço de e-mail válido.",
+      });
+      return;
+    }
+
+    if (!isValidName(institutionName)) {
+      toast.error("Nome de instituição inválido", {
+        description: "Evite sequências desordenadas de caracteres.",
+      });
+      return;
+    }
+
+    if (!isValidName(fullName)) {
+      toast.error("Nome de administrador inválido", {
+        description: "Introduza um nome real válido.",
+      });
       return;
     }
 

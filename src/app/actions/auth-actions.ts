@@ -5,6 +5,7 @@ import { createClient as createSupabaseAdmin } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { translateSupabaseError } from "@/lib/error-handler";
+import { isValidName } from "@/schemas/institution";
 
 export async function registerAndLoginAction(data: {
   fullName: string;
@@ -20,6 +21,19 @@ export async function registerAndLoginAction(data: {
     !data.institutionName
   ) {
     return { success: false, error: "Todos os campos são obrigatórios." };
+  }
+
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  if (!emailRegex.test(data.email)) {
+    return { success: false, error: "E-mail inválido." };
+  }
+
+  if (!isValidName(data.institutionName)) {
+    return { success: false, error: "Nome de instituição inválido (evite sequências desordenadas)." };
+  }
+
+  if (!isValidName(data.fullName)) {
+    return { success: false, error: "Nome de administrador inválido." };
   }
 
   // Strict password validation
@@ -55,8 +69,7 @@ export async function registerAndLoginAction(data: {
       .from("institutions")
       .insert({
         name: data.institutionName,
-        // Add default fields if necessary, e.g. active: true
-        // Assuming 'nuit', 'address' are optional or can be updated later per dashboard logic
+        email: data.email,
       })
       .select()
       .single();

@@ -212,7 +212,7 @@ export default function BlockedPage() {
                   <div className="h-px bg-white/10 flex-grow"></div>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {plans.map((plan, idx) => {
                     const isPremium = plan.name.toLowerCase().includes("premium") || plan.name.toLowerCase().includes("anual");
                     return (
@@ -223,65 +223,65 @@ export default function BlockedPage() {
                         transition={{ duration: 0.5, delay: idx * 0.1 }}
                       >
                         <Card
-                          className={`group relative flex flex-col border-none bg-slate-900/40 backdrop-blur-xl rounded-[2.5rem] overflow-hidden transition-all duration-300 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] hover:-translate-y-1.5 ring-1 ring-white/10 ${
-                            isPremium ? "ring-2 ring-blue-500/50 bg-gradient-to-b from-slate-900/40 to-blue-950/20" : ""
+                          className={`group relative flex flex-col border-none !bg-slate-900/70 backdrop-blur-xl rounded-[2.5rem] overflow-hidden transition-all duration-300 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] hover:-translate-y-1.5 ring-1 ring-white/10 ${
+                            isPremium ? "ring-2 ring-blue-500/50 !bg-gradient-to-b !from-[#151B33] !to-[#0A0D16] shadow-[0_0_35px_rgba(59,130,246,0.25)]" : ""
                           }`}
                         >
                           {isPremium && (
-                            <div className="absolute top-0 right-0 p-5">
-                              <span className="bg-blue-600 text-[9px] font-black uppercase tracking-widest px-2.5 py-1.5 rounded-full flex items-center gap-1 shadow-lg shadow-blue-500/20 text-white">
-                                <Star className="h-2.5 w-2.5 fill-current text-amber-300" /> Mais Recomendado
+                            <div className="absolute top-0 right-0 p-6">
+                              <span className="bg-blue-600 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg shadow-blue-500/20 text-white">
+                                <Star className="h-3 w-3 fill-current text-amber-300" /> Mais Recomendado
                               </span>
                             </div>
                           )}
 
-                          <CardHeader className="pb-4 pt-8 px-6">
-                            <div className={`p-3 w-fit rounded-xl mb-3 ${isPremium ? "bg-blue-500/10 text-blue-400" : "bg-white/5 text-slate-400"}`}>
-                              <Zap className="h-6 w-6" />
+                          <CardHeader className="pb-6 pt-10 px-8">
+                            <div className={`p-4 w-fit rounded-2xl mb-4 ${isPremium ? "bg-blue-500/10 text-blue-400" : "bg-white/5 text-slate-400"}`}>
+                              <Zap className="h-8 w-8" />
                             </div>
-                            <CardTitle className="text-2xl font-bold text-white tracking-tight font-sora">
+                            <CardTitle className="text-3xl font-black text-white tracking-tight font-sora">
                               {plan.name}
                             </CardTitle>
-                            <CardDescription className="text-xs text-slate-400 min-h-[2.5rem] mt-2 leading-relaxed font-medium">
+                            <CardDescription className="text-sm text-slate-400 min-h-[3rem] mt-2 leading-relaxed font-medium">
                               {plan.description}
                             </CardDescription>
                           </CardHeader>
 
-                          <CardContent className="px-6 pb-6 flex-grow">
-                            <div className="flex items-baseline gap-1.5">
-                              <span className="text-4xl font-black text-white tracking-tight tabular-nums">
+                          <CardContent className="px-8 pb-8 flex-grow">
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-5xl font-black text-white tracking-tight tabular-nums">
                                 {Number(plan.price_amount).toLocaleString("pt-MZ")}
                               </span>
-                              <span className="text-xs font-black text-slate-500 uppercase tracking-widest">
+                              <span className="text-sm font-black text-slate-500 uppercase tracking-widest">
                                 MTn
                               </span>
                             </div>
 
-                            <div className="mt-6 space-y-3">
-                              <div className="flex items-center gap-2.5 text-slate-300 text-xs font-semibold">
-                                <div className="h-4 w-4 rounded-full bg-blue-500/10 flex items-center justify-center flex-shrink-0">
-                                  <Clock className="h-2.5 w-2.5 text-blue-400" />
+                            <div className="mt-8 space-y-4">
+                              <div className="flex items-center gap-3 text-slate-300 text-sm font-semibold">
+                                <div className="h-5 w-5 rounded-full bg-blue-500/10 flex items-center justify-center flex-shrink-0">
+                                  <Clock className="h-3 w-3 text-blue-400" />
                                 </div>
                                 Válido por {plan.interval_months} mes(es)
                               </div>
-                              <div className="flex items-center gap-2.5 text-slate-300 text-xs font-semibold">
-                                <div className="h-4 w-4 rounded-full bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
-                                  <Check className="h-2.5 w-2.5 text-emerald-400" />
+                              <div className="flex items-center gap-3 text-slate-300 text-sm font-semibold">
+                                <div className="h-5 w-5 rounded-full bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
+                                  <Check className="h-3 w-3 text-emerald-400" />
                                 </div>
                                 Automações de Cobrança WhatsApp
                               </div>
-                              <div className="flex items-center gap-2.5 text-slate-300 text-xs font-semibold">
-                                <div className="h-4 w-4 rounded-full bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
-                                  <Check className="h-2.5 w-2.5 text-emerald-400" />
+                              <div className="flex items-center gap-3 text-slate-300 text-sm font-semibold">
+                                <div className="h-5 w-5 rounded-full bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
+                                  <Check className="h-3 w-3 text-emerald-400" />
                                 </div>
                                 Acesso total a todas funcionalidades
                               </div>
                             </div>
                           </CardContent>
 
-                          <CardFooter className="p-6 pt-0">
+                          <CardFooter className="p-8 pt-0">
                             <Button
-                              className={`w-full h-12 rounded-xl font-bold text-sm transition-all duration-300 shadow-lg ${
+                              className={`w-full h-14 rounded-2xl font-bold text-base transition-all duration-300 shadow-lg ${
                                 isPremium
                                   ? "bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/20 hover:shadow-blue-500/30 border-none"
                                   : "bg-white text-slate-950 hover:bg-slate-200 border-none"
@@ -291,7 +291,7 @@ export default function BlockedPage() {
                                 setIsPaymentModalOpen(true);
                               }}
                             >
-                              Pagar com Visa / Mastercard <ArrowRight className="ml-2 h-4 w-4" />
+                              Pagar com Visa / Mastercard <ArrowRight className="ml-2 h-5 w-5" />
                             </Button>
                           </CardFooter>
                         </Card>
@@ -310,7 +310,7 @@ export default function BlockedPage() {
                 </div>
 
                 {/* Subscription Expiry / Detail Card */}
-                <Card className="border-none bg-slate-900/40 backdrop-blur-xl ring-1 ring-white/10 rounded-[2rem] overflow-hidden">
+                <Card className="border-none !bg-slate-900/40 backdrop-blur-xl ring-1 ring-white/10 rounded-[2rem] overflow-hidden">
                   <CardContent className="p-6 space-y-4">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-amber-500/10 text-amber-400 rounded-lg">
@@ -357,7 +357,7 @@ export default function BlockedPage() {
                 </Card>
 
                 {/* Features Lock Card */}
-                <Card className="border-none bg-slate-900/60 backdrop-blur-xl ring-1 ring-white/10 rounded-[2rem] overflow-hidden relative">
+                <Card className="border-none !bg-slate-900/60 backdrop-blur-xl ring-1 ring-white/10 rounded-[2rem] overflow-hidden relative">
                   <div className="absolute top-0 right-0 p-4 opacity-10">
                     <LockKeyhole className="h-24 w-24 text-white" />
                   </div>
@@ -400,7 +400,7 @@ export default function BlockedPage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="max-w-2xl mx-auto bg-slate-900/40 backdrop-blur-xl border border-rose-500/20 rounded-[2.5rem] p-10 text-center space-y-6"
+            className="max-w-2xl mx-auto !bg-slate-900/40 backdrop-blur-xl border border-rose-500/20 rounded-[2.5rem] p-10 text-center space-y-6"
           >
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-rose-500/10">
               <Lock className="h-8 w-8 text-rose-400 animate-pulse" />
