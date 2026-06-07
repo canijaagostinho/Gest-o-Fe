@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/utils/supabase/client";
+import { createSubscriptionAction } from "@/app/actions/subscription-actions";
 import {
   Dialog,
   DialogContent,
@@ -50,21 +51,16 @@ export function PaymentModal({
     try {
       setLoading(true);
 
-      // 1. Create a pending payment record first to get a reference ID
-      const { data: paymentData, error: paymentError } = await supabase
-        .from("subscription_payments")
-        .insert({
-          institution_id: institutionId,
-          subscription_id: subscriptionId,
-          plan_id: plan.id,
-          amount: plan.price_amount,
-          status: "pending",
-          payment_method: "gateway",
-        })
-        .select()
-        .single();
+      // 1. Create a pending payment record first to get a reference ID via server action
+      const result = await createSubscriptionAction(
+        plan.id,
+        "gateway",
+        plan.price_amount
+      );
 
-      if (paymentError) throw paymentError;
+      if (!result.success || !result.paymentId) {
+        throw new Error("Não foi possível gerar a referência de pagamento.");
+      }
 
       // 2. Safeguard: use the new links explicitly for all plans
       let baseUrl = plan?.payment_url;
@@ -81,7 +77,7 @@ export function PaymentModal({
 
       if (baseUrl) {
         // 3. Append our payment ID as a reference for the webhook
-        const finalUrl = `${baseUrl}?reference=${paymentData.id}`;
+        const finalUrl = `${baseUrl}?reference=${result.paymentId}`;
         
         toast.info("A redirecionar para o portal de pagamento seguro...");
         window.location.href = finalUrl;
