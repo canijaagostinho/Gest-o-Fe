@@ -55,21 +55,49 @@ export async function createSubscriptionAction(
     const newPeriodStart = currentSub?.current_period_start || null;
     const newPeriodEnd = currentSub?.current_period_end || null;
 
-    // 4. Upsert na tabela de subscrições (apenas vincula o plan_id sem ativar a conta)
-    const { data: subscription, error: subError } = await adminSupabase
+    // 4. Criar ou atualizar a subscrição (upsert manual para evitar conflitos de restrição única)
+    const { data: existingSub } = await adminSupabase
       .from("subscriptions")
-      .upsert({
-        institution_id: institutionId,
-        plan_id: planId,
-        status: newStatus,
-        current_period_start: newPeriodStart,
-        current_period_end: newPeriodEnd,
-        updated_at: now.toISOString(),
-      }, { onConflict: "institution_id" })
-      .select()
-      .single();
+      .select("id")
+      .eq("institution_id", institutionId)
+      .maybeSingle();
 
-    if (subError) throw new Error("Erro ao criar subscrição: " + subError.message);
+    let subscription;
+    let subError;
+
+    if (existingSub) {
+      const { data: updatedSub, error: updateErr } = await adminSupabase
+        .from("subscriptions")
+        .update({
+          plan_id: planId,
+          status: newStatus,
+          current_period_start: newPeriodStart,
+          current_period_end: newPeriodEnd,
+          updated_at: now.toISOString(),
+        })
+        .eq("id", existingSub.id)
+        .select()
+        .single();
+      subscription = updatedSub;
+      subError = updateErr;
+    } else {
+      const { data: insertedSub, error: insertErr } = await adminSupabase
+        .from("subscriptions")
+        .insert({
+          institution_id: institutionId,
+          plan_id: planId,
+          status: newStatus,
+          current_period_start: newPeriodStart,
+          current_period_end: newPeriodEnd,
+          updated_at: now.toISOString(),
+        })
+        .select()
+        .single();
+      subscription = insertedSub;
+      subError = insertErr;
+    }
+
+    if (subError) throw new Error("Erro ao criar ou atualizar subscrição: " + subError.message);
 
     // 5. Inserir registro de pagamento
     const { data: payData, error: payError } = await adminSupabase
