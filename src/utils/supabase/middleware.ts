@@ -129,13 +129,18 @@ export async function updateSession(request: NextRequest) {
           // Fetch institution subscription status
           const { data: sub } = await supabase
             .from("subscriptions")
-            .select("status, current_period_end")
+            .select("status, current_period_end, trial_end, plan_id")
             .eq("institution_id", profile.institution_id)
             .maybeSingle();
 
           let subStatus = sub?.status || "Suspensa por inadimplência";
           const now = new Date();
-          const periodEnd = sub?.current_period_end ? new Date(sub.current_period_end) : null;
+          const isTrial = sub ? !sub.plan_id : true;
+          const periodEnd = sub
+            ? (isTrial
+                ? (sub.trial_end ? new Date(sub.trial_end) : null)
+                : (sub.current_period_end ? new Date(sub.current_period_end) : null))
+            : null;
 
           const isSubActive = subStatus === "Ativa" || subStatus === "active";
           if (isSubActive && periodEnd && now > periodEnd) {
@@ -199,13 +204,18 @@ export async function updateSession(request: NextRequest) {
           // 2. Fetch institution subscription status
           const { data: sub } = await supabase
             .from("subscriptions")
-            .select("status, current_period_end")
+            .select("status, current_period_end, trial_end, plan_id")
             .eq("institution_id", profile.institution_id)
             .maybeSingle();
 
           let subStatus = sub?.status || "Suspensa por inadimplência";
           const now = new Date();
-          const periodEnd = sub?.current_period_end ? new Date(sub.current_period_end) : null;
+          const isTrial = sub ? !sub.plan_id : true;
+          const periodEnd = sub
+            ? (isTrial
+                ? (sub.trial_end ? new Date(sub.trial_end) : null)
+                : (sub.current_period_end ? new Date(sub.current_period_end) : null))
+            : null;
 
           const isSubActive = subStatus === "Ativa" || subStatus === "active";
           // Check for expiration by date even if database status says otherwise

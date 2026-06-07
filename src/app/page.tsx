@@ -118,7 +118,9 @@ export default function LandingPage() {
                             institutions (
                                 subscriptions (
                                     status,
-                                    current_period_end
+                                    current_period_end,
+                                    trial_end,
+                                    plan_id
                                 )
                             )
                         `)
@@ -137,7 +139,12 @@ export default function LandingPage() {
                             
                             let subStatus = sub?.status || "Suspensa por inadimplência";
                             const now = new Date();
-                            const periodEnd = sub?.current_period_end ? new Date(sub.current_period_end) : null;
+                            const isTrial = sub ? !sub.plan_id : true;
+                            const periodEnd = sub
+                                ? (isTrial
+                                    ? (sub.trial_end ? new Date(sub.trial_end) : null)
+                                    : (sub.current_period_end ? new Date(sub.current_period_end) : null))
+                                : null;
                             
                             const isSubActive = subStatus === "Ativa" || subStatus === "active";
                             if (isSubActive && periodEnd && now > periodEnd) {

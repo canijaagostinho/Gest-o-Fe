@@ -50,7 +50,8 @@ export default function DashboardLayout({
                     subscriptions (
                         status,
                         trial_end,
-                        current_period_end
+                        current_period_end,
+                        plan_id
                     )
                 )
             `,
@@ -73,7 +74,7 @@ export default function DashboardLayout({
                 role_id: metadata.role_id,
                 status: "active",
               })
-              .select("role:roles(name), institution_id, institutions(subscriptions(status, trial_end, current_period_end))")
+              .select("role:roles(name), institution_id, institutions(subscriptions(status, trial_end, current_period_end, plan_id))")
               .maybeSingle();
 
             if (!recoveryError && recoveredProfile) {
@@ -101,7 +102,10 @@ export default function DashboardLayout({
         if (sub) {
           subStatus = sub.status || "Ativa";
           const now = new Date();
-          const periodEnd = sub.current_period_end ? new Date(sub.current_period_end) : null;
+          const isTrial = !sub.plan_id;
+          const periodEnd = isTrial
+            ? (sub.trial_end ? new Date(sub.trial_end) : null)
+            : (sub.current_period_end ? new Date(sub.current_period_end) : null);
           const isSubActive = subStatus === "Ativa" || subStatus === "active";
           if (isSubActive && periodEnd && now > periodEnd) {
             subStatus = "Suspensa por inadimplência";
