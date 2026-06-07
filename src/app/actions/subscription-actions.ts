@@ -43,18 +43,27 @@ export async function createSubscriptionAction(
     if (!plan) throw new Error("Plano não encontrado.");
 
     const now = new Date();
-    const endDate = new Date();
-    endDate.setMonth(now.getMonth() + (plan.interval_months || 1));
 
-    // 4. Upsert na tabela de subscrições
+    // Obter assinatura atual para preservar o status e datas até a aprovação do pagamento
+    const { data: currentSub } = await adminSupabase
+      .from("subscriptions")
+      .select("status, current_period_start, current_period_end")
+      .eq("institution_id", institutionId)
+      .maybeSingle();
+
+    const newStatus = currentSub?.status || "Suspensa por inadimplência";
+    const newPeriodStart = currentSub?.current_period_start || null;
+    const newPeriodEnd = currentSub?.current_period_end || null;
+
+    // 4. Upsert na tabela de subscrições (apenas vincula o plan_id sem ativar a conta)
     const { data: subscription, error: subError } = await adminSupabase
       .from("subscriptions")
       .upsert({
         institution_id: institutionId,
         plan_id: planId,
-        status: "Ativa",
-        current_period_start: now.toISOString(),
-        current_period_end: endDate.toISOString(),
+        status: newStatus,
+        current_period_start: newPeriodStart,
+        current_period_end: newPeriodEnd,
         updated_at: now.toISOString(),
       }, { onConflict: "institution_id" })
       .select()
