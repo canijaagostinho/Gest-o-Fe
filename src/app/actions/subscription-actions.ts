@@ -52,7 +52,7 @@ export async function createSubscriptionAction(
       .upsert({
         institution_id: institutionId,
         plan_id: planId,
-        status: "active",
+        status: "Ativa",
         current_period_start: now.toISOString(),
         current_period_end: endDate.toISOString(),
         updated_at: now.toISOString(),
