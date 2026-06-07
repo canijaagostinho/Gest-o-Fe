@@ -99,6 +99,11 @@ export default function DashboardLayout({
           ? instData.subscriptions[0]
           : instData?.subscriptions;
 
+        console.log("[LAYOUT DEBUG] User ID:", user.id);
+        console.log("[LAYOUT DEBUG] finalProfile:", finalProfile);
+        console.log("[LAYOUT DEBUG] roleName:", roleName);
+        console.log("[LAYOUT DEBUG] sub:", sub);
+
         if (sub) {
           subStatus = sub.status || "Ativa";
           const now = new Date();
@@ -107,13 +112,20 @@ export default function DashboardLayout({
             ? (sub.trial_end ? new Date(sub.trial_end) : null)
             : (sub.current_period_end ? new Date(sub.current_period_end) : null);
           const isSubActive = subStatus === "Ativa" || subStatus === "active";
+          console.log("[LAYOUT DEBUG] subStatus (initial):", subStatus);
+          console.log("[LAYOUT DEBUG] isTrial:", isTrial);
+          console.log("[LAYOUT DEBUG] periodEnd:", periodEnd);
+          console.log("[LAYOUT DEBUG] now:", now);
+          console.log("[LAYOUT DEBUG] isExpired:", periodEnd ? now > periodEnd : false);
           if (isSubActive && periodEnd && now > periodEnd) {
             subStatus = "Suspensa por inadimplência";
           }
         } else {
+          console.log("[LAYOUT DEBUG] No subscription found, defaulting to Suspensa");
           subStatus = "Suspensa por inadimplência";
         }
 
+        console.log("[LAYOUT DEBUG] Computed subStatus:", subStatus);
         (window as any).__subscriptionStatus = subStatus;
 
         // --- Verificações de autorização feitas aqui mesmo, após termos o role ---

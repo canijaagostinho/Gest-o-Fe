@@ -115,11 +115,17 @@ export async function updateSession(request: NextRequest) {
   if (user && isAuthPage) {
     try {
       // Fetch user profile to check institution
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from("users")
         .select("role:roles(name), institution_id")
         .eq("id", user.id)
         .maybeSingle();
+
+      console.log("[MIDDLEWARE DEBUG] Auth redirect check - User ID:", user.id);
+      console.log("[MIDDLEWARE DEBUG] Auth redirect check - Profile:", profile);
+      if (profileError) {
+        console.error("[MIDDLEWARE DEBUG] Auth redirect check - Profile Error:", profileError);
+      }
 
       if (profile) {
         const roleName = (profile as any)?.role?.name || "gestor";
@@ -127,11 +133,16 @@ export async function updateSession(request: NextRequest) {
         // admin_geral is bypassable
         if (roleName !== "admin_geral" && profile.institution_id) {
           // Fetch institution subscription status
-          const { data: sub } = await supabase
+          const { data: sub, error: subError } = await supabase
             .from("subscriptions")
             .select("status, current_period_end, trial_end, plan_id")
             .eq("institution_id", profile.institution_id)
             .maybeSingle();
+
+          console.log("[MIDDLEWARE DEBUG] Auth redirect check - Sub:", sub);
+          if (subError) {
+            console.error("[MIDDLEWARE DEBUG] Auth redirect check - Sub Error:", subError);
+          }
 
           let subStatus = sub?.status || "Suspensa por inadimplência";
           const now = new Date();
@@ -190,11 +201,18 @@ export async function updateSession(request: NextRequest) {
   if (user && !isAuthPage && !isRootPage && !isBlockedPage && !isWebhook && !isCron) {
     try {
       // 1. Fetch user role and institution ID
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from("users")
         .select("role:roles(name), institution_id")
         .eq("id", user.id)
         .maybeSingle();
+
+      console.log("[MIDDLEWARE DEBUG] Path:", request.nextUrl.pathname);
+      console.log("[MIDDLEWARE DEBUG] Main check - User ID:", user.id);
+      console.log("[MIDDLEWARE DEBUG] Main check - Profile:", profile);
+      if (profileError) {
+        console.error("[MIDDLEWARE DEBUG] Main check - Profile Error:", profileError);
+      }
 
       if (profile) {
         const roleName = (profile as any)?.role?.name || "gestor";
@@ -202,11 +220,16 @@ export async function updateSession(request: NextRequest) {
         // admin_geral is bypassable (is the global system administrator)
         if (roleName !== "admin_geral" && profile.institution_id) {
           // 2. Fetch institution subscription status
-          const { data: sub } = await supabase
+          const { data: sub, error: subError } = await supabase
             .from("subscriptions")
             .select("status, current_period_end, trial_end, plan_id")
             .eq("institution_id", profile.institution_id)
             .maybeSingle();
+
+          console.log("[MIDDLEWARE DEBUG] Main check - Sub:", sub);
+          if (subError) {
+            console.error("[MIDDLEWARE DEBUG] Main check - Sub Error:", subError);
+          }
 
           let subStatus = sub?.status || "Suspensa por inadimplência";
           const now = new Date();
