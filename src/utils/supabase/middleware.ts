@@ -128,7 +128,7 @@ export async function updateSession(request: NextRequest) {
       }
 
       if (profile) {
-        const roleName = (profile as any)?.role?.name || "gestor";
+        const roleName = (profile as unknown as { role: { name: string } | null } | null)?.role?.name || "gestor";
         
         // admin_geral is bypassable
         if (roleName !== "admin_geral" && profile.institution_id) {
@@ -215,7 +215,7 @@ export async function updateSession(request: NextRequest) {
       }
 
       if (profile) {
-        const roleName = (profile as any)?.role?.name || "gestor";
+        const roleName = (profile as unknown as { role: { name: string } | null } | null)?.role?.name || "gestor";
         
         // admin_geral is bypassable (is the global system administrator)
         if (roleName !== "admin_geral" && profile.institution_id) {

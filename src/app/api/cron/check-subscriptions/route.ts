@@ -24,22 +24,30 @@ export async function GET(req: Request) {
     // -------------------------------------------------------------------------
     // 1. AUTO-SUSPEND OVERDUE SUBSCRIPTIONS
     // -------------------------------------------------------------------------
-    // Find subscriptions that are 'Ativa' or 'trialing' but current_period_end is in the past
-    const { data: expiredSubs, error: fetchExpiredErr } = await supabaseAdmin
+    // Fetch all active, Ativa, or trialing subscriptions to verify expiration
+    const { data: activeSubs, error: fetchExpiredErr } = await supabaseAdmin
       .from("subscriptions")
       .select(`
         id,
         institution_id,
         status,
         current_period_end,
+        trial_end,
+        plan_id,
         plans(name, price_amount)
       `)
-      .in("status", ["Ativa", "active", "trialing"])
-      .lt("current_period_end", new Date().toISOString());
+      .in("status", ["Ativa", "active", "trialing"]);
 
     if (fetchExpiredErr) {
-      console.error("Error fetching expired subscriptions:", fetchExpiredErr);
+      console.error("Error fetching active subscriptions:", fetchExpiredErr);
     }
+
+    const nowStr = new Date().toISOString();
+    const expiredSubs = (activeSubs || []).filter((sub) => {
+      const isTrial = !sub.plan_id;
+      const periodEnd = isTrial ? sub.trial_end : sub.current_period_end;
+      return periodEnd ? periodEnd < nowStr : false;
+    });
 
     let suspendedCount = 0;
 
@@ -70,9 +78,11 @@ export async function GET(req: Request) {
             event_type: "suspension",
             status_before: sub.status,
             status_after: "Suspensa por inadimplência",
-            due_date: sub.current_period_end,
+            due_date: sub.plan_id ? sub.current_period_end : sub.trial_end,
             suspension_date: new Date().toISOString(),
-            suspension_reason: "Falta de pagamento após data de vencimento",
+            suspension_reason: sub.plan_id 
+              ? "Falta de pagamento após data de vencimento" 
+              : "Fim do período de teste gratuito (Trial)",
             amount_paid: 0,
           });
 

@@ -89,12 +89,30 @@ export default function DashboardLayout({
           return;
         }
 
-        const roleName = (finalProfile as any)?.role?.name || "gestor";
+        const finalProfileTyped = finalProfile as unknown as {
+          role?: { name: string } | null;
+          institution_id?: string | null;
+          institutions?: {
+            subscriptions?: {
+              status?: string | null;
+              trial_end?: string | null;
+              current_period_end?: string | null;
+              plan_id?: string | null;
+            } | {
+              status?: string | null;
+              trial_end?: string | null;
+              current_period_end?: string | null;
+              plan_id?: string | null;
+            }[] | null;
+          } | null;
+        } | null;
+
+        const roleName = finalProfileTyped?.role?.name || "gestor";
         setRole(roleName);
 
         // Verificar status da subscrição
         let subStatus = "Ativa";
-        const instData = (finalProfile as any)?.institutions;
+        const instData = finalProfileTyped?.institutions;
         const sub = Array.isArray(instData?.subscriptions)
           ? instData.subscriptions[0]
           : instData?.subscriptions;
@@ -126,6 +144,7 @@ export default function DashboardLayout({
         }
 
         console.log("[LAYOUT DEBUG] Computed subStatus:", subStatus);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (window as any).__subscriptionStatus = subStatus;
 
         // --- Verificações de autorização feitas aqui mesmo, após termos o role ---

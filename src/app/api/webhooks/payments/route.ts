@@ -1,4 +1,4 @@
-import { createClient } from "@/utils/supabase/server";
+import { createAdminClient } from "@/utils/supabase/admin";
 import { NextResponse } from "next/server";
 import crypto from "node:crypto";
 
@@ -53,7 +53,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing reference" }, { status: 400 });
     }
 
-    const supabase = await createClient();
+    const supabase = createAdminClient();
 
     // 3. Handle successful payment
     if (isSuccess) {
