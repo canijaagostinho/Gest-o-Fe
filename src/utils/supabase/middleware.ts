@@ -158,30 +158,13 @@ export async function updateSession(request: NextRequest) {
             subStatus = "Suspensa por inadimplência";
           }
 
-          // If current subscription is blocked, sign them out so they can log in/register a different account
+          // If current subscription is blocked, redirect them to the blocked page so they can pay
           if (subStatus !== "Ativa" && subStatus !== "active") {
-            console.log(`[MIDDLEWARE] Blocked account ${user.id} tried to access auth page. Performing auto-logout.`);
-            await supabase.auth.signOut();
-            
-            // Create a redirect response to the target page to ensure client-side router/cookies are fully aligned
-            const redirectResponse = NextResponse.redirect(request.nextUrl);
-            
-            // Propagate the cookie deletions from supabaseResponse (updated by signOut()) to the redirect response
+            console.log(`[MIDDLEWARE] Blocked account ${user.id} tried to access auth page. Redirecting to blocked page.`);
+            const url = request.nextUrl.clone();
+            url.pathname = "/billing/blocked";
+            const redirectResponse = NextResponse.redirect(url);
             copyCookies(supabaseResponse, redirectResponse);
-            
-            const projectRef = process.env.NEXT_PUBLIC_SUPABASE_URL!.split("//")[1].split(".")[0];
-            const cookiePrefix = `sb-${projectRef}-auth-token`;
-            
-            // Manually set expired cookies as a fallback to ensure immediate browser removal
-            redirectResponse.cookies.set(cookiePrefix, "", { path: "/", maxAge: 0, expires: new Date(0) });
-            redirectResponse.cookies.set(`${cookiePrefix}.0`, "", { path: "/", maxAge: 0, expires: new Date(0) });
-            redirectResponse.cookies.set(`${cookiePrefix}.1`, "", { path: "/", maxAge: 0, expires: new Date(0) });
-            
-            // Explicit delete headers
-            redirectResponse.cookies.delete(cookiePrefix);
-            redirectResponse.cookies.delete(`${cookiePrefix}.0`);
-            redirectResponse.cookies.delete(`${cookiePrefix}.1`);
-            
             return redirectResponse;
           }
         }
